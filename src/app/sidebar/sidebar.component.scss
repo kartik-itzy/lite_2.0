@@ -1,0 +1,54 @@
+.sidebar {
+  background: white;
+  border-right: 1px solid #e5e7eb;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #6b7280;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.sidebar-item:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.sidebar-item.active {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.sidebar-item svg {
+  flex-shrink: 0;
+}
+
+/* Custom scrollbar styling */
+.sidebar nav::-webkit-scrollbar {
+  width: 0px;
+  display: none;
+}
+
+.sidebar nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
+/* Firefox scrollbar styling */
+.sidebar nav {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

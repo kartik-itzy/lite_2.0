@@ -1,4 +1,4 @@
-  import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +9,8 @@ import { InputComponent } from '../components/ui/input/input.component';
 import { AlertComponent } from '../components/ui/alert/alert.component';
 import UtilsForGlobalData from '../Utility/UtilsForGlobalData';
 import * as crypto from 'crypto-js';
+import { DataService } from '../data.service';
+import jwt_decode from 'jwt-decode';
 
 @Component({
   selector: 'app-login',
@@ -251,17 +253,20 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isSubmitting = false;
   loginError = '';
-  passwordHashValue:any = '';
+  passwordHashValue: any = '';
+  jwtTokenID: any;
+  JwtDecode: any;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    public dataServices: DataService,
   ) {
     this.loginForm = this.fb.group({
 
-      email:['',[Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      email: ['dearhb@gmail.com', [Validators.required]],
+      password: ['12345678', [Validators.required, Validators.minLength(6)]],
 
       // customerKey: ['kdnnew', [Validators.required]],
       // username: ['dear', [Validators.required]],
@@ -271,14 +276,14 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.checkExistingAuth();
+    // this.checkExistingAuth();
   }
 
   checkExistingAuth(): void {
     const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     const username = localStorage.getItem('user_email') || sessionStorage.getItem('user_email');
     const customerKey = localStorage.getItem('customer_key') || sessionStorage.getItem('customer_key');
-    
+
     if (token && username && customerKey) {
       this.router.navigate(['/dashboard']);
     }
@@ -293,18 +298,26 @@ export class LoginComponent implements OnInit {
       UtilsForGlobalData.setLocalStorageKey('EmailID', this.loginForm.value.email);
       this.passwordHashValue = crypto.SHA1(this.loginForm.value.password).toString();
 
-      
+      //  this.router.navigate(['/dashboard']);
 
-      // const { customerKey, username, password, rememberMe } = this.loginForm.value;
-      
-      // this.authService.login(customerKey, username, password, rememberMe).then(success => {
-      //   if (success) {
-      //     this.router.navigate(['/dashboard']);
-      //   } else {
-      //     this.loginError = 'Invalid credentials. Please check your customer key, username, and password.';
-      //   }
-      //   this.isSubmitting = false;
-      // });
+      this.dataServices.getData(JSON.stringify(
+        {
+          "email": this.loginForm.value.email,
+          "password": this.passwordHashValue,
+          "user_type": "client"
+        }))
+        .subscribe((data: any) => {
+          this.jwtTokenID = data.jwt;
+          UtilsForGlobalData.setLocalStorageKey('JwtToken', this.jwtTokenID);
+          this.JwtDecode = jwt_decode(this.jwtTokenID);
+          UtilsForGlobalData.setLocalStorageKey('Client_tenant_id', this.JwtDecode.tenant_id);
+          UtilsForGlobalData.setLocalStorageKey('17', 'Client_Login');
+          this.router.navigate(['/dashboard']);
+
+        }, (error: any) => {
+          // this.toastr.error(error.error + "   Email ID OR  Password ", "ACCESS DENIED");
+        });
+
     } else {
       this.markFormGroupTouched();
     }

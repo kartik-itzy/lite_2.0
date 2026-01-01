@@ -1,0 +1,183 @@
+<div class="sidebar w-64 h-screen flex flex-col">
+    <!-- Logo and Store Info -->
+    <div class="p-6 border-b border-gray-200 flex-shrink-0">
+        <div class="flex items-center space-x-3 mb-4">
+            <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-semibold text-gray-900">PALM</h1>
+                <p class="text-sm text-gray-500">Main Store</p>
+            </div>
+        </div>
+        <div class="text-xs text-gray-500">
+            <p>845 Euclid Avenue, CA</p>
+        </div>
+    </div>
+
+    <!-- Navigation - Scrollable -->
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <!-- MAIN Section -->
+        <div class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">MAIN</h3>
+            <div class="space-y-1">
+                <a routerLink="/dashboard" routerLinkActive="active" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('dashboard') | sanitizeHtml"></span>
+                    Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- DEMO Section -->
+        <div class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">DEMO</h3>
+            <div class="space-y-1">
+                <!-- Demo Components -->
+                <div class="relative">
+                    <button (click)="toggleDemoMenu()"
+                        class="flex items-center justify-between w-full px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg sidebar-item"
+                        [class.active]="isDemoMenuOpen">
+                        <div class="flex items-center">
+                            <span class="mr-3" [innerHTML]="getStaticIcon('components') | sanitizeHtml"></span>
+                            Components
+                        </div>
+                        <span [innerHTML]="getStaticIcon('chevrondown') | sanitizeHtml" 
+                              class="transition-transform duration-200" 
+                              [class.rotate-180]="isDemoMenuOpen"></span>
+                    </button>
+                    <!-- Sub-menu -->
+                    <div *ngIf="isDemoMenuOpen" class="ml-4 mt-1 space-y-1" [@slideDown]="isDemoMenuOpen">
+                        <a routerLink="/demo/components" routerLinkActive="active"
+                            class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg sidebar-item">
+                            <span class="mr-2" [innerHTML]="getStaticIcon('uicomponents') | sanitizeHtml"></span>
+                            UI Components
+                        </a>
+                        <a routerLink="/demo/modal" routerLinkActive="active"
+                            class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg sidebar-item">
+                            <span class="mr-2" [innerHTML]="getStaticIcon('modaldemo') | sanitizeHtml"></span>
+                            Modal Demo
+                        </a>
+                        <a routerLink="/demo/forms" routerLinkActive="active"
+                            class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg sidebar-item">
+                            <span class="mr-2" [innerHTML]="getStaticIcon('formexamples') | sanitizeHtml"></span>
+                            Form Examples
+                        </a>
+                        <a routerLink="/demo/tabs" routerLinkActive="active"
+                            class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg sidebar-item">
+                            <span class="mr-2" [innerHTML]="getStaticIcon('tabcomponent') | sanitizeHtml"></span>
+                            Tab Component
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+  
+        <!-- <div class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">FINANCE</h3>
+            <div class="space-y-1">
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('accounts') | sanitizeHtml"></span>
+                    Accounts
+                </a>
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('sales') | sanitizeHtml"></span>
+                    Sales
+                </a>
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('purchases') | sanitizeHtml"></span>
+                    Purchases
+                </a>
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('paymentmethod') | sanitizeHtml"></span>
+                    Payment Method
+                </a>
+            </div>
+        </div>
+    
+        <div class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">PHYSICAL ASSET</h3>
+            <div class="space-y-1">
+                <a routerLink="/stock" routerLinkActive="active" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('stocks') | sanitizeHtml"></span>
+                    Stocks
+                </a>
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('peripherals') | sanitizeHtml"></span>
+                    Peripherals
+                </a>
+            </div>
+        </div>
+    
+        <div class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">REPORT</h3>
+            <div class="space-y-1">
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('analytics') | sanitizeHtml"></span>
+                    Analytics
+                </a>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">CUSTOMER SUPPORT</h3>
+            <div class="space-y-1">
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('helpcenter') | sanitizeHtml"></span>
+                    Help Center
+                </a>
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('settings') | sanitizeHtml"></span>
+                    Settings
+                </a>
+            </div>
+        </div> -->
+
+        <!-- Dynamic Sidebar from API -->
+        <div *ngFor="let group of dynamicMenu" class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                {{ group.title }}
+            </h3>
+
+            <div class="space-y-1">
+                <a *ngFor="let item of group.items" [routerLink]="item.url" routerLinkActive="active"
+                    class="sidebar-item flex items-center">
+                    <span class="mr-3 w-5 h-5 flex items-center justify-center" [innerHTML]="item.icon | sanitizeHtml"></span>
+                    {{ item.name }}
+                </a>
+            </div>
+        </div>
+           <!-- RETAIL Section -->
+        <div class="mb-6">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">RETAIL</h3>
+            <div class="space-y-1">
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('orders') | sanitizeHtml"></span>
+                    Orders
+                </a>
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('customers') | sanitizeHtml"></span>
+                    Customers
+                </a>
+                <a routerLink="/products" routerLinkActive="active" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('products') | sanitizeHtml"></span>
+                    Products
+                </a>
+                <a href="#" class="sidebar-item">
+                    <span class="mr-3" [innerHTML]="getStaticIcon('stafflist') | sanitizeHtml"></span>
+                    Staff List
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-gray-200 flex-shrink-0">
+        <div class="text-xs text-gray-500">
+            <p>RHBUS v1.0</p>
+            <p>Built with ❤️ for retail</p>
+        </div>
+    </div>
+</div>

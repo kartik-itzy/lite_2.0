@@ -16,46 +16,46 @@ export const routes: Routes = [
   { 
     path: 'demo', 
     component: DemoComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'demo/components', 
     component: ComponentsDemoComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'demo/modal', 
     component: ModalDemoComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'demo/forms', 
     component: FormsDemoComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'demo/tabs', 
     component: TabDemoComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'dashboard', 
     component: DashboardComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'stock', 
     component: StockComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'products', 
     component: ProductsComponent,
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   },
   { 
     path: 'sales-order-detail', 
     loadComponent: () => import('./sales-order-detail/sales-order-detail.component').then(m => m.SalesOrderDetailComponent),
-    canActivate: [AuthGuard]
+    // canActivate: [AuthGuard]
   }
 ];
