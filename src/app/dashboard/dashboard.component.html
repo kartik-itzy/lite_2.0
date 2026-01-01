@@ -1,0 +1,148 @@
+<div class="p-6 space-y-6">
+  <app-greeting-card [data]="greetingData"></app-greeting-card>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <div class="lg:col-span-2">
+      <app-chart-card [data]="cashflowData">
+        <div class="relative w-full h-64">
+          <div #cashflowChart class="w-full h-full"></div>
+        </div>
+      </app-chart-card>
+    </div>
+
+    <div class="bg-white rounded-lg p-6 shadow-sm flex flex-col">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold text-gray-900">Expenses</h3>
+        <app-dropdown [data]="expensesDropdownData" (selectionChange)="onExpensesPeriodChange($event)"></app-dropdown>
+      </div>
+      
+      <div class="flex items-center mb-6">
+        <div class="expenses-chart-container mr-8">
+          <div #expensesChart class="expenses-chart"></div>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-xs text-gray-500">Total Expense</div>
+            <div class="text-lg font-bold text-gray-900">$132.34</div>
+          </div>
+        </div>
+        
+        <div class="flex-1 space-y-2 text-sm relative z-0">
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+            <span>Internet</span>
+            <span class="ml-auto font-medium">45%</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+            <span>Electricity</span>
+            <span class="ml-auto font-medium">26%</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-blue-400 rounded-full mr-2"></div>
+            <span>Transactions</span>
+            <span class="ml-auto font-medium">22%</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+            <span>Rental Cost</span>
+            <span class="ml-auto font-medium">8%</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+            <span>Foods</span>
+            <span class="ml-auto font-medium">3%</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+            <span>Other</span>
+            <span class="ml-auto font-medium">2%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="border-t pt-4">
+        <h4 class="text-sm font-semibold text-gray-900 mb-3">TOP EXPENSE</h4>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border">
+            <div class="flex items-center">
+              <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+              <span class="text-sm">Internet</span>
+            </div>
+            <span class="text-sm font-medium">$113.64</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border">
+            <div class="flex items-center">
+              <div class="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+              <span class="text-sm">Transaction</span>
+            </div>
+            <span class="text-sm font-medium">$113.64</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border">
+            <div class="flex items-center">
+              <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+              <span class="text-sm">Electricity</span>
+            </div>
+            <span class="text-sm font-medium">$113.64</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border">
+            <div class="flex items-center">
+              <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+              <span class="text-sm">Rental Cost</span>
+            </div>
+            <span class="text-sm font-medium">$113.64</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-1">
+      <app-chart-card [data]="incomeExpenseData">
+        <div class="relative w-full h-64">
+          <div #incomeExpenseChart class="w-full h-full"></div>
+        </div>
+      </app-chart-card>
+    </div>
+
+    <div class="bg-white rounded-lg p-6 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Customers</h3>
+        <app-dropdown [data]="customersDropdownData" (selectionChange)="onCustomersPeriodChange($event)"></app-dropdown>
+      </div>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-blue-600">21</div>
+          <div class="text-sm text-gray-600">New customers</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-gray-600">142</div>
+          <div class="text-sm text-gray-600">Returning customers</div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span>36.52% New customers</span>
+            <span>36.52%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-600 h-2 rounded-full" style="width: 36.52%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span>61.41% Returning customers</span>
+            <span>61.41%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-gray-600 h-2 rounded-full" style="width: 61.41%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-progress-card [data]="stockData"></app-progress-card>
+
+    <app-list-card [data]="productsData" (itemAction)="onProductAction($event)"></app-list-card>
+
+  </div>
+</div> 
