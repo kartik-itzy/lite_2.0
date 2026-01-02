@@ -67,7 +67,7 @@ export class SidebarComponent implements OnInit {
           const manualIntegrationItem = {
             id: 9999,
             name: 'Line Integration',
-            url: '/crafted/retail/LineIntegration',
+            url: 'crafted/retail/LineIntegration',
             ThaiName: 'Line การเชื่อมต่อ & การตั้งค่า ภายนอก',
           };
 
@@ -84,10 +84,6 @@ export class SidebarComponent implements OnInit {
             url: 'crafted/retail/TransactionsHistory',
             ThaiName: 'Transactions History',
           };
-
-          if (!menu['integration']) {
-            menu['integration'] = [];
-          }
 
           menu['integration'].push(manualIntegrationItem);
           menu['brand'].push(manualIntegrationItem3);
