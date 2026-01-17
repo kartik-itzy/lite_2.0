@@ -56,6 +56,7 @@ import { CouponPlanComponent } from './modules/Loyalty-and-reward/coupon-plan/co
 import { RedeemPlanComponent } from './modules/Loyalty-and-reward/redeem-plan/redeem-plan.component';
 import { ApplyCouponComponent } from './modules/Loyalty-and-reward/apply-coupon/apply-coupon.component';
 import { CardComponent } from './modules/Others/card/card.component';
+import { BrandDetailsComponent } from './modules/Brand/brand-details/brand-details.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -160,6 +161,7 @@ export const routes: Routes = [
   { path: 'crafted/retail/client_stats', component: StatsComponent },
 
   { path: 'crafted/retail/Brand', component: BrandComponent },
+  { path:'crafted/retail/Brand-details/:id', component:BrandDetailsComponent},
   {
     path: 'crafted/retail/loyaltyplanByBrand',
     component: LoyaltyPlanByBrandComponent,

@@ -4,11 +4,14 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { HeaderComponent } from './header/header.component';
 import { filter } from 'rxjs/operators';
+import { NotificationContainerComponent } from "./components/ui/notification-container/notification-container.component";
+import { ConfirmationContainerComponent } from './components/ui/confirmation-container/confirmation-container.component';
+
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, SidebarComponent, HeaderComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent, HeaderComponent, NotificationContainerComponent,ConfirmationContainerComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

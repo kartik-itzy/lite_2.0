@@ -100,7 +100,7 @@ export class SidebarComponent implements OnInit {
             }))
           }));
           
-          console.log('Dynamic Menu:', this.dynamicMenu);
+          // console.log('Dynamic Menu:', this.dynamicMenu);
         }
       });
   }
@@ -108,7 +108,7 @@ export class SidebarComponent implements OnInit {
   getIcon(name: string): string {
     const formatted = name.toLowerCase().replace(/\s+/g, '');
     const icon = HEROICONS[formatted] || HEROICONS['default'];
-    console.log(`Icon for "${name}" (${formatted}):`, icon ? 'Found' : 'Using default');
+    // console.log(`Icon for "${name}" (${formatted}):`, icon ? 'Found' : 'Using default');
     return icon;
   }
 

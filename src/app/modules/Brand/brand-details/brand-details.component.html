@@ -1,0 +1,229 @@
+<div class="min-h-screen bg-gray-50 scroll-smooth">
+  <!-- Header Section -->
+
+  <app-page-header
+    [title]="'Brand Details'"
+    [subtitle]="'Here you can Change the details of the brand'"
+    [breadcrumbs]="breadcrumbItems"
+    (saveClick)="createNewBrand()"
+  ></app-page-header>
+
+  <div class="bg-gray-50 flex flex-col gap-3 p-3">
+    <app-card variant="flat" size="lg" class="h-full">
+      <app-tab
+        [tabs]="viewTabs"
+        [selectedTabId]="currentView"
+        (tabChange)="onViewChange($event)"
+      >
+      </app-tab>
+    </app-card>
+    <ng-container [ngSwitch]="currentView">
+      <div class="flex gap-3" *ngSwitchCase="'details'">
+        <div class="flex flex-col w-3/12 h-72 gap-3">
+          <app-card variant="flat">
+            <div class="flex gap-4 my-4 items-center">
+              <!-- <app-badge>100001</app-badge> -->
+              <app-badge class="m">{{
+                brandDetailsForm.value.brand
+              }}</app-badge>
+            </div>
+            <div class="space-y-3 flex flex-col">
+              <div class="flex gap-2">
+                <div
+                  *ngIf="!brandDetailsForm.value.imagePath"
+                  class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600"
+                >
+                  Please add the Image
+                </div>
+                <img
+                  *ngIf="brandDetailsForm.value.imagePath"
+                  class="h-44 w-56 rounded-xl flex items-center justify-center"
+                  [src]="brandDetailsForm.value.imagePath"
+                />
+                <div
+                  class="flex w-1/5 flex-col gap-6 justify-center items-center"
+                >
+                  <app-button variant="secondary">✏️</app-button>
+                  <app-button variant="secondary">🗑️</app-button>
+                </div>
+              </div>
+            </div>
+          </app-card>
+        </div>
+        <div class="flex flex-col h-full w-9/12 gap-3">
+          <app-card>
+            <div class="p-2" [formGroup]="brandDetailsForm">
+              <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                Brand Details
+              </h3>
+              <div class="flex w-full mt-3 py-2 gap-6">
+                <app-input
+                  class="w-full"
+                  formControlName="brand"
+                  size="sm"
+                  label="Brand"
+                  placeholder="Enter the Description price "
+                ></app-input>
+                <app-input
+                  class="w-full"
+                  formControlName="description"
+                  size="sm"
+                  label="Description"
+                  placeholder="Enter the Description price "
+                ></app-input>
+              </div>
+              <div class="flex w-full mt-3 py-2 gap-6">
+                <app-select
+                  label="Show Point"
+                  [options]="showPointsOptions"
+                  placeholder="Select option"
+                  class="w-full"
+                  size="sm"
+                  formControlName="showPoint"
+                >
+                </app-select>
+                <app-select
+                  label="Current Status"
+                  [options]="currentStatusOptions"
+                  placeholder="Select option"
+                  class="w-full"
+                  size="sm"
+                  formControlName="currentStatus"
+                >
+                </app-select>
+              </div>
+              <div class="flex w-full mt-3 py-2 gap-6">
+                <app-input
+                  class="w-full"
+                  formControlName="backgroundColor"
+                  size="sm"
+                  label="Background Color"
+                  type="email"
+                  placeholder="Select the background Color  "
+                ></app-input>
+                <app-input
+                  class="w-full"
+                  formControlName="conversionFactor"
+                  size="sm"
+                  label="Conversion Factor"
+                  helperText="this is the helper text "
+                  placeholder="Select the CF "
+                ></app-input>
+              </div>
+              <div class="flex w-full mt-3 py-2 gap-6 justify-end">
+                <app-button (clicked)="saveBrandDetails()">Save</app-button>
+              </div>
+            </div>
+          </app-card>
+        </div>
+      </div>
+      <div *ngSwitchCase="'transaction'">
+        <app-table
+          [columns]="tableColumns"
+          [rows]="transactionDataSource"
+          [currentPage]="currentPage"
+          [config]="tableConfig"
+          [totalItems]="transactionDataSource.length"
+          (pageChange)="onPageChange($event)"
+          [pageSize]="5"
+          (rowClick)="onRowClick($event)"
+        ></app-table>
+      </div>
+      <div *ngSwitchCase="'memberLevel'">
+        <app-table
+          [columns]="tableColumnsForBrand"
+          [rows]="memberLevelByBrandDataSource"
+          [currentPage]="currentPage"
+          [config]="tableConfig"
+          [totalItems]="memberLevelByBrandDataSource.length"
+          [pageSize]="5"
+          (pageChange)="onPageChange($event)"
+          (rowClick)="onRowClick2($event)"
+        >
+          <ng-content></ng-content>
+
+          <!-- IMAGE COLUMN -->
+          <ng-template appTableCell="imagepath" let-value let-row="row">
+            <div class="flex items-center justify-center">
+              <img
+                *ngIf="value"
+                [src]="value"
+                alt="level-image"
+                loading="lazy"
+                class="h-12 w-16 object-contain rounded border"
+                (click)="$event.stopPropagation()"
+              />
+              <span *ngIf="!value" class="text-gray-400 text-sm">No Image</span>
+            </div>
+          </ng-template>
+
+          <!-- ACTIONS COLUMN -->
+          <ng-template appTableCell="actions" let-row="row">
+            <div class="flex items-center justify-center gap-2 w-full">
+              <!-- Edit -->
+              <button
+                type="button"
+                (click)="onEdit(row); $event.stopPropagation()"
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+                title="Edit Brand"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m16.862 4.487 1.687-1.688a1.875 1.875
+                   0 1 1 2.652 2.652L6.832 19.82
+                   a4.5 4.5 0 0 1-1.897 1.13l-2.685.8
+                   .8-2.685a4.5 4.5 0 0 1 1.13-1.897
+                   L16.863 4.487Z"
+                  />
+                </svg>
+              </button>
+
+              <!-- Delete -->
+              <button
+                type="button"
+                (click)="onDelete(row); $event.stopPropagation()"
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                title="Delete Brand"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
+                   c.342.052.682.107 1.022.166m-1.022-.165
+                   L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077
+                   H8.084a2.25 2.25 0 0 1-2.244-2.077
+                   L4.772 5.79m14.456 0
+                   a48.108 48.108 0 0 0-3.478-.397m-12 .562
+                   c.34-.059.68-.114 1.022-.165m0 0
+                   a48.11 48.11 0 0 1 3.478-.397m7.5 0
+                   v-.916c0-1.18-.91-2.164-2.09-2.201
+                   a51.964 51.964 0 0 0-3.32 0
+                   c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0
+                   a48.667 48.667 0 0 0-7.5 0"
+                  />
+                </svg>
+              </button>
+            </div>
+          </ng-template>
+        </app-table>
+      </div>
+    </ng-container>
+  </div>
+</div>
