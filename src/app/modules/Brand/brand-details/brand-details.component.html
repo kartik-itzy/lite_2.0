@@ -1,211 +1,169 @@
-<div class="min-h-screen bg-gray-50 scroll-smooth">
-  <!-- Header Section -->
+<app-page-header [breadcrumbs]="breadcrumbItems" [title]="brandId"></app-page-header>
 
-  <app-page-header
-    [title]="'Brand Details'"
-    [subtitle]="'Here you can Change the details of the brand'"
-    [breadcrumbs]="breadcrumbItems"
-    (saveClick)="createNewBrand()"
-  ></app-page-header>
-
-  <div class="bg-gray-50 flex flex-col gap-3 p-3">
-    <app-card variant="flat" size="lg" class="h-full">
-      <app-tab
-        [tabs]="viewTabs"
-        [selectedTabId]="currentView"
-        (tabChange)="onViewChange($event)"
-      >
+<div class="p-6">
+  <app-card variant="flat" size="lg" class="h-full">
+    <div class="w-full flex justify-between">
+      <app-tab [tabs]="viewTabs" [selectedTabId]="currentView" (tabChange)="onViewChange($event)">
       </app-tab>
-    </app-card>
-    <ng-container [ngSwitch]="currentView">
-      <div class="flex gap-3" *ngSwitchCase="'details'">
-        <div class="flex flex-col w-3/12 h-72 gap-3">
-          <app-card variant="flat">
-            <div class="flex gap-4 my-4 items-center">
-              <!-- <app-badge>100001</app-badge> -->
-              <app-badge class="m">{{
-                brandDetailsForm.value.brand
-              }}</app-badge>
-            </div>
-            <div class="space-y-3 flex flex-col">
-              <div class="flex gap-2">
-                <div
-                  *ngIf="!brandDetailsForm.value.imagePath"
-                  class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600"
-                >
-                  Please add the Image
-                </div>
-                <img
-                  *ngIf="brandDetailsForm.value.imagePath"
-                  class="h-44 w-56 rounded-xl flex items-center justify-center"
-                  [src]="brandDetailsForm.value.imagePath"
-                />
-                <div
-                  class="flex w-1/5 flex-col gap-6 justify-center items-center"
-                >
-                  <app-button variant="secondary">✏️</app-button>
-                  <app-button variant="secondary">🗑️</app-button>
-                </div>
-              </div>
-            </div>
-          </app-card>
-        </div>
-        <div class="flex flex-col h-full w-9/12 gap-3">
-          <app-card>
-            <div class="p-2" [formGroup]="brandDetailsForm">
-              <h3 class="text-lg font-semibold text-gray-700 mb-4">
-                Brand Details
-              </h3>
-              <div class="flex w-full mt-3 py-2 gap-6">
-                <app-input
-                  class="w-full"
-                  formControlName="brand"
-                  size="sm"
-                  label="Brand"
-                  placeholder="Enter the Description price "
-                ></app-input>
-                <app-input
-                  class="w-full"
-                  formControlName="description"
-                  size="sm"
-                  label="Description"
-                  placeholder="Enter the Description price "
-                ></app-input>
-              </div>
-              <div class="flex w-full mt-3 py-2 gap-6">
-                <app-select
-                  label="Show Point"
-                  [options]="showPointsOptions"
-                  placeholder="Select option"
-                  class="w-full"
-                  size="sm"
-                  formControlName="showPoint"
-                >
-                </app-select>
-                <app-select
-                  label="Current Status"
-                  [options]="currentStatusOptions"
-                  placeholder="Select option"
-                  class="w-full"
-                  size="sm"
-                  formControlName="currentStatus"
-                >
-                </app-select>
-              </div>
-              <div class="flex w-full mt-3 py-2 gap-6">
-                <app-input
-                  class="w-full"
-                  formControlName="backgroundColor"
-                  size="sm"
-                  label="Background Color"
-                  type="email"
-                  placeholder="Select the background Color  "
-                ></app-input>
-                <app-input
-                  class="w-full"
-                  formControlName="conversionFactor"
-                  size="sm"
-                  label="Conversion Factor"
-                  helperText="this is the helper text "
-                  placeholder="Select the CF "
-                ></app-input>
-              </div>
-              <div class="flex w-full mt-3 py-2 gap-6 justify-end">
-                <app-button (clicked)="saveBrandDetails()">Save</app-button>
-              </div>
-            </div>
-          </app-card>
-        </div>
-      </div>
-      <div *ngSwitchCase="'transaction'">
-        <app-table
-          [columns]="tableColumns"
-          [rows]="transactionDataSource"
-          [currentPage]="currentPage"
-          [config]="tableConfig"
-          [totalItems]="transactionDataSource.length"
-          (pageChange)="onPageChange($event)"
-          [pageSize]="5"
-          (rowClick)="onRowClick($event)"
-        ></app-table>
-      </div>
-      <div *ngSwitchCase="'memberLevel'">
-        <app-table
-          [columns]="tableColumnsForBrand"
-          [rows]="memberLevelByBrandDataSource"
-          [currentPage]="currentPage"
-          [config]="tableConfig"
-          [totalItems]="memberLevelByBrandDataSource.length"
-          [pageSize]="5"
-          (pageChange)="onPageChange($event)"
-          (rowClick)="onRowClick2($event)"
-        >
-          <ng-content></ng-content>
+      <app-button (clicked)="openModal()" *ngIf="currentView==='memberLevel'">
+        Add Member Level
+      </app-button>
+    </div>
+  </app-card>
 
-          <!-- IMAGE COLUMN -->
-          <ng-template appTableCell="imagepath" let-value let-row="row">
+  <div [ngSwitch]="currentView" class="mt-6">
+    <!-- Brand Details View -->
+    <div class="flex gap-3" *ngSwitchCase="'details'">
+      <div class="flex flex-col w-3/12 h-72 gap-3">
+        <app-card variant="flat">
+          <div class="flex gap-4 my-4 items-center">
+            <!-- <app-badge>100001</app-badge> -->
+            <app-badge class="m">{{
+              brandDetailsForm.value.brand
+              }}</app-badge>
+          </div>
+          <div class="space-y-3 flex flex-col">
+            <div class="flex gap-2">
+              <div *ngIf="!brandDetailsForm.value.imagePath"
+                class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
+                Please add the Image
+              </div>
+              <img *ngIf="brandDetailsForm.value.imagePath"
+                class="h-44 w-56 rounded-xl flex items-center justify-center"
+                [src]="brandDetailsForm.value.imagePath" />
+              <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
+                <app-button variant="secondary">✏️</app-button>
+                <app-button variant="secondary">🗑️</app-button>
+              </div>
+            </div>
+          </div>
+        </app-card>
+      </div>
+      <div class="flex flex-col h-full w-9/12 gap-3">
+        <app-card>
+          <div class="p-2" [formGroup]="brandDetailsForm">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+              Brand Details
+            </h3>
+            <div class="flex w-full mt-3 py-2 gap-6">
+              <app-input class="w-full" formControlName="brand" size="sm" label="Brand"
+                placeholder="Enter the Description price "></app-input>
+              <app-input class="w-full" formControlName="description" size="sm" label="Description"
+                placeholder="Enter the Description price "></app-input>
+            </div>
+            <div class="flex w-full mt-3 py-2 gap-6">
+              <app-select label="Show Point" [options]="showPointsOptions" placeholder="Select option" class="w-full"
+                size="sm" formControlName="showPoint">
+              </app-select>
+              <app-select label="Current Status" [options]="currentStatusOptions" placeholder="Select option"
+                class="w-full" size="sm" formControlName="currentStatus">
+              </app-select>
+            </div>
+            <div class="flex w-full mt-3 py-2 gap-6">
+              <app-input class="w-full" formControlName="backgroundColor" size="sm" label="Background Color"
+                type="email" placeholder="Select the background Color  "></app-input>
+              <app-input class="w-full" formControlName="conversionFactor" size="sm" label="Conversion Factor"
+                helperText="this is the helper text " placeholder="Select the CF "></app-input>
+            </div>
+            <div class="flex w-full mt-3 py-2 gap-6 justify-end">
+              <app-button (clicked)="saveBrandDetails()">Save</app-button>
+            </div>
+          </div>
+        </app-card>
+      </div>
+    </div>
+
+
+    <!-- Transaction History View -->
+    <div *ngSwitchCase="'transaction'">
+      <app-card>
+        <div class="p-2">
+          <div class="mb-2">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Analytics Summary</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-sm text-blue-600 font-medium">Total Transactions</div>
+                <div class="text-2xl font-bold text-blue-900 mt-1">
+                  {{ analytics.totalTransactions }}
+                </div>
+              </div>
+              <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-sm text-green-600 font-medium">Total Topup Amount</div>
+                <div class="text-2xl font-bold text-green-900 mt-1">
+                  {{ analytics.totalTopupAmount | number : '1.2-2' }}
+                </div>
+              </div>
+              <div class="bg-purple-50 p-4 rounded-lg">
+                <div class="text-sm text-purple-600 font-medium">Total Points</div>
+                <div class="text-2xl font-bold text-purple-900 mt-1">
+                  {{ analytics.totalPoints | number : '1.0-0' }}
+                </div>
+              </div>
+              <div class="bg-orange-50 p-4 rounded-lg">
+                <div class="text-sm text-orange-600 font-medium">Total Point Value</div>
+                <div class="text-2xl font-bold text-orange-900 mt-1">
+                  {{ analytics.totalPointValue | number : '1.2-2' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <app-table [columns]="tableColumns" [rows]="transactionDataSource" [config]="tableConfig"
+            (rowClick)="onRowClick($event)" (pageChange)="onPageChange($event)">
+          </app-table>
+        </div>
+      </app-card>
+    </div>
+
+    <!-- Member Level By Brand View -->
+    <div *ngSwitchCase="'memberLevel'">
+      <app-card>
+        <div class="">
+          <!-- <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Member Levels</h3>
+            <app-button (click)="createNewLevel()" variant="primary">
+              Add New Level
+            </app-button>
+          </div> -->
+
+          <div *ngIf="isLoadingMemberLevel" class="flex justify-center py-16">
+            <app-loading [type]="'spinner'" [size]="'lg'" [text]="'Loading Member Levels...'"></app-loading>
+          </div>
+
+          <div *ngIf="!isLoadingMemberLevel">
+            <app-table [columns]="tableColumnsForBrand" [rows]="memberLevelByBrandDataSource" [config]="tableConfig"
+              (rowClick)="onRowClick2($event)" (pageChange)="onPageChange($event)">
+                 <ng-template appTableCell="imagepath" let-value let-row="row">
             <div class="flex items-center justify-center">
-              <img
-                *ngIf="value"
-                [src]="value"
-                alt="level-image"
-                loading="lazy"
-                class="h-12 w-16 object-contain rounded border"
-                (click)="$event.stopPropagation()"
-              />
+              <img *ngIf="value" [src]="value" alt="level-image" loading="lazy"
+                class="h-12 w-16 object-contain rounded-md border" (click)="$event.stopPropagation()" />
               <span *ngIf="!value" class="text-gray-400 text-sm">No Image</span>
             </div>
           </ng-template>
 
-          <!-- ACTIONS COLUMN -->
-          <ng-template appTableCell="actions" let-row="row">
-            <div class="flex items-center justify-center gap-2 w-full">
-              <!-- Edit -->
-              <button
-                type="button"
-                (click)="onEdit(row); $event.stopPropagation()"
-                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
-                title="Edit Brand"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m16.862 4.487 1.687-1.688a1.875 1.875
+              <ng-template appTableCell="actions" let-row="row">
+                <div class="flex items-center justify-center gap-2 w-full">
+                  <!-- Edit -->
+                  <button type="button" (click)="onEdit(row); $event.stopPropagation()"
+                    class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+                    title="Edit Brand">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875
                    0 1 1 2.652 2.652L6.832 19.82
                    a4.5 4.5 0 0 1-1.897 1.13l-2.685.8
                    .8-2.685a4.5 4.5 0 0 1 1.13-1.897
-                   L16.863 4.487Z"
-                  />
-                </svg>
-              </button>
+                   L16.863 4.487Z" />
+                    </svg>
+                  </button>
 
-              <!-- Delete -->
-              <button
-                type="button"
-                (click)="onDelete(row); $event.stopPropagation()"
-                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
-                title="Delete Brand"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
+                  <!-- Delete -->
+                  <button type="button" (click)="onDelete(row); $event.stopPropagation()"
+                    class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                    title="Delete Brand">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
                    c.342.052.682.107 1.022.166m-1.022-.165
                    L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077
                    H8.084a2.25 2.25 0 0 1-2.244-2.077
@@ -216,14 +174,103 @@
                    v-.916c0-1.18-.91-2.164-2.09-2.201
                    a51.964 51.964 0 0 0-3.32 0
                    c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0
-                   a48.667 48.667 0 0 0-7.5 0"
-                  />
-                </svg>
-              </button>
-            </div>
-          </ng-template>
-        </app-table>
-      </div>
-    </ng-container>
+                   a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                  </button>
+                </div>
+              </ng-template>
+            </app-table>
+          </div>
+        </div>
+      </app-card>
+    </div>
   </div>
 </div>
+
+<!-- Member Level Modal -->
+<app-modal [isOpen]="isModalOpen" [config]="{
+    title: isEditMode ? 'Edit Member Level' : 'Add New Member Level',
+    size: 'xl',
+    showCloseButton: true,
+    closeOnBackdropClick: true
+  }" (closeModal)="closeModal()">
+  <form [formGroup]="memberLevelDetailsForm">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- <label class=" text-sm font-medium text-gray-700 "></label> -->
+      <app-input size="sm" label="Member Level Code" formControlName="memberlevelCode" type="number"
+        placeholder="Enter level code" [disabled]="isEditMode"></app-input>
+
+      <!-- <label class=" text-sm font-medium text-gray-700 ">Description</label> -->
+      <app-input size="sm" label="Description" formControlName="Description"
+        placeholder="Enter description"></app-input>
+
+      <!-- <label class=" text-sm font-medium text-gray-700 "></label> -->
+      <app-input size="sm" label="Min Points" formControlName="MinPoints" type="number"
+        placeholder="Enter min points"></app-input>
+
+      <!-- <label class=" text-sm font-medium text-gray-700 ">Max Points</label> -->
+      <app-input size="sm" label="Max Points" formControlName="MaxPoints" type="number"
+        placeholder="Enter max points"></app-input>
+
+      <!-- <label class=" text-sm font-medium text-gray-700 ">Next Level Label</label> -->
+      <app-input size="sm" label="Next Level Label" formControlName="NextLevelLabel"
+        placeholder="Enter next level label"></app-input>
+
+
+
+      <!-- <label class=" text-sm font-medium text-gray-700 ">Loyalty Code</label> -->
+      <app-select size="sm" label="Loyalty Code" formControlName="LoyaltyCode" [options]="loyaltyDatasource"
+        placeholder="Select loyalty code"></app-select>
+
+      <!-- <label class=" text-sm font-medium text-gray-700 ">Redeem Code</label> -->
+      <app-select size="sm" label="Redeem Code" formControlName="RedeemCode" [options]="redeemDatasource"
+        placeholder="Select redeem code"></app-select>
+
+      <!-- <label class=" text-sm font-medium text-gray-700 ">Topup Code</label> -->
+      <app-select size="sm" label="Topup Code" formControlName="TopupCode" [options]="topupCodeDatasource"
+        placeholder="Select topup code"></app-select>
+
+    </div>
+
+    <div class="mt-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Member Level Image</label>
+
+      <div class="flex items-start gap-4">
+        <div class="flex-1">
+          <input type="file" accept="image/*" (change)="onDetailsImageSelected($event)" #fileInput
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+          <p class="mt-1 text-xs text-gray-500">PNG, JPG or JPEG (MAX. 1MB)</p>
+        </div>
+
+        <div *ngIf="memberLevelDetailsForm.get('imagepath')?.value" class="flex flex-col items-center gap-2">
+          <img [src]="getImageSource(memberLevelDetailsForm.get('imagepath')?.value)" (error)="onImageError($event)"
+            alt="Preview" class="h-20 w-20 object-cover rounded border border-gray-200" />
+          <button type="button" (click)="deleteDetailsImage()"
+            class="text-xs text-red-600 hover:text-red-800 font-medium">
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+  </form>
+  <div class="flex gap-4" modal-footer>
+    <app-button (click)="closeModal()" variant="secondary" [disabled]="isSavingMemberLevel">
+        Cancel
+      </app-button>
+    <app-button (click)="saveMemberLevel()" variant="primary" [disabled]="isSavingMemberLevel">
+      <span *ngIf="!isSavingMemberLevel">{{ isEditMode ? 'Update' : 'Save' }}</span>
+      <span *ngIf="isSavingMemberLevel" class="flex items-center gap-2">
+        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        {{ isEditMode ? 'Updating...' : 'Saving...' }}
+      </span>
+    </app-button>
+  </div>
+</app-modal>

@@ -18,6 +18,19 @@
   <div class="px-6 pt-4 max-w-full">
     <app-table [columns]="tableColumns" [rows]="brandDataSource" [config]="tableConfig"
       (rowClick)="onRowClick($event)">
+       <ng-template appTableCell="imagepath" let-value let-row="row">
+            <div class="flex  ">
+              <img
+                *ngIf="value"
+                [src]="value"
+                alt="level-image"
+                loading="lazy"
+                class="h-12 w-16 object-contain rounded-md border"
+                (click)="$event.stopPropagation()"
+              />
+              <span *ngIf="!value" class="text-gray-400 text-sm">No Image</span>
+            </div>
+          </ng-template>
       <ng-template appTableCell="actions" let-row="row">
       <button
         type="button"
@@ -55,34 +68,16 @@
   }"
   (closeModal)="closeModal()"
 >
-  <div [formGroup]="brandDetailsForm" class="space-y-4">
-    <!-- <app-input
-      [label]="'Company Name'"
-      [placeholder]="'Enter company name'"
-      [required]="true"
-      [(ngModel)]="newCompanyName"
-      [fullWidth]="true"
-    ></app-input> -->
-    <app-input formControlName="name" label="Brand Name" placeholder="Enter brand Name"></app-input>
-    <app-input formControlName="brand_id" label="Brand Code" placeholder="Enter brand code"></app-input>
+  <div [formGroup]="brandDetailsForm" class="flex gap-3">
+    <app-input size="sm" formControlName="name" label="Brand Name" placeholder="Enter brand Name"></app-input>
+    <app-input size="sm" formControlName="brand_id" label="Brand Code" placeholder="Enter brand code"></app-input>
   </div>
 
   <div modal-footer  class="gap-4">
-    <!-- <app-button 
-      [variant]="'secondary'" 
-      >
-     
-      Cancel
-    </app-button> -->
-
-    
-
     <app-button 
       [variant]="'primary'" 
       (clicked)="addBrand()"
       >
-      <!-- (clicked)="addCompany()" -->
-      <!-- [disabled]="!newCompanyName.trim()" -->
       Save 
     </app-button>
   </div>

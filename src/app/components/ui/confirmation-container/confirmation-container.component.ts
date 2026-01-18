@@ -39,11 +39,11 @@ export class ConfirmationContainerComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.confirmationService.confirmation$.subscribe(config => {
         if (config) {
-          console.log('Opening confirmation dialog:', config.title);
+          // console.log('Opening confirmation dialog:', config.title);
           this.dialogConfig = this.convertConfigToData(config);
           this.showDialog = true;
         } else {
-          console.log('Closing confirmation dialog');
+          // console.log('Closing confirmation dialog');
           this.showDialog = false;
         }
       })

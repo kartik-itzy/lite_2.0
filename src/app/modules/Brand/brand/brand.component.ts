@@ -105,8 +105,8 @@ export class BrandComponent implements OnInit {
   }
 
   tableColumns: TableColumn[] = [
-    { key: 'brand_id', label: 'Brand Id' },
-    { key: 'name', label: 'Brand Name' },
+    { key: 'imagepath', label: 'Brand Logo', align:'left' },
+    { key: 'name', label: 'Brand' },
     { key: 'description', label: 'Description' },
     { key: 'status', label: 'Status' },
     { key: 'pointsratio', label: 'Points Ratio' },
