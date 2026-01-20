@@ -48,10 +48,10 @@ export class TopupPromotionByBrandDetailsComponent implements OnInit {
     { key: 'Minimun_Amount', label: 'Minimum Amt' },
     { key: 'Maximun_Amount', label: 'Maximum Amt' },
     { key: 'CouponCode', label: 'Coupon Code' },
-    { key: 'CouponExpiryDay', label: 'Coupon Expiry Date' },
+    { key: 'CouponExpiryDay', label: 'Coupon Expiry Date' ,transform:'date' },
     { key: 'Activate', label: 'Activate' },
-    { key: 'ActiveDate', label: 'Active Date' },
-    { key: 'ExpiryDate', label: 'Expiry Date' },
+    { key: 'ActiveDate', label: 'Active Date' ,transform:'date' },
+    { key: 'ExpiryDate', label: 'Expiry Date',transform:'date' },
     { key: 'OtherInfo', label: 'Other Info', align: 'center' },
     { key: 'Actions', label: 'Actions', align: 'center' },
   ];

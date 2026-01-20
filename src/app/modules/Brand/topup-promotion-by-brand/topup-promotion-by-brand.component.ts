@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TableColumn } from '../../../shared/interfaces/common.interface';
-import { TableCellDirective, TableComponent } from '../../../components/ui/table/table.component';
+// import { TableColumn } from '../../../shared/interfaces/common.interface';
+import { TableCellDirective, TableComponent ,TableColumn} from '../../../components/ui/table/table.component';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
 import { DataService } from '../../../data.service';
 import { HttpHeaderResponse } from '@angular/common/http';
@@ -51,8 +51,8 @@ export class TopupPromotionByBrandComponent implements OnInit {
     { key: 'Description', label: 'Description' },
     { key: 'ActiveDate', label: 'Active Date' },
     // { key: 'DisplayText', label: 'Display Text' },
-    { key: 'ExpirayDate', label: 'Expiry Date' },
-    { key: 'PlanStatus', label: 'Plan Status' },
+    { key: 'ExpirayDate', label: 'Expiry Date',transform:'date' },
+    { key: 'PlanStatus', label: 'Plan Status',transform:'date' },
     { key: 'fortier', label: 'For tier' },
     { key: 'action', label: 'Action' },
   ];

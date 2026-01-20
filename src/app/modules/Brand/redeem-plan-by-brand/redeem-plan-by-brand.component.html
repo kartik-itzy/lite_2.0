@@ -21,12 +21,6 @@
   
     <div class="px-6 pt-4 max-w-full">
       <app-table [columns]="tableColumns" [rows]="redeemPlanDataSource" [config]="tableConfig"> 
-         <ng-template appTableCell="ActiveDate" let-value>
-                    {{ value | date: "d MMM yy" }}
-                </ng-template>
-                <ng-template appTableCell="ExpirayDate" let-value>
-                    {{ value | date: "d MMM yy" }}
-                </ng-template>
                 <ng-template appTableCell="Actions" let-row="row">
                     <button type="button" (click)="onDeletePlan(row, $event)" class="inline-flex items-center justify-center p-2 rounded-md
                text-red-600 hover:bg-red-50 hover:text-red-700 transition" title="Delete Brand">

@@ -65,12 +65,6 @@
           {{ value }}
         </app-badge>
       </ng-template>
-      <ng-template appTableCell="ActiveDate" let-value>
-        {{ value | date: "d MMM yy" }}
-      </ng-template>
-      <ng-template appTableCell="ExpiryDate" let-value>
-        {{ value | date: "d MMM yy" }}
-      </ng-template>
     </app-table>
     <app-loading *ngIf="isLoading"></app-loading>
   </app-card>

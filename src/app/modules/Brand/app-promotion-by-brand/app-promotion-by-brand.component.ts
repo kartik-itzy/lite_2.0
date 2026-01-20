@@ -36,8 +36,8 @@ export class AppPromotionByBrandComponent implements OnInit {
     { key: 'imagepath', label: 'Image',align:'center' },
     { key: 'displaytext', label: 'Display Text' },
     // { key: 'displaytext', label: 'Display Text' },
-    { key: 'startdate', label: 'Start Date' },
-    { key: 'enddate', label: 'End Date' },
+    { key: 'startdate', label: 'Start Date',transform:'date' },
+    { key: 'enddate', label: 'End Date',transform:'date' },
     { key: 'adurl', label: 'Ad Url' },
     { key: 'actions', label: 'Actions',align:'center' },
   ]

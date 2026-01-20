@@ -28,13 +28,7 @@
         [config]="tableConfig"
         (rowClick)="onRowClick($event)"
       >
-     
-        <ng-template appTableCell="ActiveDate" let-value>
-          {{ value | date: "d MMM yy" }}
-        </ng-template>
-        <ng-template appTableCell="ExpiryDate" let-value>
-          {{ value | date: "d MMM yy" }}
-        </ng-template>
+
         <ng-template appTableCell="Actions" let-row="row">
           <!-- <button
             type="button"

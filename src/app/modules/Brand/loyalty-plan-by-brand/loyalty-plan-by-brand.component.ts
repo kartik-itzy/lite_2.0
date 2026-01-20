@@ -37,8 +37,8 @@ export class LoyaltyPlanByBrandComponent implements OnInit {
     { key: 'brand_id', label: 'Brand' },
     { key: 'Code', label: 'Code' },
     { key: 'Description', label: 'Description' },
-    { key: 'ActiveDate', label: 'Active Date' },
-    { key: 'ExpiryDate', label: 'Expiry Date' },
+    { key: 'ActiveDate', label: 'Active Date',transform:'date' },
+    { key: 'ExpiryDate', label: 'Expiry Date',transform:'date' },
     { key: 'Actions', label: 'Actions', align: 'center' },
   ]
 
