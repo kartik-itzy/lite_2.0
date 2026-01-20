@@ -20,6 +20,7 @@ import {
 } from '@angular/forms';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ConfirmationService } from '../../../shared/services/confirmation.service';
+import { LoadingComponent } from '../../../components/ui/loading/loading.component';
 // import { TableCellDirective } from '../table/table.component';
 
 @Component({
@@ -32,7 +33,7 @@ import { ConfirmationService } from '../../../shared/services/confirmation.servi
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    TableCellDirective,
+    TableCellDirective,LoadingComponent
   ],
   templateUrl: './brand.component.html',
   styleUrl: './brand.component.css',

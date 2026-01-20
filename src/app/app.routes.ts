@@ -57,6 +57,7 @@ import { RedeemPlanComponent } from './modules/Loyalty-and-reward/redeem-plan/re
 import { ApplyCouponComponent } from './modules/Loyalty-and-reward/apply-coupon/apply-coupon.component';
 import { CardComponent } from './modules/Others/card/card.component';
 import { BrandDetailsComponent } from './modules/Brand/brand-details/brand-details.component';
+import { TopupPromotionByBrandDetailsComponent } from './modules/Brand/topup-promotion-by-brand-details/topup-promotion-by-brand-details.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -177,6 +178,10 @@ export const routes: Routes = [
   {
     path: 'crafted/retail/TopupPromotionByBrand',
     component: TopupPromotionByBrandComponent,
+  },
+  {
+    path: 'crafted/retail/TopupPromotionByBrand/:code/:brandId',
+    component: TopupPromotionByBrandDetailsComponent,
   },
   {
     path: 'crafted/retail/AppPromotionByBrand',

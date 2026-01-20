@@ -654,6 +654,7 @@ export class TableComponent {
   }
 
   goToPage(page: number): void {
+    this.currentPage = page;     
     this.pageChange.emit(page);
   }
 }

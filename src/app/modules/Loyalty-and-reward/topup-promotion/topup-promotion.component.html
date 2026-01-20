@@ -1,1 +1,24 @@
-<p>topup-promotion works!</p>
+<div class="min-h-screen bg-gray-50 scroll-smooth">
+    <!-- Header Section -->
+    <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex space-x-4 justify-between w-full">
+            <div class="flex flex-col">
+                <h1 class="text-lg font-semibold text-gray-900">Brands List</h1>
+                <div class="mt-3 text-sm text-gray-600">
+                    All the brands are listed here you can check it out, create or delete the brand add info etc.
+                </div>
+            </div>
+            <div class="flex justify-center items-center">
+                <app-button (clicked)="addTopupPromotion()">Create Brand</app-button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="px-6 pt-4 max-w-full">
+        <app-table [columns]="tableColumns" [rows]="topupDataSource" [config]="tableConfig"
+            (rowClick)="onRowClick($event)">
+        </app-table>
+
+    </div>
+</div>
