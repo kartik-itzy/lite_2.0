@@ -49,10 +49,10 @@ export class TopupPromotionByBrandComponent implements OnInit {
     { key: 'Code', label: 'Code' },
     { key: 'brand_id', label: 'Brand' },
     { key: 'Description', label: 'Description' },
-    { key: 'ActiveDate', label: 'Active Date' },
+    { key: 'ActiveDate', label: 'Active Date' ,transform:'date'  },
     // { key: 'DisplayText', label: 'Display Text' },
     { key: 'ExpirayDate', label: 'Expiry Date',transform:'date' },
-    { key: 'PlanStatus', label: 'Plan Status',transform:'date' },
+    { key: 'PlanStatus', label: 'Plan Status'},
     { key: 'fortier', label: 'For tier' },
     { key: 'action', label: 'Action' },
   ];

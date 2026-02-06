@@ -58,6 +58,7 @@ import { ApplyCouponComponent } from './modules/Loyalty-and-reward/apply-coupon/
 import { CardComponent } from './modules/Others/card/card.component';
 import { BrandDetailsComponent } from './modules/Brand/brand-details/brand-details.component';
 import { TopupPromotionByBrandDetailsComponent } from './modules/Brand/topup-promotion-by-brand-details/topup-promotion-by-brand-details.component';
+import { CustomerDetailsComponent } from './modules/CRM/customer-details/customer-details.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -125,6 +126,7 @@ export const routes: Routes = [
   },
   { path: 'crafted/retail/memberslist', component: MembersComponent },
   { path: 'crafted/retail/customers', component: CustomersComponent },
+  { path: 'crafted/retail/customers/:id', component: CustomerDetailsComponent },
   { path: 'crafted/retail/memberlevel', component: MemberLevelComponent },
   { path: 'crafted/retail/member_default', component: MemberDefaultComponent },
   {

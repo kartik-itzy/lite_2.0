@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ButtonComponent } from '../../../components/ui/button/button.component';
-import { TableCellDirective, TableColumn, TableComponent } from '../../../components/ui/table/table.component';
+import {
+  TableCellDirective,
+  TableColumn,
+  TableComponent,
+} from '../../../components/ui/table/table.component';
 import { BadgeComponent } from '../../../components/ui/badge/badge.component';
 import { LoadingComponent } from '../../../components/ui/loading/loading.component';
 import { DataService } from '../../../data.service';
@@ -9,13 +13,18 @@ import { HttpHeaderResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-loyalty-plan-by-brand',
-  imports: [CommonModule, ButtonComponent, TableComponent, TableCellDirective, BadgeComponent, LoadingComponent],
+  imports: [
+    CommonModule,
+    ButtonComponent,
+    TableComponent,
+    TableCellDirective,
+    LoadingComponent,
+  ],
   templateUrl: './loyalty-plan-by-brand.component.html',
-  styleUrl: './loyalty-plan-by-brand.component.css'
+  styleUrl: './loyalty-plan-by-brand.component.css',
 })
 export class LoyaltyPlanByBrandComponent implements OnInit {
-
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
     this.getLoyaltyPlan();
@@ -37,18 +46,16 @@ export class LoyaltyPlanByBrandComponent implements OnInit {
     { key: 'brand_id', label: 'Brand' },
     { key: 'Code', label: 'Code' },
     { key: 'Description', label: 'Description' },
-    { key: 'ActiveDate', label: 'Active Date',transform:'date' },
-    { key: 'ExpiryDate', label: 'Expiry Date',transform:'date' },
+    { key: 'ActiveDate', label: 'Active Date', transform: 'date' },
+    { key: 'ExpiryDate', label: 'Expiry Date', transform: 'date' },
     { key: 'Actions', label: 'Actions', align: 'center' },
-  ]
+  ];
 
   onRowClick(event: any) {
-    console.log(event)
+    console.log(event);
   }
 
-  addLoyaltyPlan() {
-
-  }
+  addLoyaltyPlan() {}
 
   getLoyaltyPlan() {
     this.isLoading = true;
@@ -67,14 +74,7 @@ export class LoyaltyPlanByBrandComponent implements OnInit {
     });
   }
 
+  onEdit(row: any) {}
 
-  onEdit(row: any) {
-
-  }
-
-  onDeleteLoyaltyPlan(row: any, event: any) {
-
-  }
-
-
+  onDeleteLoyaltyPlan(row: any, event: any) {}
 }

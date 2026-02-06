@@ -10,7 +10,7 @@ import { HttpHeaderResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-app-promotion-by-brand',
-  imports: [CommonModule, ButtonComponent, TableComponent, TableCellDirective, BadgeComponent, LoadingComponent],
+  imports: [CommonModule, ButtonComponent, TableComponent, TableCellDirective, LoadingComponent],
   templateUrl: './app-promotion-by-brand.component.html',
   styleUrl: './app-promotion-by-brand.component.css'
 })

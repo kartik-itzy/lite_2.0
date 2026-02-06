@@ -1,0 +1,127 @@
+<div class="flex gap-3 p-6">
+  <div class="w-3/4">
+    <app-card variant="flat" size="lg" class="h-full">
+      <div class="w-full flex">
+        <app-button (clicked)="backToListScreen()" variant="secondary">Back</app-button>
+        <app-tab class="ml-10" [tabs]="viewTabs" [selectedTabId]="currentView" (tabChange)="onViewChange($event)">
+        </app-tab>
+      </div>
+    </app-card>
+
+    <div [ngSwitch]="currentView" class="mt-3">
+      <!-- Brand Details View -->
+      <div class="flex gap-3" *ngSwitchCase="'details'">
+        <app-card class="w-full">
+           <h3 class="px-3 text-lg font-semibold text-gray-700 mb-2">
+            Basic Details
+          </h3>
+          <h4 class="px-3 text-sm font-normal text-gray-600">Details about the customer</h4>
+          <div class="grid grid-cols-2 gap-5 p-3 mt-2">
+            <app-input class="w-full" size="sm" label="Address" placeholder="Enter the Address"></app-input>
+            <app-input class="w-full" size="sm" label="City" placeholder="Enter the City"></app-input>
+            <app-input class="w-full" type="number" size="sm" label="Zipcode"
+              placeholder="Enter the Zipcode"></app-input>
+            <app-input class="w-full" size="sm" label="Country" placeholder="Enter the Country"></app-input>
+            <app-select class="w-full" size="sm" label="State"></app-select>
+            <app-input class="w-full" type="number" size="sm" label="Phone" placeholder="Enter the Phone"></app-input>
+            <app-input class="w-full" size="sm" label="Website" placeholder="Enter the Website"></app-input>
+            <app-input class="w-full" size="sm" label="Fax" placeholder="Enter the Address"></app-input>
+            <app-input class="w-full" size="sm" label="Email" placeholder="Enter the Address"></app-input>
+            <app-select class="w-full" size="sm" label="Use Vd Point"></app-select>
+            <app-select class="w-full" size="sm" label="OTP mode" placeholder="Enter the Address"></app-select>
+            <app-input class="w-full" type="email" size="sm" label="Support email"
+              placeholder="Enter the Address"></app-input>
+            <app-input class="w-full" size="sm" label="OTP senders name" placeholder="Enter the Address"></app-input>
+          </div>
+        </app-card>
+      </div>
+      <div class="flex flex-col gap-3" *ngSwitchCase="'app'">
+        <app-card class="w-full">
+          <h3 class="text-lg font-semibold text-gray-700 mb-2">
+            Basic Configuration
+          </h3>
+          <h4 class="text-sm font-normal text-gray-600">Configure your subdomain and application settings</h4>
+
+          <div class="w-full grid grid-cols-3 gap-4 mt-8">
+            <app-input class="w-full" size="sm" label="Subdomain" placeholder="Enter the Subdomain"></app-input>
+            <app-input class="w-full" size="sm" label="Application Url"
+              placeholder="Enter the Application Url"></app-input>
+            <app-button class="mt-6" variant="primary">Generate URL</app-button>
+
+          </div>
+
+        </app-card>
+        <app-card class="w-full">
+          <h3 class="text-lg font-semibold text-gray-700 mb-2">
+            Authentication Settings
+          </h3>
+          <h4 class="text-sm font-normal text-gray-600">Manage login methods and member registration options</h4>
+          
+          <div class="w-full grid grid-cols-2 gap-4 mt-8">
+            <app-select size="sm" label="Login Method"></app-select>
+            
+            <app-switch class="w-full mt-5" label="Children DOB"
+              description="Display date of birth field for children"></app-switch>
+            <app-switch class="w-full mt-5" label="Manual Member Level"
+              description="To enable Brand Manual Member Level"></app-switch>
+            <app-switch class="w-full mt-5" label="Brand Manual Member level"
+              description="To enable Brand Manual Member Level"></app-switch>
+
+          </div>
+        </app-card>
+        <app-card class="w-full">
+           <h3 class="text-lg font-semibold text-gray-700 mb-2">
+            Level & Language Configuration
+          </h3>
+          <h4 class="text-sm font-normal text-gray-600">Set calculation methods and default language preferences</h4>
+           <div class="w-full grid grid-cols-2 gap-4 mt-8">
+            <app-select size="sm" label="Calculate Level By"></app-select>
+            <app-select size="sm" label="Default Language"></app-select>
+            <app-input size="sm"  label="Card Message"></app-input>
+            </div>
+        </app-card>
+        <app-card class="w-full">
+           <h3 class="text-lg font-semibold text-gray-700 mb-2">
+            Legal Documents
+          </h3>
+          <h4 class="text-sm font-normal text-gray-600">Upload and manage privacy policy and PDPA documents</h4>
+          <div class="w-full flex gap-4 mt-8">
+            <app-input class="w-full" [readonly]="true" label="Privacy Doc Link" placeholder="https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/725593a0f8-1-3c4a.pdf"></app-input>
+            <app-button class="mt-7" variant="secondary">Upload</app-button>
+            <app-button class="mt-7" variant="primary">View</app-button>
+            <app-button class="mt-7" variant="danger">Delete</app-button>
+          </div>
+          <div class="w-full flex gap-4 mt-4">
+            <app-input class="w-full" [readonly]="true" label="PDPA Doc Link" placeholder="https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/903899c69e72-c-b8.pdf"></app-input>
+            <app-button class="mt-7" variant="secondary">Upload</app-button>
+            <app-button class="mt-7" variant="primary">View</app-button>
+            <app-button class="mt-7" variant="danger">Delete</app-button>
+          </div>
+        </app-card>
+      </div>
+      <div class="flex gap-3" *ngSwitchCase="'settings'">settings</div>
+      <div class="flex gap-3" *ngSwitchCase="'brand'">
+        <app-card class="w-full" variant="flat" size="lg">
+          <div class="flex w-full mt-3 py-2 gap-6">
+            <app-select [options]="convertPointsOptions" label="Convert Points" class="w-full">
+
+            </app-select>
+            <app-switch class="w-full mt-6" label="Brand" description="Is this support brands ?"></app-switch>
+          </div>
+        </app-card>
+      </div>
+      <div class="flex gap-3" *ngSwitchCase="'users'">
+        <div class="w-full">
+          <app-table [columns]="tableColumns" [rows]="usersDataSource" [config]="tableConfig"
+            (rowClick)="onRowClick($event)">
+          </app-table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="w-1/4">
+    <app-card variant="flat" size="lg">
+      <div class="h-[76vh]"></div>
+    </app-card>
+  </div>
+</div>

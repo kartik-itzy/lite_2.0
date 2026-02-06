@@ -9,7 +9,7 @@ import { HttpHeaderResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-redeem-plan-by-brand',
-  imports: [CommonModule, LoadingComponent, ButtonComponent, TableComponent, TableCellDirective],
+  imports: [CommonModule, ButtonComponent, TableComponent, TableCellDirective],
   templateUrl: './redeem-plan-by-brand.component.html',
   styleUrl: './redeem-plan-by-brand.component.css'
 })
