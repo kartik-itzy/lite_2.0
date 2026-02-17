@@ -1,0 +1,11 @@
+/* Only classes that cannot be replicated with Tailwind utilities */
+
+/* Hide scrollbar cross-browser */
+.hide-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
