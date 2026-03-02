@@ -91,12 +91,71 @@ export class CustomerDetailsComponent implements OnInit {
       privacydoclink: [''],
       pdpadoclink: [''],
     });
+
+    // Settings tab: all color fields + promo text fields + feature visibility toggles
+    this.settingsForm = this.fb.group({
+      // Theme Colors
+      appprimarycolor: [''],
+      appsecondarycolor: [''],
+      apptextcolor: [''],
+      appscaffoldcolor: [''],
+      // Splash Screen
+      loadingScreen_text_color: [''],
+      // Footer
+      footer_bg_color: [''],
+      footer_fg_color: [''],
+      // Buttons
+      addCard_bg_color: [''],
+      addCard_icon_color: [''],
+      topup_bg_color: [''],
+      topup_icon_color: [''],
+      qr_bg_color: [''],
+      qr_icon_color: [''],
+      // Progress
+      progress_text_color: [''],
+      progress_bar_color: [''],
+      progress_icon_bg: [''],
+      // Promo
+      promo_text: [''],
+      promo_subtext: [''],
+      promo_button_text: [''],
+      promo_text_color: [''],
+      promo_button_text_color: [''],
+      promo_button_bg_color: [''],
+      // Feature Visibility
+      AllowRecharge: [false],
+      AllowAddCard: [false],
+      childrenEmail: [false],
+      childrenPhone: [false],
+      ShowHomeCardType: [false],
+      ShowHomeButtons: [false],
+      ShowHomePoints: [false],
+      AllowAddFamilyMem: [false],
+      ShowCardOption: [false],
+      ShowTutorial: [false],
+      ShowGender: [false],
+      ShowDOB: [false],
+      BalanceExpiry: [false],
+      brand: [''],
+      ConversionWay:[]
+    });
   }
 
   tennantId!: string;
-  color = '#543EA3';
   customerDetails: any;
   usersDataSource: any;
+
+  // Image values (stored separately, not in form — they are URLs)
+  progressIconValue = '';
+  promoBannerValue = '';
+  loadingScreenImageValue = '';
+  imageDataURL: any = []; // apphomebannerpath
+
+  // Hidden file inputs references
+  @ViewChild('loadingImageInput') loadingImageInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('progressIconInput') progressIconInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('promoBannerInput') promoBannerInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('homeBannerInput') homeBannerInputRef!: ElementRef<HTMLInputElement>;
 
   // PDF popup state
   PDFpopupVisible = false;
@@ -151,8 +210,29 @@ export class CustomerDetailsComponent implements OnInit {
     CardAddMessage: 'CardAddMessage',
   };
 
+  // Color fields that need 0xFF conversion before saving
+  private colorFields = new Set([
+    'appprimarycolor', 'appsecondarycolor', 'apptextcolor', 'appscaffoldcolor',
+    'loadingScreen_text_color',
+    'footer_bg_color', 'footer_fg_color',
+    'addCard_bg_color', 'addCard_icon_color',
+    'topup_bg_color', 'topup_icon_color',
+    'qr_bg_color', 'qr_icon_color',
+    'progress_text_color', 'progress_bar_color', 'progress_icon_bg',
+    'promo_text_color', 'promo_button_text_color', 'promo_button_bg_color',
+  ]);
+
+  // Feature visibility fields that use Yes/No (not boolean)
+  private yesNoVisibilityFields = new Set([
+    'AllowRecharge', 'AllowAddCard', 'childrenEmail', 'childrenPhone',
+    'ShowHomeCardType', 'ShowHomeButtons', 'ShowHomePoints', 'AllowAddFamilyMem',
+    'ShowCardOption', 'ShowTutorial', 'ShowGender', 'ShowDOB', 'BalanceExpiry',
+  ]);
+
   detailsForm!: FormGroup;
   basicConfigurationForm!: FormGroup;
+  settingsForm!: FormGroup;
+
 
   yesNoOptions: SelectOption[] = [
     { value: 'Yes', label: 'Yes' },
@@ -178,6 +258,11 @@ export class CustomerDetailsComponent implements OnInit {
     { value: 'TOPUP', label: 'TOPUP' },
     { value: 'POINT', label: 'POINT' },
   ];
+
+  conversionOptions: SelectOption [] = [
+    {value:'Manual', label:'Manual'},
+    {value:'Auto', label:'Auto'},
+  ]
 
   currentView = 'details';
 
@@ -231,6 +316,12 @@ export class CustomerDetailsComponent implements OnInit {
         this.pdfContent = customer.privacydoclink ?? '';
         this.pdfContent2 = customer.pdpadoclink ?? '';
 
+        // Store image URLs
+        this.progressIconValue = customer.progress_icon ?? '';
+        this.promoBannerValue = customer.promo_banner ?? '';
+        this.loadingScreenImageValue = customer.loadingScreen_image ?? '';
+        this.imageDataURL = customer.apphomebannerpath ?? [];
+
         // Patch detailsForm without emitting so valueChanges doesn't fire on load
         this.detailsForm.patchValue({
           address: customer.address ?? '',
@@ -253,9 +344,9 @@ export class CustomerDetailsComponent implements OnInit {
           LineLIFFID: customer.LineLIFFID ?? '',
           applicationurl: customer.applicationurl ?? '',
           Loginmethod: customer.Loginmethod ?? '',
-          childrenDOB: customer.childrenDOB ?? false,
-          ManualMember: customer.ManualMember ?? false,
-          BrandManualMember: customer.BrandManualMember ?? false,
+          childrenDOB: customer.childrenDOB === 'Yes',
+          ManualMember: customer.ManualMember === 'Yes',
+          BrandManualMember: customer.BrandManualMember === 'Yes',
           Calculate_Level_By: customer.Calculate_Level_By ?? '',
           DefaultLanguage: customer.DefaultLanguage ?? '',
           CardAddMessage: customer.CardAddMessage ?? '',
@@ -263,9 +354,136 @@ export class CustomerDetailsComponent implements OnInit {
           pdpadoclink: customer.pdpadoclink ?? '',
         }, { emitEvent: false });
 
+        // Helper: convert "0xFFrrggbb" -> "#rrggbb"
+        const toHex = (v: string) => v ? v.replace('0xFF', '#') : '';
+
+        this.settingsForm.patchValue({
+          // Theme Colors
+          appprimarycolor: toHex(customer.appprimarycolor),
+          appsecondarycolor: toHex(customer.appsecondarycolor),
+          apptextcolor: toHex(customer.apptextcolor),
+          appscaffoldcolor: toHex(customer.appscaffoldcolor),
+          // Splash Screen
+          loadingScreen_text_color: toHex(customer.loadingScreen_text_color),
+          // Footer
+          footer_bg_color: toHex(customer.footer_bg_color),
+          footer_fg_color: toHex(customer.footer_fg_color),
+          // Buttons
+          addCard_bg_color: toHex(customer.addCard_bg_color),
+          addCard_icon_color: toHex(customer.addCard_icon_color),
+          topup_bg_color: toHex(customer.topup_bg_color),
+          topup_icon_color: toHex(customer.topup_icon_color),
+          qr_bg_color: toHex(customer.qr_bg_color),
+          qr_icon_color: toHex(customer.qr_icon_color),
+          // Progress
+          progress_text_color: toHex(customer.progress_text_color),
+          progress_bar_color: toHex(customer.progress_bar_color),
+          progress_icon_bg: toHex(customer.progress_icon_bg),
+          // Promo
+          promo_text: customer.promo_text ?? '',
+          promo_subtext: customer.promo_subtext ?? '',
+          promo_button_text: customer.promo_button_text ?? '',
+          promo_text_color: toHex(customer.promo_text_color),
+          promo_button_text_color: toHex(customer.promo_button_text_color),
+          promo_button_bg_color: toHex(customer.promo_button_bg_color),
+          // Feature Visibility (stored as Yes/No in API)
+          AllowRecharge: customer.AllowRecharge === 'Yes',
+          AllowAddCard: customer.AllowAddCard === 'Yes',
+          childrenEmail: customer.childrenEmail === 'Yes',
+          childrenPhone: customer.childrenPhone === 'Yes',
+          ShowHomeCardType: customer.ShowHomeCardType === 'Yes',
+          ShowHomeButtons: customer.ShowHomeButtons === 'Yes',
+          ShowHomePoints: customer.ShowHomePoints === 'Yes',
+          AllowAddFamilyMem: customer.AllowAddFamilyMem === 'Yes',
+          ShowCardOption: customer.ShowCardOption === 'Yes',
+          ShowTutorial: customer.ShowTutorial === 'Yes',
+          ShowGender: customer.ShowGender === 'Yes',
+          ShowDOB: customer.ShowDOB === 'Yes',
+          BalanceExpiry: customer.BalanceExpiry === 'Yes',
+          brand: customer.brand === 'Yes',
+          ConversionWay: customer.ConversionWay,
+        }, { emitEvent: false });
+
+        // Apply initial CSS variables from loaded data
+        this.updateCSSVariables();
+
         // Subscribe to each control individually after patching
         this.subscribeToFieldChanges();
         this.subscribeToAppFieldChanges();
+        this.subscribeToSettingsChanges();
+      });
+  }
+
+  // ─── CSS Variable Update ───
+
+  updateCSSVariables() {
+    const f = this.settingsForm.value;
+    const root = document.documentElement;
+
+    root.style.setProperty('--appprimarycolor', f.appprimarycolor);
+    root.style.setProperty('--appsecondarycolor', f.appsecondarycolor);
+    root.style.setProperty('--apptextcolor', f.apptextcolor);
+    root.style.setProperty('--appscaffoldcolor', f.appscaffoldcolor);
+    root.style.setProperty('--loadingScreen_text_color', f.loadingScreen_text_color);
+    root.style.setProperty('--footer_bg_color', f.footer_bg_color);
+    root.style.setProperty('--footer_fg_color', f.footer_fg_color);
+    root.style.setProperty('--addCard_bg_color', f.addCard_bg_color);
+    root.style.setProperty('--addCard_icon_color', f.addCard_icon_color);
+    root.style.setProperty('--topup_bg_color', f.topup_bg_color);
+    root.style.setProperty('--topup_icon_color', f.topup_icon_color);
+    root.style.setProperty('--qr_bg_color', f.qr_bg_color);
+    root.style.setProperty('--qr_icon_color', f.qr_icon_color);
+    root.style.setProperty('--progress_text_color', f.progress_text_color);
+    root.style.setProperty('--progress_bar_color', f.progress_bar_color);
+    root.style.setProperty('--progress_icon_bg', f.progress_icon_bg);
+    root.style.setProperty('--promo_text_color', f.promo_text_color);
+    root.style.setProperty('--promo_button_text_color', f.promo_button_text_color);
+    root.style.setProperty('--promo_button_bg_color', f.promo_button_bg_color);
+  }
+
+  // ─── Settings form subscriptions ───
+
+  private subscribeToSettingsChanges(): void {
+    // Subscribe to each color field
+    this.colorFields.forEach((fieldName) => {
+      const control = this.settingsForm.get(fieldName);
+      if (!control) return;
+      control.valueChanges.pipe(distinctUntilChanged()).subscribe((newColor: string) => {
+        if (!newColor) return;
+        // Update CSS variable immediately
+        document.documentElement.style.setProperty(`--${fieldName}`, newColor);
+        // Save to backend (convert # -> 0xFF)
+        const backendValue = newColor.replace('#', '0xFF');
+        this.saveSettingsField(fieldName, backendValue);
+      });
+    });
+
+    // Subscribe to promo text fields — save on blur via onSettingsFieldBlur
+    // Subscribe to feature visibility toggles
+    this.yesNoVisibilityFields.forEach((fieldName) => {
+      const control = this.settingsForm.get(fieldName);
+      if (!control) return;
+      control.valueChanges.pipe(distinctUntilChanged()).subscribe((boolVal: boolean) => {
+        const apiValue = boolVal ? 'Yes' : 'No';
+        this.saveSettingsField(fieldName, apiValue);
+      });
+    });
+  }
+
+  onSettingsFieldBlur(fieldName: string): void {
+    const control = this.settingsForm.get(fieldName);
+    if (!control) return;
+    this.saveSettingsField(fieldName, control.value);
+  }
+
+  private saveSettingsField(column: string, value: any): void {
+    this.dataService
+      .putMethod(`api/v1/customers/edit/${this.tennantId}`, JSON.stringify({ column, value }))
+      .subscribe({
+        next: () => { /* silent success */ },
+        error: (err: HttpErrorResponse) => {
+          this.notificationService.showError('Save Failed', `Could not update ${column}.`);
+        },
       });
   }
 
@@ -339,6 +557,187 @@ export class CustomerDetailsComponent implements OnInit {
           this.notificationService.showError('Save Failed', `Could not update ${column}. Please try again.`);
         },
       });
+  }
+
+  // ─── Image Upload ───
+
+  triggerImageUpload(columnName: string): void {
+    if (columnName === 'loadingScreen_image') {
+      this.loadingImageInputRef?.nativeElement.click();
+    } else if (columnName === 'progress_icon') {
+      this.progressIconInputRef?.nativeElement.click();
+    } else if (columnName === 'promo_banner') {
+      this.promoBannerInputRef?.nativeElement.click();
+    } else if (columnName === 'apphomebannerpath') {
+      this.homeBannerInputRef?.nativeElement.click();
+    }
+  }
+
+  async onImageFileSelected(event: Event, columnName: string): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    await this.processImageFile(input, columnName);
+  }
+
+  cropImageToAspectRatio(file: File, aspectRatio: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx: any = canvas.getContext('2d');
+          const width = img.width;
+          const height = img.height;
+          const currentAspectRatio = width / height;
+          let sourceX = 0, sourceY = 0, sourceWidth = width, sourceHeight = height;
+          if (currentAspectRatio > aspectRatio) {
+            sourceWidth = height * aspectRatio;
+            sourceX = (width - sourceWidth) / 2;
+          } else if (currentAspectRatio < aspectRatio) {
+            sourceHeight = width / aspectRatio;
+            sourceY = (height - sourceHeight) / 2;
+          }
+          canvas.width = sourceWidth;
+          canvas.height = sourceHeight;
+          ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => reject('Error loading image');
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject('Error reading file');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async processImageFile(imageInput: any, columnName: string): Promise<void> {
+    let currentValue: string | null = null;
+    if (columnName === 'progress_icon') {
+      currentValue = this.progressIconValue;
+    } else if (columnName === 'promo_banner') {
+      currentValue = this.promoBannerValue;
+    } else if (columnName === 'loadingScreen_image') {
+      currentValue = this.loadingScreenImageValue;
+    }
+
+    if (currentValue && currentValue.length > 0) {
+      this.notificationService.showError('Error', 'Please delete the existing image first.');
+      return;
+    }
+
+    const files = imageInput.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const imageName = file.name;
+    const fileType = file.type.split('/').pop()?.toLowerCase();
+
+    if (!['png', 'jpg', 'jpeg'].includes(fileType || '')) {
+      this.notificationService.showError('Invalid File', 'Please select a valid image file (PNG/JPG).');
+      return;
+    }
+    if (file.size > 1024 * 5000) {
+      const fileSize = (Number(file.size / 1000) / 1024).toFixed(2);
+      this.notificationService.showError('File Too Large', `Max upload size is 5MB. ${file.name} Size: ${fileSize}MB`);
+      return;
+    }
+
+    try {
+      const { width, height } = this.getImageDimensions(columnName);
+      const aspectRatio = width / height;
+      const croppedBase64 = await this.cropImageToAspectRatio(file, aspectRatio);
+      const Base64Data = croppedBase64.replace(/^data:image\/[a-z]+;base64,/, '');
+
+      const payload = { column: columnName, filename: imageName, image: Base64Data };
+
+      this.dataService.postMethod('api/v1/customers/upload', JSON.stringify(payload))
+        .subscribe((data: any) => {
+          if (data.status === 200) {
+            this.notificationService.showSuccess('Uploaded', 'Image uploaded successfully.');
+            // Fetch updated S3 URL from DB
+            this.dataService.getMethod(`api/v1/customers/${this.tennantId}`).subscribe((getData: any) => {
+              const customer = getData.data.customer[0];
+              if (columnName === 'progress_icon') this.progressIconValue = customer.progress_icon;
+              if (columnName === 'promo_banner') this.promoBannerValue = customer.promo_banner;
+              if (columnName === 'loadingScreen_image') this.loadingScreenImageValue = customer.loadingScreen_image;
+              if (columnName === 'apphomebannerpath') this.imageDataURL = customer.apphomebannerpath;
+            });
+          } else {
+            this.notificationService.showError('Upload Failed', 'Error while uploading image.');
+          }
+        });
+    } catch (error) {
+      this.notificationService.showError('Error', 'Error processing image.');
+      console.error(error);
+    }
+  }
+
+  private getImageDimensions(columnName: string): { width: number; height: number } {
+    switch (columnName) {
+      case 'promo_banner': return { width: 1200, height: 600 };
+      case 'progress_icon': return { width: 100, height: 100 };
+      case 'loadingScreen_image': return { width: 1320, height: 2868 };
+      default: return { width: 1, height: 1 };
+    }
+  }
+
+  deleteImage(columnName: string): void {
+    let imageUrl: any = '';
+    let apiColumn = '';
+
+    switch (columnName) {
+      case 'progress_icon':
+        imageUrl = this.progressIconValue;
+        apiColumn = 'progress_icon';
+        this.progressIconValue = '';
+        break;
+      case 'promo_banner':
+        imageUrl = this.promoBannerValue;
+        apiColumn = 'promo_banner';
+        this.promoBannerValue = '';
+        break;
+      case 'loadingScreen_image':
+        imageUrl = this.loadingScreenImageValue;
+        apiColumn = 'loadingScreen_image';
+        this.loadingScreenImageValue = '';
+        break;
+      case 'apphomebannerpath':
+        imageUrl = this.imageDataURL;
+        apiColumn = 'apphomebannerpath';
+        this.imageDataURL = [];
+        break;
+      default:
+        return;
+    }
+
+    if (!imageUrl) {
+      this.notificationService.showError('No Image', 'No image found to delete.');
+      return;
+    }
+
+    const match = imageUrl.match(/\/([^\/]+)$/);
+    if (!match) {
+      this.notificationService.showError('Error', 'Invalid image path.');
+      return;
+    }
+
+    const base64ImageName = Buffer.from(match[1], 'utf8').toString('base64');
+
+    this.dataService
+      .deleteMethod(`api/v1/customers/images/${apiColumn}/${base64ImageName}`)
+      .subscribe(
+        (res: any) => {
+          if (res.status === 200) {
+            this.notificationService.showSuccess('Deleted', 'Image deleted successfully.');
+            this.getCustomerDetails();
+          } else {
+            this.notificationService.showError('Error', 'Error deleting image.');
+          }
+        },
+        (error: HttpErrorResponse) => {
+          this.notificationService.showError('Error', error.error?.message || 'Delete failed.');
+        }
+      );
   }
 
   // ─── PDF Upload ───

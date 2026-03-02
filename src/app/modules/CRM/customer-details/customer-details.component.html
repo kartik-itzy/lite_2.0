@@ -15,7 +15,6 @@
           <h3 class="px-3 text-lg font-semibold text-gray-700 mb-2">Basic Details</h3>
           <h4 class="px-3 text-sm font-normal text-gray-600">Details about the customer</h4>
 
-          <!-- <form > -->
           <div [formGroup]="detailsForm" class="grid grid-cols-3 gap-5 p-3 mt-2">
 
             <!-- Address -->
@@ -71,7 +70,6 @@
               formControlName="SMSSenderName" (blur)="onFieldBlur('SMSSenderName')"></app-input>
 
           </div>
-          <!-- </form> -->
         </app-card>
       </div>
       <div class="flex flex-col gap-3" *ngSwitchCase="'app'">
@@ -92,7 +90,7 @@
                 formControlName="LineLIFFID" (blur)="onAppFieldBlur('LineLIFFID')"></app-input>
             </div>
             <div class="w-full flex gap-4 mt-8">
-              <app-input class="flex-1" size="sm" label="Application URL" placeholder="Enter the Application Url"
+              <app-input class="flex-1" size="sm" label="Application URL" placeholder="Enter the Application Url" helperText="Click on Button to generate the updated URL"
                 formControlName="applicationurl" (blur)="onAppFieldBlur('applicationurl')"></app-input>
               <div class="mt-6 flex-1">
                 <app-button
@@ -100,17 +98,6 @@
                   variant="primary">Generate URL</app-button>
               </div>
             </div>
-
-            <!-- Level & Language -->
-            <!-- <div  class="w-full grid grid-cols-2 gap-4 mt-8">
-              <app-select size="sm" label="Calculate Level By" [options]="calculateLevelByOptions"
-                formControlName="Calculate_Level_By"></app-select>
-              <app-select size="sm" label="Default Language" [options]="defaultLanguageOptions"
-                formControlName="DefaultLanguage"></app-select>
-              <app-input class="w-full col-span-2" size="sm" label="Card Add Message"
-                placeholder="Enter card add message" formControlName="CardAddMessage"
-                (blur)="onAppFieldBlur('CardAddMessage')"></app-input>
-            </div> -->
           </div>
         </app-card>
 
@@ -357,29 +344,47 @@
           </div>
         </div>
       </app-modal>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- Settings Tab                              -->
+      <!-- ══════════════════════════════════════════ -->
       <div class="flex flex-col gap-3" *ngSwitchCase="'settings'">
-        <div class="h-[650px] overflow-y-auto flex flex-col gap-4">
+
+        <!-- Hidden file inputs -->
+        <input #loadingImageInput type="file" accept="image/png,image/jpeg" class="hidden"
+          (change)="onImageFileSelected($event, 'loadingScreen_image')" />
+        <input #progressIconInput type="file" accept="image/png,image/jpeg" class="hidden"
+          (change)="onImageFileSelected($event, 'progress_icon')" />
+        <input #promoBannerInput type="file" accept="image/png,image/jpeg" class="hidden"
+          (change)="onImageFileSelected($event, 'promo_banner')" />
+        <input #homeBannerInput type="file" accept="image/png,image/jpeg" class="hidden"
+          (change)="onImageFileSelected($event, 'apphomebannerpath')" />
+
+        <div class="h-[650px] overflow-y-auto flex flex-col gap-4" [formGroup]="settingsForm">
+
+          <!-- Theme Colors -->
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Theme Colors</h3>
             <h4 class="text-sm font-normal text-gray-600">
               Customize the primary color scheme for your application
             </h4>
             <div class="grid grid-cols-2 gap-4 mt-4">
-              <app-color-input [(ngModel)]="color" label="Primary color" helperText="Choose brand color"
+              <app-color-input formControlName="appprimarycolor" label="Primary color" helperText="click here to choose color"
                 [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Secondary color" helperText="Choose brand color"
+              <app-color-input formControlName="appsecondarycolor" label="Secondary color"
+                helperText="click here to choose color" [fullWidth]="true">
+              </app-color-input>
+              <app-color-input formControlName="apptextcolor" label="Text color" helperText="click here to choose color"
                 [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Text color" helperText="Choose brand color"
-                [fullWidth]="true">
-              </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Scaffold color" helperText="Choose brand color"
+              <app-color-input formControlName="appscaffoldcolor" label="Scaffold color" helperText="click here to choose color"
                 [fullWidth]="true">
               </app-color-input>
             </div>
           </app-card>
 
+          <!-- Splash Screen -->
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">
               Splash Screen
@@ -388,43 +393,50 @@
               Configure loading screen appearance and assets
             </h4>
             <div class="mt-4 gap-4 flex">
-              <app-color-input class="w-1/2" [(ngModel)]="color" label="Text color" helperText="Choose brand color">
+              <app-color-input class="w-1/2" formControlName="loadingScreen_text_color" label="Text color"
+                helperText="click here to choose color">
               </app-color-input>
-              <div class="flex flex-col w-1/2 p-2 border border-gray-200 rounded-lg">
-                <h4 class="text-sm px-2  text-gray-700  font-medium">
-                  Loading Image(1320x2868)
+               <div class="flex flex-col w-1/2 p-2 border justify-center items-center border-gray-200 rounded-lg">
+                <h4 class="text-sm text-gray-700 font-medium">
+                  Loading Image (1320x2868)
                 </h4>
 
-                <div class="flex p-2 gap-4 border-gray-200 rounded-lg">
+                <div class="flex p-2 gap-4 border-gray-200  rounded-lg">
+                  <div class="relative h-44 w-24 rounded-xl  bg-gray-900 overflow-hidden flex items-center justify-center flex-shrink-0">
+                    <!-- <div class="border flex "> -->
 
-                  <div class="h-44 w-64 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
-                    Please add your the Image here
+                      <img *ngIf="loadingScreenImageValue" [src]="loadingScreenImageValue"
+                      class="h-full w-auto object-contain" alt="Loading Screen" />
+                    <!-- </div> -->
+                    <span *ngIf="!loadingScreenImageValue" class="text-gray-400 text-[10px] text-center px-1">Add image here</span>
                   </div>
 
                   <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
-                    <app-button variant="secondary">✏️</app-button>
-                    <app-button variant="secondary">🗑️</app-button>
+                    <app-button variant="secondary" (clicked)="triggerImageUpload('loadingScreen_image')">✏️</app-button>
+                    <app-button variant="secondary" (clicked)="deleteImage('loadingScreen_image')">🗑️</app-button>
                   </div>
                 </div>
-
               </div>
             </div>
           </app-card>
 
+          <!-- Footer -->
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Footer</h3>
             <h4 class="text-sm font-normal text-gray-600">
               Customize footer background and foreground colors
             </h4>
             <div class="grid grid-cols-2 gap-4 mt-4">
-              <app-color-input [(ngModel)]="color" label="Background color" helperText="Choose brand color"
+              <app-color-input formControlName="footer_bg_color" label="Background color" helperText="click here to choose color"
                 [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Foreground color" helperText="Choose brand color"
+              <app-color-input formControlName="footer_fg_color" label="Foreground color" helperText="click here to choose color"
                 [fullWidth]="true">
               </app-color-input>
             </div>
           </app-card>
+
+          <!-- Buttons -->
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Buttons</h3>
             <h4 class="text-sm font-normal text-gray-600">
@@ -432,27 +444,28 @@
             </h4>
 
             <div class="grid grid-cols-2 gap-4 mt-4">
-              <app-color-input [(ngModel)]="color" label="Background color" helperText="Choose brand color"
-                [fullWidth]="true">
+              <app-color-input formControlName="addCard_bg_color" label="Add Card Background color"
+                helperText="click here to choose color" [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Icon color" helperText="Choose brand color"
-                [fullWidth]="true">
+              <app-color-input formControlName="addCard_icon_color" label="Add Card Icon color"
+                helperText="click here to choose color" [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Background color" helperText="Choose brand color"
-                [fullWidth]="true">
+              <app-color-input formControlName="topup_bg_color" label="Topup Background color"
+                helperText="click here to choose color" [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Icon color" helperText="Choose brand color"
-                [fullWidth]="true">
+              <app-color-input formControlName="topup_icon_color" label="Topup Icon color"
+                helperText="click here to choose color" [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Background color" helperText="Choose brand color"
-                [fullWidth]="true">
+              <app-color-input formControlName="qr_bg_color" label="QR Background color"
+                helperText="click here to choose color" [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Icon color" helperText="Choose brand color"
+              <app-color-input formControlName="qr_icon_color" label="QR Icon color" helperText="click here to choose color"
                 [fullWidth]="true">
               </app-color-input>
             </div>
           </app-card>
 
+          <!-- Progress -->
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">
               Progress
@@ -462,32 +475,36 @@
             </h4>
             <div class="mt-4 gap-4 flex">
               <div class="w-1/2 flex flex-col gap-4">
-                <app-color-input [(ngModel)]="color" label="Text color" helperText="Choose brand color">
+                <app-color-input formControlName="progress_text_color" label="Text color"
+                  helperText="click here to choose color">
                 </app-color-input>
-                <app-color-input [(ngModel)]="color" label="Bar color" helperText="Choose brand color">
+                <app-color-input formControlName="progress_bar_color" label="Bar color" helperText="click here to choose color">
                 </app-color-input>
-                <app-color-input [(ngModel)]="color" label="Icon color" helperText="Choose brand color">
+                <app-color-input formControlName="progress_icon_bg" label="Icon Background color"
+                  helperText="click here to choose color">
                 </app-color-input>
               </div>
-              <div class="flex flex-col w-1/2 p-2 border border-gray-200 rounded-lg justify-center">
-                <h4 class="text-sm px-2  text-gray-700  font-medium">
-                  Progress Icon
+              <div class="flex flex-col w-1/2 p-2 border border-gray-200 rounded-lg items-center justify-center">
+                <h4 class="text-sm  text-gray-700 font-medium">
+                  Progress Icon (100x100)
                 </h4>
-                <div class="flex p-2 gap-4 border-gray-200 rounded-lg">
-
-                  <div class="h-44 w-64 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
-                    Please add your the Image here
+                <div class="flex items-center p-2 gap-4 border-gray-200 rounded-lg">
+                  <div class="h-40 w-40 p-4 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600 overflow-hidden">
+                    <img *ngIf="progressIconValue" [src]="progressIconValue"
+                      class="w-full h-full object-cover rounded-xl" alt="Progress Icon" />
+                    <span *ngIf="!progressIconValue">Please add your image here</span>
                   </div>
 
                   <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
-                    <app-button variant="secondary">✏️</app-button>
-                    <app-button variant="secondary">🗑️</app-button>
+                    <app-button variant="secondary" (clicked)="triggerImageUpload('progress_icon')">✏️</app-button>
+                    <app-button variant="secondary" (clicked)="deleteImage('progress_icon')">🗑️</app-button>
                   </div>
                 </div>
               </div>
             </div>
           </app-card>
 
+          <!-- Promotional Banner -->
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">
               Promotional Banner
@@ -497,39 +514,45 @@
             </h4>
 
             <div class="grid grid-cols-3 gap-4 mt-6">
-              <app-input size="sm" label="Promo Text" placeholder="Happy New Year 2026!"></app-input>
-              <app-input size="sm" label="Promo Sub text" placeholder="Special Promotion For You"></app-input>
-              <app-input size="sm" label="Button text" placeholder="Redeem Now"></app-input>
+              <app-input size="sm" label="Promo Text" placeholder="Happy New Year 2026!"
+                formControlName="promo_text" (blur)="onSettingsFieldBlur('promo_text')"></app-input>
+              <app-input size="sm" label="Promo Sub text" placeholder="Special Promotion For You"
+                formControlName="promo_subtext" (blur)="onSettingsFieldBlur('promo_subtext')"></app-input>
+              <app-input size="sm" label="Button text" placeholder="Redeem Now"
+                formControlName="promo_button_text" (blur)="onSettingsFieldBlur('promo_button_text')"></app-input>
 
-              <app-color-input [(ngModel)]="color" label="Text Color" helperText="Choose brand color"
+              <app-color-input formControlName="promo_text_color" label="Text Color" helperText="click here to choose color"
                 [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Button Text Color" helperText="Choose brand color"
-                [fullWidth]="true">
+              <app-color-input formControlName="promo_button_text_color" label="Button Text Color"
+                helperText="click here to choose color" [fullWidth]="true">
               </app-color-input>
-              <app-color-input [(ngModel)]="color" label="Button Background Color" helperText="Choose brand color"
-                [fullWidth]="true">
+              <app-color-input formControlName="promo_button_bg_color" label="Button Background Color"
+                helperText="click here to choose color" [fullWidth]="true">
               </app-color-input>
             </div>
 
             <div class="flex mt-4 p-2 border items-center justify-center border-gray-200 rounded-lg">
-              <div class="flex flex-col  p-2 gap-4 border-gray-200 rounded-lg">
-                <h4 class="text-sm px-2 text-gray-700  font-medium">
+              <div class="flex flex-col p-2 gap-4 border-gray-200 rounded-lg">
+                <h4 class="text-sm px-2 text-gray-700 font-medium">
                   Promo Banner (1200x600)
                 </h4>
                 <div class="flex gap-3 justify-center items-center w-full">
-                  <div class="h-44 w-96 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
-                    Please add your the Image here
+                  <div class="h-44 w-96 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600 overflow-hidden">
+                    <img *ngIf="promoBannerValue" [src]="promoBannerValue"
+                      class="w-full h-full object-cover rounded-xl" alt="Promo Banner" />
+                    <span *ngIf="!promoBannerValue">Please add your image here</span>
                   </div>
                   <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
-                    <app-button variant="secondary">✏️</app-button>
-                    <app-button variant="secondary">🗑️</app-button>
+                    <app-button variant="secondary" (clicked)="triggerImageUpload('promo_banner')">✏️</app-button>
+                    <app-button variant="secondary" (clicked)="deleteImage('promo_banner')">🗑️</app-button>
                   </div>
                 </div>
               </div>
             </div>
           </app-card>
 
+          <!-- Feature Visibility -->
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">
               Feature Visibility
@@ -538,34 +561,38 @@
               Control which features are visible in the application
             </h4>
             <div class="grid grid-cols-3">
-              <app-switch class="w-full mt-6" label="Allow Recharge"
-                description="Enable recharge functionality"></app-switch>
-              <app-switch class="w-full mt-6" label="Allow Add Card"
-                description="Enable card addition feature"></app-switch>
-              <app-switch class="w-full mt-6" label="Children Email"
-                description="Show children email field"></app-switch>
-              <app-switch class="w-full mt-6" label="Children Phone"
-                description="Show children phone field"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Home Card Type"
-                description="Display card type on home screen"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Home Buttons"
-                description="Display action buttons on home"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Home Points"
-                description="Display points on home screen"></app-switch>
-              <app-switch class="w-full mt-6" label="Add Family Member"
-                description="Allow adding family members"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Card Option"
-                description="Display card options menu"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Tutorial" description="Enable tutorial screens"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Gender" description="Display gender field"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Date of Birth" description="Display DOB field"></app-switch>
-              <app-switch class="w-full mt-6" label="Show Balance Expiry"
-                description="Display balance expiry date"></app-switch>
+              <app-switch class="w-full mt-6" label="Allow Recharge" description="Enable recharge functionality"
+                formControlName="AllowRecharge"></app-switch>
+              <app-switch class="w-full mt-6" label="Allow Add Card" description="Enable card addition feature"
+                formControlName="AllowAddCard"></app-switch>
+              <app-switch class="w-full mt-6" label="Children Email" description="Show children email field"
+                formControlName="childrenEmail"></app-switch>
+              <app-switch class="w-full mt-6" label="Children Phone" description="Show children phone field"
+                formControlName="childrenPhone"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Home Card Type" description="Display card type on home screen"
+                formControlName="ShowHomeCardType"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Home Buttons" description="Display action buttons on home"
+                formControlName="ShowHomeButtons"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Home Points" description="Display points on home screen"
+                formControlName="ShowHomePoints"></app-switch>
+              <app-switch class="w-full mt-6" label="Add Family Member" description="Allow adding family members"
+                formControlName="AllowAddFamilyMem"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Card Option" description="Display card options menu"
+                formControlName="ShowCardOption"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Tutorial" description="Enable tutorial screens"
+                formControlName="ShowTutorial"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Gender" description="Display gender field"
+                formControlName="ShowGender"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Date of Birth" description="Display DOB field"
+                formControlName="ShowDOB"></app-switch>
+              <app-switch class="w-full mt-6" label="Show Balance Expiry" description="Display balance expiry date"
+                formControlName="BalanceExpiry"></app-switch>
             </div>
           </app-card>
 
         </div>
       </div>
+
       <div class="flex gap-3" *ngSwitchCase="'brand'">
         <app-card class="w-full" variant="flat" size="lg">
           <h3 class="text-lg font-semibold text-gray-700 mb-2">
@@ -574,10 +601,11 @@
           <h4 class="text-sm font-normal text-gray-600">
             Configuration for conversion of Brand points
           </h4>
-          <div class="flex w-full mt-3 py-2 gap-6">
-            <app-select [options]="yesNoOptions" label="Convert Points" class="w-full">
-            </app-select>
-            <app-switch class="w-full mt-6" label="Brand" description="Is this support brands ?"></app-switch>
+          <div [formGroup]="settingsForm" class="flex w-full mt-3 py-2 gap-6">
+            <!-- <app-select [options]="yesNoOptions" label="Convert Points" class="w-full">
+            </app-select> -->
+            <app-select formControlName="ConversionWay" [options]="conversionOptions" class="w-full" label="Convert Points" description="For Conversion of Points in vouch app."></app-select>
+            <app-switch formControlName="brand" class="w-full mt-6" label="Brand" description="Is this support brands ?"></app-switch>
           </div>
         </app-card>
       </div>
@@ -598,6 +626,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Right Panel -->
   <div class="w-1/4 flex flex-col gap-3">
     <app-card *ngIf="currentView !== 'settings'" variant="flat" size="lg">
       <div class="h-auto space-y-3 flex flex-col">
@@ -608,12 +638,14 @@
         </div>
 
         <div class="flex gap-2 items-center justify-center">
-          <div class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
-            Please add your the Image here
+          <div class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600 overflow-hidden">
+            <img *ngIf="imageDataURL && imageDataURL.length > 0" [src]="imageDataURL"
+              class="w-full h-full object-cover rounded-xl" alt="Home Banner" />
+            <span *ngIf="!imageDataURL || imageDataURL.length === 0">Please add your image here</span>
           </div>
           <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
-            <app-button variant="secondary">✏️</app-button>
-            <app-button variant="secondary">🗑️</app-button>
+            <app-button variant="secondary" (clicked)="triggerImageUpload('apphomebannerpath')">✏️</app-button>
+            <app-button variant="secondary" (clicked)="deleteImage('apphomebannerpath')">🗑️</app-button>
           </div>
         </div>
 
@@ -636,11 +668,16 @@
           formControlName="CardAddMessage" (blur)="onAppFieldBlur('CardAddMessage')"></app-input>
       </div>
     </app-card>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- Mobile Preview (Settings tab only)        -->
+    <!-- ══════════════════════════════════════════ -->
     <app-card *ngIf="currentView === 'settings'" variant="flat" size="sm" class="flex items-center">
 
-      <!-- Wallet Card Component -->
+      <!-- Mobile Card preview -->
       <div
-        class="flex flex-col w-[330px] h-[700px] border-[8px] border-gray-300 rounded-3xl bg-gray-50 overflow-hidden">
+        class="flex flex-col w-[330px] h-[700px] border-[8px] border-gray-300 rounded-3xl overflow-hidden"
+        [style.background-color]="settingsForm.value.appscaffoldcolor || '#f9fafb'">
 
         <!-- Notch -->
         <div class="flex justify-center items-center gap-1.5 my-2.5">
@@ -649,16 +686,13 @@
         </div>
 
         <!-- Scrollable Content -->
-        <div variant="flat" size="lg" class="flex-1 overflow-y-auto px-1 pb-16 hide-scroll">
+        <div class="flex-1 overflow-y-auto px-1 pb-16 hide-scroll">
 
           <!-- Card Carousel -->
           <div class="flex justify-center">
             <div class="relative w-full max-w-[400px]">
-
-              <!-- Card Image -->
               <img src="https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/cc07f7ca-40e-2265.png"
                 class="w-full h-44 rounded-xl object-cover shadow-md" alt="Card" />
-
               <div class="absolute top-2 right-3 bg-black/25 text-white px-2 py-1 text-[11px] rounded-md">
                 Platinum
               </div>
@@ -670,7 +704,8 @@
 
           <!-- Dots -->
           <div class="flex justify-center mt-2.5 gap-1.5">
-            <div class="w-1.5 h-1.5 rounded-full bg-blue-500 scale-110"></div>
+            <div class="w-1.5 h-1.5 rounded-full scale-110"
+              [style.background-color]="settingsForm.value.appprimarycolor || '#3b82f6'"></div>
             <div class="w-1.5 h-1.5 rounded-full bg-gray-300 opacity-70"></div>
             <div class="w-1.5 h-1.5 rounded-full bg-gray-300 opacity-70"></div>
           </div>
@@ -679,47 +714,39 @@
           <div class="flex justify-between px-3 py-3">
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-gray-600">Balance:</span>
-              <span class="text-sm font-bold text-blue-500">2,450.00 THB</span>
+              <span class="text-sm font-bold" [style.color]="settingsForm.value.appprimarycolor || '#3b82f6'">2,450.00 THB</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-gray-600">Points:</span>
-              <span class="text-sm font-bold text-blue-500">1,250</span>
+              <span class="text-sm font-bold" [style.color]="settingsForm.value.appprimarycolor || '#3b82f6'">1,250</span>
             </div>
           </div>
 
           <!-- Progress Box -->
           <div class="mx-2 mb-3 p-3 bg-white rounded-xl shadow-sm">
-
-            <!-- Header -->
             <div class="flex justify-between items-center mb-2">
-              <span class="text-xs text-black">Progress to Next Level</span>
-              <span class="text-xs font-bold text-black">23%</span>
+              <span class="text-xs" [style.color]="settingsForm.value.progress_text_color || '#000'">Progress to Next Level</span>
+              <span class="text-xs font-bold" [style.color]="settingsForm.value.progress_text_color || '#000'">23%</span>
             </div>
-
-            <!-- Progress Bar -->
             <div class="relative h-3 bg-gray-200 rounded-full overflow-visible mb-2">
-              <div
-                class="absolute top-0 left-0 h-full rounded-full bg-[#259c3f] transition-all duration-300 flex items-center justify-end pr-0.5"
-                [style.width.%]="23">
-                <!-- Gradient shimmer -->
+              <div class="absolute top-0 left-0 h-full rounded-full transition-all duration-300 flex items-center justify-end pr-0.5"
+                [style.width.%]="23"
+                [style.background-color]="settingsForm.value.progress_bar_color || '#22c55e'">
                 <div class="absolute inset-0 rounded-full bg-gradient-to-r from-transparent to-white/20"></div>
-                <!-- Thumb -->
-                <div
-                  class="relative z-10 w-5 h-5 rounded-full bg-[#153e96] flex items-center justify-center shadow-md -mr-2">
-                  <img class="w-3.5 h-3.5 rounded-full object-cover" />
+                <div class="relative z-10 w-5 h-5 rounded-full flex items-center justify-center shadow-md -mr-2"
+                  [style.background-color]="settingsForm.value.progress_icon_bg || '#1d4ed8'">
+                  <img *ngIf="progressIconValue" [src]="progressIconValue" class="w-3.5 h-3.5 rounded-full object-cover" />
                 </div>
               </div>
             </div>
-
-            <!-- Labels -->
             <div class="flex justify-between">
               <div>
-                <div class="text-xs text-black">Silver</div>
-                <div class="text-[9px] text-black">500</div>
+                <div class="text-xs" [style.color]="settingsForm.value.progress_text_color || '#000'">Silver</div>
+                <div class="text-[9px]" [style.color]="settingsForm.value.progress_text_color || '#000'">500</div>
               </div>
               <div class="text-right">
-                <div class="text-xs text-black">Gold</div>
-                <div class="text-[9px] text-black">2000</div>
+                <div class="text-xs" [style.color]="settingsForm.value.progress_text_color || '#000'">Gold</div>
+                <div class="text-[9px]" [style.color]="settingsForm.value.progress_text_color || '#000'">2000</div>
               </div>
             </div>
           </div>
@@ -727,155 +754,100 @@
           <!-- Brand Tabs -->
           <div class="overflow-x-auto hide-scroll mx-2 mb-2">
             <div class="flex gap-2 w-max">
-              <div class="flex items-center gap-1 px-3  rounded-xl bg-blue-50 border border-blue-200 cursor-pointer">
-                <div class="w-6 h-6 rounded-full bg-teal-300 flex items-center justify-center text-white text-[10px]">A
-                </div>
+              <div class="flex items-center gap-1 px-3 rounded-xl border cursor-pointer"
+                [style.background-color]="(settingsForm.value.appprimarycolor || '#3b82f6') + '20'"
+                [style.border-color]="settingsForm.value.appprimarycolor || '#3b82f6'">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px]"
+                  [style.background-color]="settingsForm.value.appsecondarycolor || '#0ea5e9'">A</div>
                 <span class="text-[10px] text-gray-700">Brand A</span>
               </div>
               <div class="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200 cursor-pointer">
-                <div class="w-6 h-6 rounded-full bg-teal-300 flex items-center justify-center text-white text-[10px]">B
-                </div>
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px]"
+                  [style.background-color]="settingsForm.value.appsecondarycolor || '#0ea5e9'">B</div>
                 <span class="text-[10px] text-gray-700">Brand B</span>
-              </div>
-              <div class="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200 cursor-pointer">
-                <div class="w-6 h-6 rounded-full bg-teal-300 flex items-center justify-center text-white text-[10px]">C
-                </div>
-                <span class="text-[10px] text-gray-700">Brand C</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Brand Card -->
-          <div class="mx-2 mb-3 relative rounded-xl overflow-hidden bg-white shadow-sm border border-gray-100">
-            <div class="absolute inset-0 bg-gradient-to-br from-white/80 to-transparent z-0 rounded-xl"></div>
-
-            <div class="relative z-10 p-3">
-              <!-- Brand Header -->
-              <div class="flex items-center gap-2 mb-3">
-                <div
-                  class="w-9 h-9 rounded-full bg-teal-300 flex items-center justify-center text-white text-base font-semibold shadow-sm">
-                  A
-                </div>
-                <div>
-                  <div class="text-sm font-bold text-black">Brand A</div>
-                  <div class="text-[10px] text-black/70">850 points • Level 2</div>
-                </div>
-                <button
-                  class="ml-auto flex items-center gap-1 p-1 rounded-md border text-black text-[11px] font-medium">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" />
-                  </svg>
-                  Convert Points
-                </button>
-              </div>
-
-              <!-- Brand Progress Box -->
-              <div class="p-3 bg-gray-50 rounded-xl">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-xs text-black">Progress to Next Level</span>
-                  <span class="text-xs font-bold text-black">24%</span>
-                </div>
-
-                <div class="relative h-3 bg-gray-200 rounded-full overflow-visible mb-2">
-                  <div
-                    class="absolute top-0 left-0 h-full rounded-full bg-[#259c3f] transition-all duration-300 flex items-center justify-end"
-                    [style.width.%]="24">
-                    <div class="absolute inset-0 rounded-full bg-gradient-to-r from-transparent to-white/20"></div>
-                    <div
-                      class="relative z-10 w-5 h-5 rounded-full bg-[#153e96] flex items-center justify-center shadow-md -mr-2">
-                      <img class="w-3.5 h-3.5 rounded-full object-cover" />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flex justify-between">
-                  <div>
-                    <div class="text-xs text-black">Gold</div>
-                    <div class="text-[9px] text-black">500</div>
-                  </div>
-                  <div class="text-right">
-                    <div class="text-xs text-black">Platinum</div>
-                    <div class="text-[9px] text-black">2000</div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
 
           <!-- Actions Grid -->
           <div class="grid grid-cols-3 gap-3 mx-2 mb-3">
-
             <!-- Add Card -->
             <div class="flex flex-col items-center gap-1.5">
-              <div class="w-12 h-12 rounded-full bg-[#153e96] flex items-center justify-center shadow-sm">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="w-5 h-5">
-                  <path
-                    d="M21 12.5V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V17C3 18.1046 3.89543 19 5 19H13" />
+              <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-sm"
+                [style.background-color]="settingsForm.value.addCard_bg_color || '#1d4ed8'">
+                <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5"
+                  [attr.stroke]="settingsForm.value.addCard_icon_color || '#ffffff'" stroke-width="2">
+                  <path d="M21 12.5V8C21 6.89543 20.1046 6 19 6H5C3.89543 6 3 6.89543 3 8V17C3 18.1046 3.89543 19 5 19H13" />
                   <path d="M18.5 15V20M16 17.5H21" />
                   <path d="M3 10H20.5" />
                   <path d="M7 15H9" />
                 </svg>
               </div>
-              <span class="text-[11px] font-semibold text-[#153e96]">Add Card</span>
+              <span class="text-[11px] font-semibold" [style.color]="settingsForm.value.addCard_bg_color || '#1d4ed8'">Add Card</span>
             </div>
 
             <!-- Top Up -->
             <div class="flex flex-col items-center gap-1.5">
-              <div class="w-12 h-12 rounded-full bg-[#153e96] flex items-center justify-center shadow-sm">
-                <span class="text-white text-xl font-bold">฿</span>
+              <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-sm"
+                [style.background-color]="settingsForm.value.topup_bg_color || '#1d4ed8'">
+                <span class="text-xl font-bold" [style.color]="settingsForm.value.topup_icon_color || '#ffffff'">฿</span>
               </div>
-              <span class="text-[11px] font-semibold text-[#153e96]">Top Up</span>
+              <span class="text-[11px] font-semibold" [style.color]="settingsForm.value.topup_bg_color || '#1d4ed8'">Top Up</span>
             </div>
 
             <!-- QR -->
             <div class="flex flex-col items-center gap-1.5">
-              <div class="w-12 h-12 rounded-full bg-[#153e96] flex items-center justify-center shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"
-                  class="w-5 h-5">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-sm"
+                [style.background-color]="settingsForm.value.qr_bg_color || '#1d4ed8'">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"
+                  [attr.stroke]="settingsForm.value.qr_icon_color || '#ffffff'">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M3.75 4.875h4.5v4.5h-4.5zM3.75 14.625h4.5v4.5h-4.5zM13.5 4.875h4.5v4.5h-4.5z" />
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M6.75 6.75h.75v.75h-.75zm0 9.75h.75v.75h-.75zm9.75-9.75h.75v.75h-.75zm-3 6.75h.75v.75h-.75z" />
                 </svg>
               </div>
-              <span class="text-[11px] font-semibold text-[#153e96]">QR</span>
+              <span class="text-[11px] font-semibold" [style.color]="settingsForm.value.qr_bg_color || '#1d4ed8'">QR</span>
             </div>
-
           </div>
 
-          <!-- Rewards Banner -->
+          <!-- Rewards / Promo Banner -->
           <div class="relative mx-2 mb-3 rounded-xl overflow-hidden min-h-[100px]">
-
             <!-- Background image -->
             <div class="absolute inset-0 bg-cover bg-center"
-              style="background-image: url('https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/4c31e2faa964bab2-.jpg');">
+              [style.background-image]="promoBannerValue ? 'url(' + promoBannerValue + ')' : 'none'"
+              [style.background-color]="!promoBannerValue ? (settingsForm.value.appsecondarycolor || '#0ea5e9') : 'transparent'">
             </div>
-
             <!-- Overlay Content -->
             <div class="relative z-10 p-4 flex flex-col gap-2 bg-black/30 min-h-[100px]">
               <div>
-                <h2 class="text-xl font-bold text-white">Happy New Year 2026!</h2>
-                <p class="text-sm text-white/90 mt-1">special Promotion For You</p>
+                <h2 class="text-xl font-bold"
+                  [style.color]="settingsForm.value.promo_text_color || '#ffffff'">
+                  {{ settingsForm.value.promo_text || 'Happy New Year 2026!' }}
+                </h2>
+                <p class="text-sm mt-1"
+                  [style.color]="settingsForm.value.promo_text_color || '#ffffff'">
+                  {{ settingsForm.value.promo_subtext || 'Special Promotion For You' }}
+                </p>
               </div>
               <div class="flex justify-end">
-                <button class="px-4 py-1.5 rounded-lg text-sm font-semibold bg-[#153e96] text-white">
-                  Click here
+                <button class="px-4 py-1.5 rounded-lg text-sm font-semibold"
+                  [style.background-color]="settingsForm.value.promo_button_bg_color || '#1d4ed8'"
+                  [style.color]="settingsForm.value.promo_button_text_color || '#ffffff'">
+                  {{ settingsForm.value.promo_button_text || 'Redeem Now' }}
                 </button>
               </div>
             </div>
           </div>
 
-
         </div>
 
         <!-- App Footer -->
-        <div
-          class="sticky bottom-0 flex items-center justify-around h-[60px] w-full bg-white border-t border-black/10 rounded-b-2xl z-10">
+        <div class="sticky bottom-0 flex items-center justify-around h-[60px] w-full border-t border-black/10 rounded-b-2xl z-10"
+          [style.background-color]="settingsForm.value.footer_bg_color || '#ffffff'">
 
-          <button
-            class="flex-1 flex flex-col items-center justify-center text-[#294d7e] border-none bg-transparent cursor-pointer">
+          <button class="flex-1 flex flex-col items-center justify-center border-none bg-transparent cursor-pointer"
+            [style.color]="settingsForm.value.footer_fg_color || '#294d7e'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4" stroke="currentColor"
               stroke-width="2" fill="none">
               <polyline points="1 11 12 2 23 11"></polyline>
@@ -884,8 +856,8 @@
             <span class="text-[11px] mt-1">Home</span>
           </button>
 
-          <button
-            class="flex-1 flex flex-col items-center justify-center text-[#294d7e] border-none bg-transparent cursor-pointer">
+          <button class="flex-1 flex flex-col items-center justify-center border-none bg-transparent cursor-pointer"
+            [style.color]="settingsForm.value.footer_fg_color || '#294d7e'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4" stroke="currentColor"
               stroke-width="1.5" fill="none">
               <path
@@ -894,8 +866,8 @@
             <span class="text-[11px] mt-1">Promos</span>
           </button>
 
-          <button
-            class="flex-1 flex flex-col items-center justify-center text-[#294d7e] border-none bg-transparent cursor-pointer">
+          <button class="flex-1 flex flex-col items-center justify-center border-none bg-transparent cursor-pointer"
+            [style.color]="settingsForm.value.footer_fg_color || '#294d7e'">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -904,8 +876,8 @@
             <span class="text-[11px] mt-1">Rewards</span>
           </button>
 
-          <button
-            class="flex-1 flex flex-col items-center justify-center text-[#294d7e] border-none bg-transparent cursor-pointer">
+          <button class="flex-1 flex flex-col items-center justify-center border-none bg-transparent cursor-pointer"
+            [style.color]="settingsForm.value.footer_fg_color || '#294d7e'">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4" stroke="currentColor"
               stroke-width="1.5" fill="none">
               <path
@@ -914,8 +886,8 @@
             <span class="text-[11px] mt-1">Menu</span>
           </button>
 
-          <button
-            class="flex-1 flex flex-col items-center justify-center text-[#294d7e] border-none bg-transparent cursor-pointer">
+          <button class="flex-1 flex flex-col items-center justify-center border-none bg-transparent cursor-pointer"
+            [style.color]="settingsForm.value.footer_fg_color || '#294d7e'">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round"
