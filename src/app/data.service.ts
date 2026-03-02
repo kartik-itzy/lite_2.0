@@ -41,16 +41,23 @@ export class DataService {
   });
 
   getDomain() {
-    if (this.document.location.hostname == 'localhost') {
-      var varDomainData = 'somatik.tech';
-    } else {
-      var split = this.document.location.hostname.split('.', 3);
-      var varDomainData = split[1] + '.' + split[2];
-      console.log(varDomainData);
+    const hostname = this.document.location.hostname;
+
+    if (hostname === 'localhost') {
+      return 'dev-valuecrm.com';
     }
-    return varDomainData;
+
+    const parts = hostname.split('.');
+
+    if (parts.length > 2) {
+      // Remove first subdomain
+      return parts.slice(1).join('.');
+    }
+
+    return hostname; // fallback
   }
 
+  
   getData(data: string): any {
     return this.http.post(this.serviceEndpoint + 'api/v1/login/company', data, {
       headers: this.headersData,

@@ -1,4 +1,4 @@
-<div class="flex gap-3 p-6">
+<div class="flex gap-2 p-6">
   <div class="w-3/4">
     <app-card variant="flat" size="lg" class="h-full">
       <div class="w-full flex">
@@ -12,32 +12,70 @@
       <!-- Brand Details View -->
       <div class="flex gap-3" *ngSwitchCase="'details'">
         <app-card class="w-full" size="lg">
-          <h3 class="px-3 text-lg font-semibold text-gray-700 mb-2">
-            Basic Details
-          </h3>
-          <h4 class="px-3 text-sm font-normal text-gray-600">
-            Details about the customer
-          </h4>
-          <div class="grid grid-cols-3 gap-5 p-3 mt-2">
-            <app-input class="w-full" size="sm" label="Address" placeholder="Enter the Address"></app-input>
-            <app-input class="w-full" size="sm" label="City" placeholder="Enter the City"></app-input>
-            <app-input class="w-full" type="number" size="sm" label="Zipcode"
-              placeholder="Enter the Zipcode"></app-input>
-            <app-input class="w-full" size="sm" label="Country" placeholder="Enter the Country"></app-input>
-            <app-select class="w-full" size="sm" label="State"></app-select>
-            <app-input class="w-full" type="number" size="sm" label="Phone" placeholder="Enter the Phone"></app-input>
-            <app-input class="w-full" size="sm" label="Website" placeholder="Enter the Website"></app-input>
-            <app-input class="w-full" size="sm" label="Fax" placeholder="Enter the Address"></app-input>
-            <app-input class="w-full" size="sm" label="Email" placeholder="Enter the Address"></app-input>
-            <app-select class="w-full" size="sm" label="Use Vd Point"></app-select>
-            <app-select class="w-full" size="sm" label="OTP mode" placeholder="Enter the Address"></app-select>
-            <app-input class="w-full" type="email" size="sm" label="Support email"
-              placeholder="Enter the Address"></app-input>
-            <app-input class="w-full" size="sm" label="OTP senders name" placeholder="Enter the Address"></app-input>
+          <h3 class="px-3 text-lg font-semibold text-gray-700 mb-2">Basic Details</h3>
+          <h4 class="px-3 text-sm font-normal text-gray-600">Details about the customer</h4>
+
+          <!-- <form > -->
+          <div [formGroup]="detailsForm" class="grid grid-cols-3 gap-5 p-3 mt-2">
+
+            <!-- Address -->
+            <app-input class="w-full" size="sm" label="Address" placeholder="Enter the Address"
+              formControlName="address" (blur)="onFieldBlur('address')"></app-input>
+
+            <!-- City -->
+            <app-input class="w-full" size="sm" label="City" placeholder="Enter the City" formControlName="city"
+              (blur)="onFieldBlur('city')"></app-input>
+
+            <!-- Zipcode -->
+            <app-input class="w-full" type="number" size="sm" label="Zipcode" placeholder="Enter the Zipcode"
+              formControlName="zipCode" (blur)="onFieldBlur('zipCode')"></app-input>
+
+            <!-- Country -->
+            <app-input class="w-full" size="sm" label="Country" placeholder="Enter the Country"
+              formControlName="countrycode" (blur)="onFieldBlur('countrycode')"></app-input>
+
+            <!-- State -->
+            <app-input class="w-full" size="sm" label="State" placeholder="Enter the State" formControlName="state"
+              (blur)="onFieldBlur('state')"></app-input>
+
+            <!-- Phone -->
+            <app-input class="w-full" type="number" size="sm" label="Phone" placeholder="Enter the Phone"
+              formControlName="phone" (blur)="onFieldBlur('phone')"></app-input>
+
+            <!-- Website -->
+            <app-input class="w-full" size="sm" label="Website" placeholder="Enter the Website"
+              formControlName="website" (blur)="onFieldBlur('website')"></app-input>
+
+            <!-- Fax -->
+            <app-input class="w-full" size="sm" label="Fax" placeholder="Enter the Fax" formControlName="fax"
+              (blur)="onFieldBlur('fax')"></app-input>
+
+            <!-- Admin Email -->
+            <app-input class="w-full" type="email" size="sm" label="Email" placeholder="Enter the Email"
+              formControlName="adminemail" (blur)="onFieldBlur('adminemail')"></app-input>
+
+            <!-- Use VD Point (Yes / No) -->
+            <app-select class="w-full" size="sm" label="Use VD Point" [options]="yesNoOptions"
+              formControlName="use_cash_card" (blur)="onFieldBlur('use_cash_card')"></app-select>
+
+            <!-- OTP Mode (SMS / EMAIL) -->
+            <app-select class="w-full" size="sm" label="OTP Mode" [options]="otpModeOptions" formControlName="OTPmode"
+              (blur)="onFieldBlur('OTPmode')"></app-select>
+
+            <!-- Support Email -->
+            <app-input class="w-full" type="email" size="sm" label="Support Email" placeholder="Enter the Support Email"
+              formControlName="SupportEmail" (blur)="onFieldBlur('SupportEmail')"></app-input>
+
+            <!-- OTP Sender Name -->
+            <app-input class="w-full" size="sm" label="OTP Sender Name" placeholder="Enter the OTP Sender Name"
+              formControlName="SMSSenderName" (blur)="onFieldBlur('SMSSenderName')"></app-input>
+
           </div>
+          <!-- </form> -->
         </app-card>
       </div>
       <div class="flex flex-col gap-3" *ngSwitchCase="'app'">
+        <!-- ══ Basic Configuration ══ -->
         <app-card class="w-full" variant="flat" size="lg">
           <h3 class="text-lg font-semibold text-gray-700 mb-2">
             Basic Configuration
@@ -46,15 +84,37 @@
             Configure your subdomain and application settings
           </h4>
 
-          <div class="w-full grid grid-cols-3 gap-4 mt-8">
-            <app-input class="w-full" size="sm" label="Subdomain" placeholder="Enter the Subdomain"></app-input>
-            <app-input class="w-full" size="sm" label="Application URL"
-              placeholder="Enter the Application Url"></app-input>
-            <app-button class="mt-6"
-              icon="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
-              variant="primary">Generate URL</app-button>
+          <div [formGroup]="basicConfigurationForm">
+            <div class="w-full grid grid-cols-2 gap-4 mt-8">
+              <app-input class="w-full" size="sm" label="Subdomain" placeholder="Enter the Subdomain"
+                formControlName="Subdomain" (blur)="onAppFieldBlur('Subdomain')"></app-input>
+              <app-input class="w-full" size="sm" label="Line Liff Id" placeholder="Enter the Liff id"
+                formControlName="LineLIFFID" (blur)="onAppFieldBlur('LineLIFFID')"></app-input>
+            </div>
+            <div class="w-full flex gap-4 mt-8">
+              <app-input class="flex-1" size="sm" label="Application URL" placeholder="Enter the Application Url"
+                formControlName="applicationurl" (blur)="onAppFieldBlur('applicationurl')"></app-input>
+              <div class="mt-6 flex-1">
+                <app-button
+                  icon="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
+                  variant="primary">Generate URL</app-button>
+              </div>
+            </div>
+
+            <!-- Level & Language -->
+            <!-- <div  class="w-full grid grid-cols-2 gap-4 mt-8">
+              <app-select size="sm" label="Calculate Level By" [options]="calculateLevelByOptions"
+                formControlName="Calculate_Level_By"></app-select>
+              <app-select size="sm" label="Default Language" [options]="defaultLanguageOptions"
+                formControlName="DefaultLanguage"></app-select>
+              <app-input class="w-full col-span-2" size="sm" label="Card Add Message"
+                placeholder="Enter card add message" formControlName="CardAddMessage"
+                (blur)="onAppFieldBlur('CardAddMessage')"></app-input>
+            </div> -->
           </div>
         </app-card>
+
+        <!-- ══ Authentication Settings ══ -->
         <app-card class="w-full" size="lg">
           <h3 class="text-lg font-semibold text-gray-700 mb-2">
             Authentication Settings
@@ -63,18 +123,20 @@
             Manage login methods and member registration options
           </h4>
 
-          <div class="w-full grid grid-cols-2 gap-4 mt-8">
-            <app-select size="sm" label="Login Method"></app-select>
+          <div [formGroup]="basicConfigurationForm" class="w-full grid grid-cols-2 gap-4 mt-8">
+            <app-select size="sm" [options]="loginMethodOptions" label="Login Method"
+              formControlName="Loginmethod"></app-select>
 
-            <app-switch class="w-full mt-5" label="Children DOB"
-              description="Display date of birth field for children"></app-switch>
-            <app-switch class="w-full mt-5" label="Manual Member Level"
-              description="To enable Brand Manual Member Level"></app-switch>
-            <app-switch class="w-full mt-5" label="Brand Manual Member level"
-              description="To enable Brand Manual Member Level"></app-switch>
+            <app-switch class="w-full mt-5" label="Children DOB" description="Display date of birth field for children"
+              formControlName="childrenDOB"></app-switch>
+            <app-switch class="w-full mt-5" label="Manual Member Level" description="To enable Manual Member Level"
+              formControlName="ManualMember"></app-switch>
+            <app-switch class="w-full mt-5" label="Brand Manual Member Level"
+              description="To enable Brand Manual Member Level" formControlName="BrandManualMember"></app-switch>
           </div>
         </app-card>
 
+        <!-- ══ Legal Documents ══ -->
         <app-card class="w-full" size="lg">
           <h3 class="text-lg font-semibold text-gray-700 mb-2">
             Legal Documents
@@ -82,17 +144,20 @@
           <h4 class="text-sm font-normal text-gray-600">
             Upload and manage privacy policy and PDPA documents
           </h4>
-          <div class="flex gap-4">
-            <div class="w-full flex gap-4 mt-4">
-              <app-input class="w-full" [readonly]="true" label="Privacy Doc Link"
-                placeholder="https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/725593a0f8-1-3c4a.pdf">
-              </app-input>
+
+          <div class="flex flex-col gap-4 mt-4">
+            <!-- Privacy Doc -->
+            <div class="w-full flex gap-4 items-end">
+              <div class="w-full">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Privacy Doc Link</label>
+                <input type="text" [value]="pdfContent" readonly placeholder="No document uploaded yet"
+                  class="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 bg-gray-50 cursor-default focus:outline-none" />
+              </div>
 
               <!-- Upload -->
               <button type="button"
-                class="mt-7 inline-flex items-center justify-center h-8 w-8 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition"
-                title="Upload">
-                <!-- heroicon: arrow-up-tray -->
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition"
+                title="Upload" (click)="openPDFUpload('privacyDoc')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -101,10 +166,9 @@
               </button>
 
               <!-- View -->
-              <button type="button"
-                class="mt-7 inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
-                title="View">
-                <!-- heroicon: eye -->
+              <button type="button" *ngIf="pdfContent"
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+                title="View" (click)="openPDFPreview('privacyDoc')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -114,37 +178,29 @@
               </button>
 
               <!-- Delete -->
-              <button type="button"
-                class="mt-7 inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
-                title="Delete">
-                <!-- heroicon: trash -->
+              <button type="button" *ngIf="pdfContent"
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                title="Delete" (click)="deletePDF($event, 'privacyDoc')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
-        c.342.052.682.107 1.022.166m-1.022-.165
-        L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077
-        H8.084a2.25 2.25 0 0 1-2.244-2.077
-        L4.772 5.79m14.456 0
-        a48.108 48.108 0 0 0-3.478-.397m-12 .562
-        c.34-.059.68-.114 1.022-.165m0 0
-        a48.11 48.11 0 0 1 3.478-.397m7.5 0
-        v-.916c0-1.18-.91-2.164-2.09-2.201
-        a51.964 51.964 0 0 0-3.32 0
-        c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0
-        a48.667 48.667 0 0 0-7.5 0" />
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                 </svg>
               </button>
             </div>
 
-            <div class="w-full flex gap-4 mt-4">
-              <app-input class="w-full" [readonly]="true" label="PDPA Doc Link"
-                placeholder="https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/903899c69e72-c-b8.pdf">
-              </app-input>
+            <!-- PDPA Doc -->
+            <div class="w-full flex gap-4 items-end">
+              <div class="w-full">
+                <label class="block text-sm font-medium text-gray-700 mb-1">PDPA Doc Link</label>
+                <input type="text" [value]="pdfContent2" readonly placeholder="No document uploaded yet"
+                  class="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 bg-gray-50 cursor-default focus:outline-none" />
+              </div>
 
               <!-- Upload -->
               <button type="button"
-                class="mt-7 inline-flex items-center justify-center h-8 w-8 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition"
-                title="Upload">
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition"
+                title="Upload" (click)="openPDFUpload('pdpaDoc')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -153,9 +209,9 @@
               </button>
 
               <!-- View -->
-              <button type="button"
-                class="mt-7 inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
-                title="View">
+              <button type="button" *ngIf="pdfContent2"
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+                title="View" (click)="openPDFPreview('pdpaDoc')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -165,38 +221,144 @@
               </button>
 
               <!-- Delete -->
-              <button type="button"
-                class="mt-7 inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
-                title="Delete">
-                <!-- same svg -->
+              <button type="button" *ngIf="pdfContent2"
+                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                title="Delete" (click)="deletePDF($event, 'pdpaDoc')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
-        c.342.052.682.107 1.022.166m-1.022-.165
-        L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077
-        H8.084a2.25 2.25 0 0 1-2.244-2.077
-        L4.772 5.79m14.456 0
-        a48.108 48.108 0 0 0-3.478-.397m-12 .562
-        c.34-.059.68-.114 1.022-.165m0 0
-        a48.11 48.11 0 0 1 3.478-.397m7.5 0
-        v-.916c0-1.18-.91-2.164-2.09-2.201
-        a51.964 51.964 0 0 0-3.32 0
-        c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0
-        a48.667 48.667 0 0 0-7.5 0" />
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                 </svg>
               </button>
             </div>
           </div>
         </app-card>
       </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PDF Upload Modal                          -->
+      <!-- ══════════════════════════════════════════ -->
+      <app-modal [isOpen]="PDFpopupVisible" [config]="{
+          title: uploadType === 'privacyDoc' ? 'Upload Privacy Document' : 'Upload PDPA Document',
+          size: 'md',
+          showCloseButton: true,
+          closeOnBackdropClick: true
+        }" (closeModal)="closePDFPopup()">
+
+        <div class="flex flex-col gap-4">
+          <p class="text-sm text-gray-600">
+            Select a PDF file to upload as the
+            <strong>{{ uploadType === 'privacyDoc' ? 'Privacy Policy' : 'PDPA' }}</strong> document.
+          </p>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Select PDF File</label>
+            <input #pdfFileInput type="file" accept="application/pdf"
+              class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+              (change)="PDFprocessFile(pdfFileInput)" />
+            <p class="mt-1 text-xs text-gray-500">Only PDF files are accepted.</p>
+          </div>
+
+          <!-- Preview of selected file name -->
+          <div *ngIf="pdfName" class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 flex-shrink-0" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M7 21h10a2 2 0 0 0 2-2V9.414a1 1 0 0 0-.293-.707l-5.414-5.414A1 1 0 0 0 13.586 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z" />
+            </svg>
+            <span class="text-sm text-gray-700 truncate">{{ pdfName }}</span>
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end" modal-footer>
+          <app-button variant="secondary" (click)="closePDFPopup()">Cancel</app-button>
+        </div>
+      </app-modal>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- Confirm Delete Modal                      -->
+      <!-- ══════════════════════════════════════════ -->
+      <app-modal [isOpen]="confirmDeleteVisible" [config]="{
+          title: 'Delete Document',
+          size: 'sm',
+          showCloseButton: true,
+          closeOnBackdropClick: true
+        }" (closeModal)="cancelDelete()">
+
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+            </div>
+            <p class="text-sm text-gray-700">
+              Are you sure you want to delete this
+              <strong>{{ pendingDeleteType === 'pdpaDoc' ? 'PDPA' : 'Privacy Policy' }}</strong> document?
+              This action cannot be undone.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end" modal-footer>
+          <app-button variant="secondary" (click)="cancelDelete()">Cancel</app-button>
+          <app-button variant="danger" (click)="confirmDelete()">Delete</app-button>
+        </div>
+      </app-modal>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- PDF Preview Modal                         -->
+      <!-- ══════════════════════════════════════════ -->
+      <app-modal [isOpen]="pdfPreviewVisible" [config]="{
+          title: 'Document Preview',
+          size: 'xl',
+          showCloseButton: true,
+          closeOnBackdropClick: true
+        }" (closeModal)="closePDFPreview()">
+
+        <!-- Loading spinner -->
+        <div *ngIf="pdfIsLoading" class="flex flex-col items-center justify-center gap-3" style="height: 65vh;">
+          <svg class="animate-spin h-10 w-10 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          <p class="text-sm text-gray-500">Loading PDF...</p>
+        </div>
+
+        <!-- Canvas viewer -->
+        <div [class.hidden]="pdfIsLoading" class="flex flex-col items-center gap-3 overflow-auto" style="height: 65vh;">
+          <canvas #pdfCanvas class="rounded shadow border border-gray-200 max-w-full"></canvas>
+        </div>
+
+        <div class="flex items-center justify-between gap-4" modal-footer>
+          <!-- Pagination -->
+          <div class="flex items-center gap-3">
+            <app-button variant="secondary" [disabled]="pdfCurrentPage <= 1" (click)="pdfPrevPage()">
+              ← Prev
+            </app-button>
+            <span class="text-sm text-gray-600">
+              Page {{ pdfCurrentPage }} of {{ pdfTotalPages }}
+            </span>
+            <app-button variant="secondary" [disabled]="pdfCurrentPage >= pdfTotalPages" (click)="pdfNextPage()">
+              Next →
+            </app-button>
+          </div>
+          <!-- Actions -->
+          <div class="flex gap-2">
+            <a [href]="pdfPreviewUrl" target="_blank">
+              <app-button variant="secondary"> Download</app-button>
+            </a>
+            <app-button variant="primary" (click)="closePDFPreview()">Close</app-button>
+          </div>
+        </div>
+      </app-modal>
       <div class="flex flex-col gap-3" *ngSwitchCase="'settings'">
-        <!-- <app-card class="w-full" variant="flat" size="lg">
-          <h3 class="text-lg font-semibold text-gray-700 mb-2">Settings</h3>
-          <h4 class="text-sm font-normal text-gray-600">
-            Configuration Settings for Vouch App Preview
-          </h4>
-        </app-card> -->
-        <div class="h-[96vh] border flex flex-col gap-4">
+        <div class="h-[650px] overflow-y-auto flex flex-col gap-4">
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Theme Colors</h3>
             <h4 class="text-sm font-normal text-gray-600">
@@ -228,15 +390,23 @@
             <div class="mt-4 gap-4 flex">
               <app-color-input class="w-1/2" [(ngModel)]="color" label="Text color" helperText="Choose brand color">
               </app-color-input>
-              <div class="flex w-1/2 p-2 border border-gray-200 rounded-lg">
-                <div class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
-                  Please add your the Image here
+              <div class="flex flex-col w-1/2 p-2 border border-gray-200 rounded-lg">
+                <h4 class="text-sm px-2  text-gray-700  font-medium">
+                  Loading Image(1320x2868)
+                </h4>
+
+                <div class="flex p-2 gap-4 border-gray-200 rounded-lg">
+
+                  <div class="h-44 w-64 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
+                    Please add your the Image here
+                  </div>
+
+                  <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
+                    <app-button variant="secondary">✏️</app-button>
+                    <app-button variant="secondary">🗑️</app-button>
+                  </div>
                 </div>
 
-                <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
-                  <app-button variant="secondary">✏️</app-button>
-                  <app-button variant="secondary">🗑️</app-button>
-                </div>
               </div>
             </div>
           </app-card>
@@ -285,10 +455,10 @@
 
           <app-card class="w-full" variant="flat" size="lg">
             <h3 class="text-lg font-semibold text-gray-700 mb-2">
-              Splash Screen
+              Progress
             </h3>
             <h4 class="text-sm font-normal text-gray-600">
-              Configure loading screen appearance and assets
+              Customize progress indicators and icons
             </h4>
             <div class="mt-4 gap-4 flex">
               <div class="w-1/2 flex flex-col gap-4">
@@ -299,14 +469,20 @@
                 <app-color-input [(ngModel)]="color" label="Icon color" helperText="Choose brand color">
                 </app-color-input>
               </div>
-              <div class="flex w-1/2 p-2 border border-gray-200 rounded-lg items-center">
-                <div class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
-                  Place your progress image icon here
-                </div>
+              <div class="flex flex-col w-1/2 p-2 border border-gray-200 rounded-lg justify-center">
+                <h4 class="text-sm px-2  text-gray-700  font-medium">
+                  Progress Icon
+                </h4>
+                <div class="flex p-2 gap-4 border-gray-200 rounded-lg">
 
-                <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
-                  <app-button variant="secondary">✏️</app-button>
-                  <app-button variant="secondary">🗑️</app-button>
+                  <div class="h-44 w-64 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
+                    Please add your the Image here
+                  </div>
+
+                  <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
+                    <app-button variant="secondary">✏️</app-button>
+                    <app-button variant="secondary">🗑️</app-button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -320,7 +496,7 @@
               Customize promotional content and styling
             </h4>
 
-            <div class="grid grid-cols-3 gap-4 mt-4">
+            <div class="grid grid-cols-3 gap-4 mt-6">
               <app-input size="sm" label="Promo Text" placeholder="Happy New Year 2026!"></app-input>
               <app-input size="sm" label="Promo Sub text" placeholder="Special Promotion For You"></app-input>
               <app-input size="sm" label="Button text" placeholder="Redeem Now"></app-input>
@@ -336,14 +512,20 @@
               </app-color-input>
             </div>
 
-            <div class="flex mt-4 p-2 border border-gray-200 rounded-lg">
-              <div class="h-44 w-60 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
-                Please add your the Promo banner Image here
-              </div>
-
-              <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
-                <app-button variant="secondary">✏️</app-button>
-                <app-button variant="secondary">🗑️</app-button>
+            <div class="flex mt-4 p-2 border items-center justify-center border-gray-200 rounded-lg">
+              <div class="flex flex-col  p-2 gap-4 border-gray-200 rounded-lg">
+                <h4 class="text-sm px-2 text-gray-700  font-medium">
+                  Promo Banner (1200x600)
+                </h4>
+                <div class="flex gap-3 justify-center items-center w-full">
+                  <div class="h-44 w-96 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
+                    Please add your the Image here
+                  </div>
+                  <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
+                    <app-button variant="secondary">✏️</app-button>
+                    <app-button variant="secondary">🗑️</app-button>
+                  </div>
+                </div>
               </div>
             </div>
           </app-card>
@@ -393,7 +575,7 @@
             Configuration for conversion of Brand points
           </h4>
           <div class="flex w-full mt-3 py-2 gap-6">
-            <app-select [options]="convertPointsOptions" label="Convert Points" class="w-full">
+            <app-select [options]="yesNoOptions" label="Convert Points" class="w-full">
             </app-select>
             <app-switch class="w-full mt-6" label="Brand" description="Is this support brands ?"></app-switch>
           </div>
@@ -420,19 +602,15 @@
     <app-card *ngIf="currentView !== 'settings'" variant="flat" size="lg">
       <div class="h-auto space-y-3 flex flex-col">
         <div>
-          <p class="text-xl pb-4">Have Brand</p>
-          <p class="text-base text-gray-700">sathapat&#64;probatusai.com</p>
-          <p class="text-sm text-gray-500">Sukhumvit 63, Khlong Tan Nuea,</p>
+          <p class="text-xl pb-4">{{customerDetails?.name }}</p>
+          <p class="text-base text-gray-700">{{detailsForm.value.SupportEmail}}</p>
+          <p class="text-sm text-gray-500">{{detailsForm.value.address}}</p>
         </div>
 
         <div class="flex gap-2 items-center justify-center">
           <div class="h-44 w-56 rounded-xl flex items-center justify-center bg-gray-200 text-sm text-gray-600">
             Please add your the Image here
           </div>
-          <!-- <img 
-                class="h-44 w-56 rounded-xl flex items-center justify-center"
-                /> -->
-
           <div class="flex w-1/5 flex-col gap-6 justify-center items-center">
             <app-button variant="secondary">✏️</app-button>
             <app-button variant="secondary">🗑️</app-button>
@@ -449,17 +627,20 @@
       <h4 class="text-sm font-normal text-gray-600">
         Set calculation methods and default language preferences
       </h4>
-      <div class="w-full flex flex-col gap-4 mt-8">
-        <app-select size="sm" label="Calculate Level By"></app-select>
-        <app-select size="sm" label="Default Language"></app-select>
-        <app-input size="sm" label="Card Message"></app-input>
+      <div [formGroup]="basicConfigurationForm" class="w-full flex flex-col gap-4 mt-8">
+        <app-select size="sm" label="Calculate Level By" [options]="calculateLevelByOptions"
+          formControlName="Calculate_Level_By"></app-select>
+        <app-select size="sm" label="Default Language" [options]="defaultLanguageOptions"
+          formControlName="DefaultLanguage"></app-select>
+        <app-input class="w-full col-span-2" size="sm" label="Card Add Message" placeholder="Enter card add message"
+          formControlName="CardAddMessage" (blur)="onAppFieldBlur('CardAddMessage')"></app-input>
       </div>
     </app-card>
-    <app-card *ngIf="currentView === 'settings'" variant="flat" size="md" class="flex items-center">
+    <app-card *ngIf="currentView === 'settings'" variant="flat" size="sm" class="flex items-center">
 
       <!-- Wallet Card Component -->
       <div
-        class="flex flex-col w-[340px] h-[700px] border-[8px] border-gray-300 rounded-3xl bg-gray-50 overflow-hidden">
+        class="flex flex-col w-[330px] h-[700px] border-[8px] border-gray-300 rounded-3xl bg-gray-50 overflow-hidden">
 
         <!-- Notch -->
         <div class="flex justify-center items-center gap-1.5 my-2.5">
@@ -468,17 +649,15 @@
         </div>
 
         <!-- Scrollable Content -->
-        <div class="flex-1 overflow-y-auto px-1 pb-16 hide-scroll">
+        <div variant="flat" size="lg" class="flex-1 overflow-y-auto px-1 pb-16 hide-scroll">
 
           <!-- Card Carousel -->
-           <div class="flex justify-center">
+          <div class="flex justify-center">
             <div class="relative w-full max-w-[400px]">
 
               <!-- Card Image -->
-              <img
-                src="https://images.pexels.com/photos/5650026/pexels-photo-5650026.jpeg?auto=compress&cs=tinysrgb&w=800"
-                class="w-full h-44 rounded-xl object-cover shadow-md"
-                alt="Card" />
+              <img src="https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/cc07f7ca-40e-2265.png"
+                class="w-full h-44 rounded-xl object-cover shadow-md" alt="Card" />
 
               <div class="absolute top-2 right-3 bg-black/25 text-white px-2 py-1 text-[11px] rounded-md">
                 Platinum
@@ -497,14 +676,14 @@
           </div>
 
           <!-- Balance Section -->
-          <div class="flex flex-col gap-1 px-3 py-3">
+          <div class="flex justify-between px-3 py-3">
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-gray-600">Balance:</span>
-              <span class="text-sm font-bold text-gray-900">2,450.00 THB</span>
+              <span class="text-sm font-bold text-blue-500">2,450.00 THB</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-gray-600">Points:</span>
-              <span class="text-sm font-bold text-gray-900">1,250</span>
+              <span class="text-sm font-bold text-blue-500">1,250</span>
             </div>
           </div>
 
@@ -548,20 +727,17 @@
           <!-- Brand Tabs -->
           <div class="overflow-x-auto hide-scroll mx-2 mb-2">
             <div class="flex gap-2 w-max">
-              <div
-                class="flex items-center gap-1 px-3  rounded-xl bg-blue-50 border border-blue-200 cursor-pointer">
+              <div class="flex items-center gap-1 px-3  rounded-xl bg-blue-50 border border-blue-200 cursor-pointer">
                 <div class="w-6 h-6 rounded-full bg-teal-300 flex items-center justify-center text-white text-[10px]">A
                 </div>
                 <span class="text-[10px] text-gray-700">Brand A</span>
               </div>
-              <div
-                class="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200 cursor-pointer">
+              <div class="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200 cursor-pointer">
                 <div class="w-6 h-6 rounded-full bg-teal-300 flex items-center justify-center text-white text-[10px]">B
                 </div>
                 <span class="text-[10px] text-gray-700">Brand B</span>
               </div>
-              <div
-                class="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200 cursor-pointer">
+              <div class="flex items-center gap-1 px-3 py-2 rounded-xl bg-white border border-gray-200 cursor-pointer">
                 <div class="w-6 h-6 rounded-full bg-teal-300 flex items-center justify-center text-white text-[10px]">C
                 </div>
                 <span class="text-[10px] text-gray-700">Brand C</span>
@@ -584,7 +760,8 @@
                   <div class="text-sm font-bold text-black">Brand A</div>
                   <div class="text-[10px] text-black/70">850 points • Level 2</div>
                 </div>
-                <button class="ml-auto flex items-center gap-1 text-black text-[11px] font-medium">
+                <button
+                  class="ml-auto flex items-center gap-1 p-1 rounded-md border text-black text-[11px] font-medium">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
@@ -672,8 +849,7 @@
           <div class="relative mx-2 mb-3 rounded-xl overflow-hidden min-h-[100px]">
 
             <!-- Background image -->
-            <div
-              class="absolute inset-0 bg-cover bg-center"
+            <div class="absolute inset-0 bg-cover bg-center"
               style="background-image: url('https://vd-loyalty-dev.s3.ap-southeast-1.amazonaws.com/6N0M05/4c31e2faa964bab2-.jpg');">
             </div>
 

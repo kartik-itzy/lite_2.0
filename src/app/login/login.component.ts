@@ -10,7 +10,7 @@ import { AlertComponent } from '../components/ui/alert/alert.component';
 import UtilsForGlobalData from '../Utility/UtilsForGlobalData';
 import * as crypto from 'crypto-js';
 import { DataService } from '../data.service';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-login',
@@ -48,7 +48,7 @@ import jwt_decode from 'jwt-decode';
         <div class="absolute top-1/2 left-1/4 w-1 h-20 bg-gradient-to-b from-purple-400/40 to-transparent animate-slide-down-delayed"></div>
       </div>
       
-      <div class="w-full max-w-lg">
+      <div class="w-full max-w-lg flex flex-col items-center">
         <!-- Logo/Brand Section -->
         <div class="text-center mb-10">
           <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl mb-6 shadow-lg">
@@ -56,12 +56,12 @@ import jwt_decode from 'jwt-decode';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-gray-900 mb-3">Welcome Back</h1>
-          <p class="text-gray-600 text-lg">Sign in to your account to continue</p>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <p class="text-gray-600 text-md">Sign in to your account to continue</p>
         </div>
 
         <!-- Login Form Card -->
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8 pt-12 relative z-10">
+        <div class="bg-white/80 w-96 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8 pt-12 relative z-10">
           <!-- Error Alert -->
           <div *ngIf="loginError" class="mb-8">
             <app-alert
@@ -80,7 +80,7 @@ import jwt_decode from 'jwt-decode';
               <app-input
                 formControlName="email"
                 type="text"
-                label="Email or UserId"
+                label="Email ID"
                 placeholder="Enter your email"
                 icon="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
                 [errorText]="getFieldError('email')"
@@ -134,25 +134,23 @@ import jwt_decode from 'jwt-decode';
                 size="lg"
                 [loading]="isSubmitting"
                 [disabled]="loginForm.invalid || isSubmitting"
-                class="px-8 h-12 text-base font-semibold"
+                class="px-8 h-12  text-base font-semibold"
               >
                 {{ isSubmitting ? 'Signing In...' : 'Sign In' }}
               </app-button>
             </div>
           </form>
 
-          <!-- Divider -->
-          <div class="relative my-8">
+          <!-- <div class="relative my-8">
             <div class="absolute inset-0 flex items-center">
               <div class="w-full border-t border-gray-200"></div>
             </div>
             <div class="relative flex justify-center text-sm">
               <span class="px-4 bg-white text-gray-500">Or continue with</span>
             </div>
-          </div>
+          </div> -->
 
-          <!-- Social Login Options -->
-          <div class="grid grid-cols-2 gap-4">
+          <!-- <div class="grid grid-cols-2 gap-4">
             <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200">
               <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -168,9 +166,8 @@ import jwt_decode from 'jwt-decode';
               </svg>
               <span class="text-sm font-medium text-gray-700">Twitter</span>
             </button>
-          </div>
+          </div> -->
 
-          <!-- Sign Up Link -->
           <div class="text-center mt-8">
             <p class="text-sm text-gray-600">
               Don't have an account? 
@@ -290,38 +287,71 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isSubmitting = true;
-      this.loginError = '';
-
-      console.log(this.loginForm.value)
-      UtilsForGlobalData.setLocalStorageKey('EmailID', this.loginForm.value.email);
-      this.passwordHashValue = crypto.SHA1(this.loginForm.value.password).toString();
-
-      //  this.router.navigate(['/dashboard']);
-
-      this.dataServices.getData(JSON.stringify(
-        {
-          "email": this.loginForm.value.email,
-          "password": this.passwordHashValue,
-          "user_type": "client"
-        }))
-        .subscribe((data: any) => {
-          this.jwtTokenID = data.jwt;
-          UtilsForGlobalData.setLocalStorageKey('JwtToken', this.jwtTokenID);
-          this.JwtDecode = jwt_decode(this.jwtTokenID);
-          UtilsForGlobalData.setLocalStorageKey('Client_tenant_id', this.JwtDecode.tenant_id);
-          UtilsForGlobalData.setLocalStorageKey('17', 'Client_Login');
-          this.router.navigate(['/dashboard']);
-
-        }, (error: any) => {
-          // this.toastr.error(error.error + "   Email ID OR  Password ", "ACCESS DENIED");
-        });
-
-    } else {
-      this.markFormGroupTouched();
-    }
+  if (this.loginForm.invalid) {
+    this.markFormGroupTouched();
+    return;
   }
+
+  this.isSubmitting = true;
+  this.loginError = '';
+
+  const { email, password, rememberMe } = this.loginForm.value;
+
+  // Store Email
+  UtilsForGlobalData.setLocalStorageKey('EmailID', email);
+
+  // Hash Password
+  const passwordHashValue = crypto.SHA1(password).toString();
+
+  const payload = {
+    email: email,
+    password: passwordHashValue,
+    user_type: 'client'
+  };
+
+  this.dataServices.getData(JSON.stringify(payload))
+    .subscribe({
+      next: (data: any) => {
+        this.isSubmitting = false;
+
+        if (!data?.jwt) {
+          this.loginError = 'Invalid server response.';
+          return;
+        }
+
+        const jwtTokenID = data.jwt;
+
+        // Store token (respect Remember Me)
+        if (rememberMe) {
+          localStorage.setItem('JwtToken', jwtTokenID);
+        } else {
+          sessionStorage.setItem('JwtToken', jwtTokenID);
+        }
+
+        // Decode token (NEW SYNTAX)
+        const decodedToken: any = jwtDecode(jwtTokenID);
+
+        // Store tenant id
+        if (decodedToken?.tenant_id) {
+          UtilsForGlobalData.setLocalStorageKey(
+            'Client_tenant_id',
+            decodedToken.tenant_id
+          );
+        }
+
+        UtilsForGlobalData.setLocalStorageKey('17', 'Client_Login');
+
+        // Navigate
+        this.router.navigate(['/dashboard']);
+      },
+
+      error: (error: any) => {
+        this.isSubmitting = false;
+        this.loginError =
+          error?.error?.message || 'Email ID or Password is incorrect.';
+      }
+    });
+}
 
   clearError(): void {
     this.loginError = '';
