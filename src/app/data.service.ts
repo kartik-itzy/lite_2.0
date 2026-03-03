@@ -234,12 +234,8 @@ export class DataService {
   }
 
   retrieveKey(key: string) {
-    this.value = localStorage.getItem(key);
-    this.value = CryptoJS.AES.decrypt(this.value, this.secretKey).toString(
-      CryptoJS.enc.Utf8
-    );
-    return this.value;
-  }
+  return localStorage.getItem(key);
+}
 
   resetDecryptedToken(): Boolean {
     this.decryptedToken = null;

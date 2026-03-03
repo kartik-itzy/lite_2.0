@@ -287,71 +287,72 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-  if (this.loginForm.invalid) {
-    this.markFormGroupTouched();
-    return;
+    if (this.loginForm.invalid) {
+      this.markFormGroupTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.loginError = '';
+
+    const { email, password, rememberMe } = this.loginForm.value;
+
+    // Store Email
+    UtilsForGlobalData.setLocalStorageKey('EmailID', email);
+
+    // Hash Password
+    const passwordHashValue = crypto.SHA1(password).toString();
+
+    const payload = {
+      email: email,
+      password: passwordHashValue,
+      user_type: 'client'
+    };
+
+    this.dataServices.getData(JSON.stringify(payload))
+      .subscribe({
+        next: (data: any) => {
+          this.isSubmitting = false;
+
+          if (!data?.jwt) {
+            this.loginError = 'Invalid server response.';
+            return;
+          }
+
+          const jwtTokenID = data.jwt;
+
+          // Store token (respect Remember Me)
+          if (rememberMe) {
+            localStorage.setItem('JwtToken', jwtTokenID);
+          } else {
+            localStorage.setItem('JwtToken', jwtTokenID); // same key and storage
+          }
+
+
+          // Decode token (NEW SYNTAX)
+          const decodedToken: any = jwtDecode(jwtTokenID);
+
+          // Store tenant id
+          if (decodedToken?.tenant_id) {
+            UtilsForGlobalData.setLocalStorageKey(
+              'Client_tenant_id',
+              decodedToken.tenant_id
+            );
+          }
+
+          UtilsForGlobalData.setLocalStorageKey('17', 'Client_Login');
+
+          // Navigate
+          this.router.navigate(['/dashboard']);
+        },
+
+        error: (error: any) => {
+          this.isSubmitting = false;
+          this.loginError =
+            error?.error?.message || 'Email ID or Password is incorrect.';
+        }
+      });
   }
-
-  this.isSubmitting = true;
-  this.loginError = '';
-
-  const { email, password, rememberMe } = this.loginForm.value;
-
-  // Store Email
-  UtilsForGlobalData.setLocalStorageKey('EmailID', email);
-
-  // Hash Password
-  const passwordHashValue = crypto.SHA1(password).toString();
-
-  const payload = {
-    email: email,
-    password: passwordHashValue,
-    user_type: 'client'
-  };
-
-  this.dataServices.getData(JSON.stringify(payload))
-    .subscribe({
-      next: (data: any) => {
-        this.isSubmitting = false;
-
-        if (!data?.jwt) {
-          this.loginError = 'Invalid server response.';
-          return;
-        }
-
-        const jwtTokenID = data.jwt;
-
-        // Store token (respect Remember Me)
-        if (rememberMe) {
-          localStorage.setItem('JwtToken', jwtTokenID);
-        } else {
-          sessionStorage.setItem('JwtToken', jwtTokenID);
-        }
-
-        // Decode token (NEW SYNTAX)
-        const decodedToken: any = jwtDecode(jwtTokenID);
-
-        // Store tenant id
-        if (decodedToken?.tenant_id) {
-          UtilsForGlobalData.setLocalStorageKey(
-            'Client_tenant_id',
-            decodedToken.tenant_id
-          );
-        }
-
-        UtilsForGlobalData.setLocalStorageKey('17', 'Client_Login');
-
-        // Navigate
-        this.router.navigate(['/dashboard']);
-      },
-
-      error: (error: any) => {
-        this.isSubmitting = false;
-        this.loginError =
-          error?.error?.message || 'Email ID or Password is incorrect.';
-      }
-    });
-}
 
   clearError(): void {
     this.loginError = '';
