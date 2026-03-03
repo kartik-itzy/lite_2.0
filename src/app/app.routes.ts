@@ -59,6 +59,8 @@ import { CardComponent } from './modules/Others/card/card.component';
 import { BrandDetailsComponent } from './modules/Brand/brand-details/brand-details.component';
 import { TopupPromotionByBrandDetailsComponent } from './modules/Brand/topup-promotion-by-brand-details/topup-promotion-by-brand-details.component';
 import { CustomerDetailsComponent } from './modules/CRM/customer-details/customer-details.component';
+import { LineChannelsComponent } from './modules/Integration-and-external-setup/line-channels/line-channels.component';
+import { LineIntegrationTemplatesComponent } from './modules/Integration-and-external-setup/line-integration-templates/line-integration-templates.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -164,7 +166,7 @@ export const routes: Routes = [
   { path: 'crafted/retail/client_stats', component: StatsComponent },
 
   { path: 'crafted/retail/Brand', component: BrandComponent },
-  { path:'crafted/retail/Brand-details/:id', component:BrandDetailsComponent},
+  { path: 'crafted/retail/Brand-details/:id', component: BrandDetailsComponent },
   {
     path: 'crafted/retail/loyaltyplanByBrand',
     component: LoyaltyPlanByBrandComponent,
@@ -197,10 +199,17 @@ export const routes: Routes = [
   {
     path: 'crafted/retail/Card',
     component: CardComponent
-
   },
 
-  { path: 'crafted/retail/LineIntegration', component: LineIntegrationComponent },
+  { path: 'crafted/retail/LineChannels', component: LineChannelsComponent },
+  {
+    path: 'crafted/retail/LineIntegration/:channelId',
+    component: LineIntegrationComponent,
+  },
+  {
+    path: 'crafted/retail/LineIntegrationTemplates/:channelId/:id',//this is templateid
+    component: LineIntegrationTemplatesComponent,
+  },
   { path: 'crafted/retail/BrandPointsByMember', component: BrandPointsComponent },
   { path: 'crafted/retail/TransactionsHistory', component: TransactionsHistoryComponent },
 

@@ -67,7 +67,7 @@ export class SidebarComponent implements OnInit {
           const manualIntegrationItem = {
             id: 9999,
             name: 'Line Integration',
-            url: 'crafted/retail/LineIntegration',
+            url: 'crafted/retail/LineChannels',
             ThaiName: 'Line การเชื่อมต่อ & การตั้งค่า ภายนอก',
           };
 

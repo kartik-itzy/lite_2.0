@@ -1,0 +1,472 @@
+<div class="min-h-screen bg-gray-50 flex flex-col">
+
+  <!-- Sticky Top Header Bar -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
+
+    <!-- Left: Back + Editable Name -->
+    <div class="flex items-center gap-4 min-w-0">
+      <button
+        (click)="BacktoListScreen()"
+        class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors flex-shrink-0"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back
+      </button>
+
+      <div class="w-px h-5 bg-gray-200 flex-shrink-0"></div>
+
+      <!-- Editable Name -->
+      <div class="flex items-center gap-2 min-w-0">
+        <h1
+          *ngIf="!isEditingHeaderName"
+          class="text-lg font-semibold text-gray-900 truncate"
+        >
+          {{ formData.name || 'Template Name' }}
+        </h1>
+        <input
+          *ngIf="isEditingHeaderName"
+          type="text"
+          id="headerNameInput"
+          [(ngModel)]="tempHeaderName"
+          (keydown.enter)="saveHeaderName()"
+          (keydown.escape)="cancelEditHeaderName()"
+          (blur)="saveHeaderName()"
+          placeholder="Enter template name"
+          class="text-lg font-semibold text-gray-900 px-2 py-0.5 border-2 border-blue-500 rounded-md focus:outline-none bg-white min-w-0 w-64"
+          autofocus
+        />
+        <button
+          *ngIf="!isEditingHeaderName"
+          (click)="toggleEditHeaderName()"
+          class="flex-shrink-0 p-1 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all opacity-60 hover:opacity-100"
+          title="Edit name"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right: Type badge -->
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <div class="flex flex-col items-end gap-1">
+        <span class="text-xs font-medium text-gray-400 uppercase tracking-wide">Type</span>
+        <span class="text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-md bg-blue-100 text-blue-700">
+          {{ getMessageTypeLabel() }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex items-center justify-center py-24">
+    <app-loading></app-loading>
+  </div>
+
+  <!-- Template Not Found -->
+  <div *ngIf="!loading && !template"
+    class="flex flex-col items-center justify-center py-20 m-6 bg-white rounded-xl border border-gray-200 text-center">
+    <svg class="w-14 h-14 text-amber-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <h2 class="text-lg font-semibold text-gray-900 mb-1">Template Not Found</h2>
+    <p class="text-sm text-gray-500 mb-5">The requested template could not be loaded.</p>
+    <app-button variant="primary" (clicked)="BacktoListScreen()">Go Back to Templates</app-button>
+  </div>
+
+  <!-- Main Content: Left form + Right sidebar -->
+  <div *ngIf="!loading && template" class="flex flex-1 overflow-hidden" style="height: calc(100vh - 57px)">
+
+    <!-- Left: Form Panel -->
+    <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+
+        <!-- Form Header -->
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <h2 class="text-base font-semibold text-gray-900">Template Details</h2>
+        </div>
+
+        <div class="p-6 space-y-8">
+
+          <!-- Basic Information -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-700 pb-3 border-b border-gray-100 mb-4">Basic Information</h3>
+            <div class="grid grid-cols-2 gap-4">
+
+              <!-- Message Type -->
+              <div>
+                <app-select
+                  label="Message Type"
+                  [options]="messageTypeOptions"
+                  [(ngModel)]="formData.type"
+                  (selectionChange)="onFormChange()"
+                ></app-select>
+              </div>
+
+              <!-- Alt Text (Flex only) -->
+              <div *ngIf="formData.type === 'flex'">
+                <app-input
+                  label="Alert Text"
+                  placeholder="Alert text"
+                  [(ngModel)]="formData.altText"
+                  (ngModelChange)="onFormChange()"
+                ></app-input>
+              </div>
+
+              <!-- Coupon Link (Flex only) -->
+              <div *ngIf="formData.type === 'flex'" class="col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Coupon Link</label>
+                <div class="flex gap-6">
+                  <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="radio" name="couponLink" value="Yes" [(ngModel)]="formData.couponLink"
+                      (ngModelChange)="onFormChange()"
+                      class="w-4 h-4 border-2 border-gray-300 rounded-full cursor-pointer accent-green-600" />
+                    <span class="text-sm font-medium text-gray-700">Yes</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="radio" name="couponLink" value="No" [(ngModel)]="formData.couponLink"
+                      (ngModelChange)="onFormChange()"
+                      class="w-4 h-4 border-2 border-gray-300 rounded-full cursor-pointer accent-green-600" />
+                    <span class="text-sm font-medium text-gray-700">No</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Redirect URL (Flex + No coupon only) -->
+              <div *ngIf="formData.type === 'flex' && formData.couponLink === 'No'" class="col-span-2">
+                <app-input
+                  label="Redirect URL"
+                  placeholder="https://example.com"
+                  [(ngModel)]="formData.redirect_url"
+                  (ngModelChange)="onFormChange()"
+                ></app-input>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Text Message Content -->
+          <div *ngIf="formData.type === 'text'">
+            <h3 class="text-sm font-semibold text-gray-700 pb-3 border-b border-gray-100 mb-4">Message Content</h3>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Message Text</label>
+              <textarea
+                [(ngModel)]="formData.textMessage"
+                (ngModelChange)="onFormChange()"
+                placeholder="Enter your message text"
+                rows="5"
+                class="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:bg-white resize-none transition-all"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Image Settings -->
+          <div *ngIf="shouldShowImageSettings()">
+            <h3 class="text-sm font-semibold text-gray-700 pb-3 border-b border-gray-100 mb-4">
+              {{ formData.type === 'flex' ? 'Hero Image Settings' : 'Image Settings' }}
+            </h3>
+            <div class="grid grid-cols-3 gap-4">
+              <app-select
+                label="Size"
+                [options]="imageSizeOptions"
+                [(ngModel)]="formData.heroImageSize"
+                (selectionChange)="onFormChange()"
+              ></app-select>
+              <app-select
+                label="Aspect Ratio"
+                [options]="aspectRatioOptions"
+                [(ngModel)]="formData.heroAspectRatio"
+                (selectionChange)="onFormChange()"
+              ></app-select>
+              <app-select
+                label="Aspect Mode"
+                [options]="aspectModeOptions"
+                [(ngModel)]="formData.heroAspectMode"
+                (selectionChange)="onFormChange()"
+              ></app-select>
+            </div>
+          </div>
+
+          <!-- Body Content (Flex only) -->
+          <div *ngIf="formData.type === 'flex'">
+            <h3 class="text-sm font-semibold text-gray-700 pb-3 border-b border-gray-100 mb-4">Body Content</h3>
+
+            <div *ngFor="let text of formData.bodyTexts; let i = index" class="mb-3">
+              <div class="flex gap-2 items-start">
+                <div class="flex-1">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Body Text {{ i + 1 }}</label>
+                  <textarea
+                    [(ngModel)]="formData.bodyTexts[i]"
+                    (ngModelChange)="onFormChange()"
+                    [placeholder]="'Enter body text ' + (i + 1)"
+                    rows="3"
+                    class="w-full px-4 py-2.5 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 focus:bg-white resize-none transition-all"
+                  ></textarea>
+                </div>
+                <button
+                  *ngIf="formData.bodyTexts.length > 1"
+                  (click)="removeBodyText(i)"
+                  class="mt-6 p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all flex-shrink-0"
+                  title="Remove"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button
+              (click)="addBodyText()"
+              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all mt-1"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Body Text
+            </button>
+          </div>
+
+          <!-- Button Settings (Flex + No coupon + redirect url set) -->
+          <div *ngIf="formData.type === 'flex' && formData.couponLink === 'No' && formData.redirect_url?.trim()">
+            <h3 class="text-sm font-semibold text-gray-700 pb-3 border-b border-gray-100 mb-4">Button Settings</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <app-input
+                label="Button Label"
+                placeholder="Visit Website"
+                [(ngModel)]="formData.buttonLabel"
+                (ngModelChange)="onFormChange()"
+              ></app-input>
+              <div class="flex flex-col gap-1">
+                <label class="text-sm font-medium text-gray-700">Button Color</label>
+                <input
+                  type="color"
+                  [(ngModel)]="formData.buttonColor"
+                  (ngModelChange)="onFormChange()"
+                  class="h-10 w-16 rounded-md border border-gray-300 cursor-pointer p-0.5"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Footer -->
+          <div class="flex items-center justify-between gap-4 pt-6 border-t border-gray-100 overflow-visible">
+
+            <!-- Back -->
+            <button
+              (click)="BacktoListScreen()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back
+            </button>
+
+            <!-- Send Message group (center) -->
+            <div class="flex items-center gap-3 flex-1 justify-center">
+              <div class="flex flex-col gap-1 min-w-0">
+                <app-multiselect
+                  [options]="lineMemberOptions"
+                  [(selected)]="selectedUsers"
+                  placeholder="Select user(s)"
+                  [searchable]="true"
+                  (selectionChanged)="onUserSelectionChanged()"
+                  class="w-72"
+                ></app-multiselect>
+                <span
+                  *ngIf="selectedUsers && selectedUsers.length > 0"
+                  class="text-xs text-blue-600 font-medium pl-1"
+                >
+                  {{ selectedUsers.length === 1 ? 'Push message (1 user)' : 'Multicast message (' + selectedUsers.length + ' users)' }}
+                </span>
+              </div>
+
+              <button
+                (click)="sendMessage()"
+                [disabled]="sendingMessage || !selectedUsers || selectedUsers.length === 0"
+                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+              >
+                <svg *ngIf="!sendingMessage" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <svg *ngIf="sendingMessage" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+                {{ sendingMessage ? 'Sending...' : 'Send Message' }}
+              </button>
+            </div>
+
+            <!-- Save -->
+            <button
+              (click)="saveTemplate()"
+              [disabled]="saving"
+              class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+            >
+              <svg *ngIf="!saving" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              <svg *ngIf="saving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+              {{ saving ? 'Saving...' : 'Save' }}
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Sidebar (Image + Preview) -->
+    <div class="w-80 flex flex-col bg-white border-l border-gray-200 overflow-y-auto flex-shrink-0">
+
+      <!-- Image Upload Section -->
+      <div *ngIf="shouldShowImageUpload()" class="border-b border-gray-200">
+        <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <h3 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Image</h3>
+        </div>
+
+        <div class="p-4">
+          <input
+            type="file"
+            id="imageUpload"
+            accept="image/*"
+            (change)="onImageSelected($event)"
+            [disabled]="uploadingImage || deletingImage"
+            class="hidden"
+          />
+
+          <!-- Uploading -->
+          <div *ngIf="uploadingImage" class="flex flex-col items-center justify-center py-8 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+            <svg class="w-8 h-8 animate-spin text-blue-500 mb-2" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            <p class="text-xs text-gray-500 font-medium">Uploading...</p>
+          </div>
+
+          <!-- Has image -->
+          <div *ngIf="!uploadingImage && hasValidImage()" class="relative rounded-xl overflow-hidden bg-gray-100 group">
+            <img [src]="imagePreviewUrl" alt="Template Image" class="w-full h-auto max-h-56 object-contain block" />
+            <div class="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                (click)="triggerFileInput()"
+                [disabled]="deletingImage"
+                class="w-8 h-8 rounded-md bg-blue-600 bg-opacity-90 text-white flex items-center justify-center hover:bg-blue-700 transition-all"
+                title="Change image"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button
+                (click)="deleteImage()"
+                [disabled]="deletingImage"
+                class="w-8 h-8 rounded-md bg-red-600 bg-opacity-90 text-white flex items-center justify-center hover:bg-red-700 transition-all disabled:opacity-50"
+                title="Delete image"
+              >
+                <svg *ngIf="!deletingImage" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <svg *ngIf="deletingImage" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Upload placeholder -->
+          <div *ngIf="!uploadingImage && !hasValidImage()"
+            (click)="triggerFileInput()"
+            class="flex flex-col items-center justify-center py-10 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all group"
+          >
+            <svg class="w-10 h-10 text-gray-300 group-hover:text-blue-400 mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p class="text-sm font-semibold text-gray-700">Add Image</p>
+            <p class="text-xs text-gray-400 mt-0.5">Click to upload (Max 1MB)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview Section -->
+      <div class="flex-1 flex flex-col">
+        <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
+          <h3 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Preview</h3>
+          <span class="text-xs font-bold uppercase tracking-wide px-2 py-0.5 bg-green-100 text-green-700 rounded">LIVE</span>
+        </div>
+
+        <div class="flex-1 p-4 bg-gray-100 flex items-start justify-center">
+          <div *ngIf="messagePreview" class="w-full max-w-xs">
+            <div class="flex justify-start">
+              <div class="max-w-[85%]">
+
+                <!-- Message bubble -->
+                <div class="bg-white rounded-xl rounded-tl-sm shadow-sm border border-gray-200 overflow-hidden">
+
+                  <!-- Hero Image -->
+                  <div *ngIf="imagePreviewUrl" [ngStyle]="getHeroImageStyles()" class="overflow-hidden">
+                    <img
+                      [src]="imagePreviewUrl"
+                      alt="Hero"
+                      [style.object-fit]="formData.heroAspectMode || 'cover'"
+                      class="w-full h-full block"
+                      (error)="onPreviewImageError($event)"
+                    />
+                  </div>
+
+                  <div class="p-3">
+                    <!-- Text message -->
+                    <div *ngIf="messagePreview.type === 'text'">
+                      <p class="text-xs text-gray-800 leading-relaxed">{{ messagePreview.text }}</p>
+                    </div>
+
+                    <!-- Flex body -->
+                    <div *ngIf="messagePreview.type === 'flex'">
+                      <div *ngFor="let content of messagePreview.contents?.body?.contents">
+                        <p *ngIf="content.type === 'text'" class="text-xs text-gray-800 leading-relaxed mb-1">
+                          {{ content.text }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Button preview -->
+                    <div *ngIf="messagePreview?.type === 'flex' && messagePreview.contents?.footer?.contents?.length > 0"
+                      class="mt-2 pt-2 border-t border-gray-100">
+                      <button
+                        class="w-full py-1.5 rounded-md text-white text-xs font-semibold transition-all"
+                        [style.background-color]="formData.buttonColor"
+                      >
+                        {{ formData.buttonLabel || 'Visit Website' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <span class="text-xs text-gray-400 mt-1 block pl-1">{{ getCurrentTime() }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- No preview yet -->
+          <div *ngIf="!messagePreview" class="flex flex-col items-center justify-center h-32 text-center">
+            <p class="text-xs text-gray-400">Preview will appear here</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
