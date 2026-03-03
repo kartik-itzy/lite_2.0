@@ -1,0 +1,453 @@
+<!-- rfm-segmentation.component.html (NG19 + TailwindCSS Migration) -->
+<div class="min-h-screen bg-gray-50 flex flex-col">
+
+  <!-- ==================== STICKY HEADER ==================== -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-4 min-w-0">
+      <button (click)="BacktoListScreen()"
+        class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back
+      </button>
+      <div class="w-px h-5 bg-gray-200 flex-shrink-0"></div>
+      <div class="flex items-center gap-2 min-w-0">
+        <h1 class="text-lg font-semibold text-gray-900 truncate">{{ targetName || 'Target Group' }}</h1>
+      </div>
+    </div>
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <span class="text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-md bg-blue-100 text-blue-700">
+        RFM Segmentation
+      </span>
+    </div>
+  </div>
+
+  <!-- ==================== TARGET DETAIL PANEL ==================== -->
+  <div class="bg-[#f8f7f4] border-b border-[#e8e6e0] px-6 py-5">
+    <!-- Top Row: Name + Description -->
+    <div class="flex items-start justify-between flex-wrap gap-3 mb-4">
+      <div>
+        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Target Group</p>
+        <h2 class="text-sm font-bold text-gray-900">{{ targetName || 'Loading...' }}</h2>
+      </div>
+      <div *ngIf="targetHumanDescription" class="text-xs text-gray-500 italic max-w-sm text-right leading-relaxed">
+        <svg class="w-3 h-3 inline-block mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        {{ targetHumanDescription }}
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="h-px bg-[#e8e6e0] mb-4"></div>
+
+    <!-- Detail Fields Grid -->
+    <div *ngIf="targetDetails; else detailLoading" class="grid grid-cols-2 md:grid-cols-4 gap-0">
+      <div class="pr-6">
+        <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Target ID</p>
+        <p class="text-sm font-medium text-gray-900">{{ targetDetails.targetID || targetDetails.id || '—' }}</p>
+      </div>
+      <div class="pr-6">
+        <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Created Date</p>
+        <p class="text-sm font-medium text-gray-900">{{ targetDetails.created_at ? (targetDetails.created_at | date:'d MMM y') : '—' }}</p>
+      </div>
+      <div class="pr-6">
+        <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Members</p>
+        <p class="text-sm font-medium text-gray-900">{{ targetMembersData?.length ?? '—' }}</p>
+      </div>
+      <div class="pr-6">
+        <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Status</p>
+        <span class="inline-block text-[11px] font-semibold px-2.5 py-0.5 rounded-full
+          bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+      </div>
+    </div>
+    <ng-template #detailLoading>
+      <div class="flex items-center gap-2 text-sm text-gray-400 py-2">
+        <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        Loading target details...
+      </div>
+    </ng-template>
+
+    <!-- Category Chips -->
+    <div *ngIf="targetCategories?.length > 0" class="flex flex-wrap gap-2 mt-4">
+      <span *ngFor="let cat of targetCategories; let i = index"
+        class="inline-flex items-center text-[10px] px-2 py-1 rounded-xl capitalize font-medium border"
+        [ngClass]="getChipColor(i)">
+        {{ cat }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ==================== TABS ==================== -->
+  <div class="px-6 pt-4">
+    <app-tab
+      [tabs]="tabs"
+      [selectedTabId]="currentTabId"
+      (tabChange)="onTabChange($event)">
+    </app-tab>
+  </div>
+
+  <!-- ==================== TAB CONTENT ==================== -->
+  <div class="flex-1 px-6 py-4">
+
+    <!-- ========== TAB 1: CAMPAIGNS ========== -->
+    <div *ngIf="currentTabId === 'campaigns'">
+
+      <!-- Analytics Stats Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="rounded-xl p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          style="background:#70d6ff">
+          <p class="text-3xl font-bold text-white mb-1">{{ analyticsData.sendMessage }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-white/90">Sent</p>
+        </div>
+        <div class="rounded-xl p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          style="background:#ff70a6">
+          <p class="text-3xl font-bold text-white mb-1">{{ analyticsData.scheduleLater }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-white/90">Scheduled</p>
+        </div>
+        <div class="rounded-xl p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          style="background:#ff9770">
+          <p class="text-3xl font-bold text-white mb-1">{{ analyticsData.opened }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-white/90">Opened</p>
+        </div>
+        <div class="rounded-xl p-5 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          style="background:#ffd670">
+          <p class="text-3xl font-bold text-white mb-1">{{ analyticsData.clicked }}</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-white/90">Clicked</p>
+        </div>
+      </div>
+
+      <!-- Campaign List Header -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="text-base font-semibold text-gray-900">Campaigns</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Manage and send campaigns for this target group</p>
+        </div>
+        <app-button variant="primary" size="sm" (clicked)="createCampaign()">
+          <svg class="w-4 h-4 mr-1.5 inline-block -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Campaign
+        </app-button>
+      </div>
+
+      <!-- Campaign Cards Grid -->
+      <div *ngIf="allCampaigns.length > 0; else noCampaigns"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let campaign of allCampaigns"
+          class="group bg-white border border-[#eef0f4] rounded-xl cursor-pointer
+                 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+          (click)="onCampaignCardClick(campaign)">
+          <div class="p-5">
+
+            <!-- Card Top: Title + Badge + Actions -->
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-900 truncate leading-tight">{{ campaign.campaignName }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">{{ campaign.campaignId }}</p>
+              </div>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <!-- Status Badge -->
+                <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+                  [ngClass]="{
+                    'bg-emerald-50 text-emerald-700 border border-emerald-200': campaign.status === 'Delivered',
+                    'bg-amber-50 text-amber-700 border border-amber-200': campaign.status === 'Scheduled',
+                    'bg-gray-100 text-gray-500 border border-gray-200': campaign.status === 'Unscheduled',
+                    'bg-red-50 text-red-600 border border-red-200': campaign.status === 'Failed'
+                  }">
+                  {{ campaign.status }}
+                </span>
+                <!-- Action Buttons (visible on hover) -->
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button type="button" (click)="editCampaign(campaign, $event)"
+                    class="p-1.5 rounded-md text-blue-500 hover:bg-blue-50 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button type="button" (click)="confirmDeleteCampaign(campaign, $event)"
+                    class="p-1.5 rounded-md text-red-500 hover:bg-red-50 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Channel & Template -->
+            <div class="space-y-1 mb-3">
+              <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span class="truncate">{{ campaign.channelName || '—' }}</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-xs text-gray-500">
+                <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span class="truncate">{{ campaign.templateName || campaign.templateID || '—' }}</span>
+              </div>
+              <div *ngIf="campaign.couponCodes?.length > 0" class="flex items-center gap-1.5 text-xs text-gray-500">
+                <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+                <span class="truncate">{{ getCouponDescriptions(campaign.couponCodes) }}</span>
+              </div>
+            </div>
+
+            <!-- Scheduled Info -->
+            <div *ngIf="campaign.status === 'Scheduled' && campaign.scheduleDate"
+              class="bg-amber-50 border-l-2 border-amber-400 px-3 py-2 rounded-md text-xs text-amber-800 mb-3">
+              <svg class="w-3 h-3 inline-block mr-1 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Scheduled: <strong>{{ campaign.scheduleDate }} {{ campaign.scheduleTime }}</strong>
+            </div>
+
+            <!-- Send Button -->
+            <div class="pt-2 border-t border-gray-100">
+              <app-button
+                [variant]="campaign.status === 'Delivered' ? 'secondary' : 'primary'"
+                size="sm"
+                [fullWidth]="true"
+                (clicked)="openSendDialog(campaign, $event)">
+                <svg class="w-3.5 h-3.5 mr-1.5 inline-block -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+                {{ campaign.status === 'Delivered' ? 'Resend' : 'Send' }}
+              </app-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noCampaigns>
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+          <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h4 class="text-sm font-semibold text-gray-700 mb-1">No Campaigns Yet</h4>
+          <p class="text-xs text-gray-400 mb-4">Create your first campaign for this target group.</p>
+          <app-button variant="primary" size="sm" (clicked)="createCampaign()">New Campaign</app-button>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- ========== TAB 2: MEMBERS ========== -->
+    <div *ngIf="currentTabId === 'members'">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-gray-900">Target Members</h3>
+          <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
+            {{ targetMembersData?.length ?? 0 }} members
+          </span>
+        </div>
+        <app-table
+          [columns]="memberTableColumns"
+          [rows]="targetMembersData"
+          [config]="memberTableConfig">
+        </app-table>
+      </div>
+    </div>
+
+    <!-- ========== TAB 3: LOGS ========== -->
+    <div *ngIf="currentTabId === 'logs'">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+          <h3 class="text-sm font-semibold text-gray-900">Campaign Logs</h3>
+          <p class="text-xs text-gray-400 mt-0.5">All message delivery records for this target group</p>
+        </div>
+        <app-table
+          [columns]="logsTableColumns"
+          [rows]="campaignLogs"
+          [config]="logsTableConfig">
+        </app-table>
+      </div>
+    </div>
+
+  </div><!-- end tab content -->
+</div><!-- end min-h-screen -->
+
+
+<!-- ==================== MODAL: CREATE / EDIT CAMPAIGN ==================== -->
+<app-modal
+  [isOpen]="showCampaignDialog"
+  [config]="{
+    title: isEditMode ? 'Edit Campaign' : 'New Campaign',
+    size: 'lg',
+    showCloseButton: true,
+    closeOnBackdropClick: true
+  }"
+  (closeModal)="cancelCampaignDialog()">
+
+  <div class="space-y-4">
+    <!-- Campaign Name -->
+    <app-input
+      size="sm"
+      label="Campaign Name"
+      placeholder="Enter campaign name"
+      [(ngModel)]="campaignForm.campaignName">
+    </app-input>
+
+    <!-- Channel -->
+    <app-select
+      label="Channel"
+      placeholder="Select channel"
+      [options]="channelOptions"
+      [(ngModel)]="campaignForm.channel"
+      (ngModelChange)="onChannelChangeByValue($event)">
+    </app-select>
+
+    <!-- Template -->
+    <app-select
+      label="Template"
+      placeholder="Select template"
+      [options]="templateOptions"
+      [disabled]="!campaignForm.channel"
+      [(ngModel)]="campaignForm.template">
+    </app-select>
+
+    <!-- Coupons -->
+    <app-multiselect
+      label="Coupon Codes"
+      placeholder="Select coupon codes"
+      [options]="couponOptions"
+      [(ngModel)]="campaignForm.couponCodes">
+    </app-multiselect>
+  </div>
+
+  <div modal-footer>
+    <app-button variant="secondary" size="sm" (clicked)="cancelCampaignDialog()">Cancel</app-button>
+    <app-button variant="primary" size="sm" (clicked)="saveCampaign()">
+      {{ isEditMode ? 'Update' : 'Create' }}
+    </app-button>
+  </div>
+</app-modal>
+
+
+<!-- ==================== MODAL: SEND / SCHEDULE CAMPAIGN ==================== -->
+<app-modal
+  [isOpen]="showSendDialog"
+  [config]="{
+    title: isDeliveredOrScheduled() ? 'Resend Campaign' : 'Send Campaign',
+    size: 'md',
+    showCloseButton: true,
+    closeOnBackdropClick: false
+  }"
+  (closeModal)="cancelSendDialog()">
+
+  <div class="space-y-4">
+    <!-- Campaign Info Banner -->
+    <div *ngIf="sendingCampaign" class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+      <p class="text-xs text-gray-400 uppercase font-semibold mb-1 tracking-wide">Campaign</p>
+      <p class="text-sm font-semibold text-gray-900">{{ sendingCampaign.campaignName }}</p>
+      <p class="text-xs text-gray-500 mt-0.5">{{ sendingCampaign.channelName }}</p>
+    </div>
+
+    <!-- Send Type Toggle -->
+    <div>
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Delivery Option</p>
+      <div class="flex rounded-lg border border-gray-200 p-1 gap-1 bg-gray-50">
+        <button type="button"
+          class="flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all"
+          [class]="sendForm.sendType === 'sendnow'
+            ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+            : 'text-gray-500 hover:text-gray-700'"
+          (click)="sendForm.sendType = 'sendnow'">
+          Send Now
+        </button>
+        <button type="button"
+          class="flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all"
+          [class]="sendForm.sendType === 'sendlater'
+            ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+            : 'text-gray-500 hover:text-gray-700'"
+          (click)="sendForm.sendType = 'sendlater'">
+          Schedule
+        </button>
+      </div>
+    </div>
+
+    <!-- Schedule Fields (only when sendlater) -->
+    <div *ngIf="sendForm.sendType === 'sendlater'" class="grid grid-cols-2 gap-3">
+      <app-input
+        type="date"
+        size="sm"
+        label="Schedule Date"
+        [(ngModel)]="sendForm.scheduleDate">
+      </app-input>
+      <app-input
+        type="time"
+        size="sm"
+        label="Schedule Time"
+        [(ngModel)]="sendForm.scheduleTime">
+      </app-input>
+    </div>
+
+    <!-- Send Now Confirmation -->
+    <div *ngIf="sendForm.sendType === 'sendnow'" class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-700">
+      <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ isDelivered() ? 'Campaign will be resent immediately to all target members.' : 'Campaign will be sent immediately to all target members.' }}
+    </div>
+  </div>
+
+  <div modal-footer>
+    <app-button variant="secondary" size="sm" (clicked)="cancelSendDialog()">Cancel</app-button>
+    <app-button variant="primary" size="sm" (clicked)="executeSendCampaign()">
+      {{ sendForm.sendType === 'sendlater' ? 'Schedule' : (isDelivered() ? 'Resend Now' : 'Send Now') }}
+    </app-button>
+  </div>
+</app-modal>
+
+
+<!-- ==================== MODAL: DELETE CONFIRM ==================== -->
+<app-modal
+  [isOpen]="showDeleteConfirm"
+  [config]="{
+    title: 'Delete Campaign',
+    size: 'sm',
+    showCloseButton: true,
+    closeOnBackdropClick: true
+  }"
+  (closeModal)="cancelDelete()">
+
+  <div class="flex gap-3">
+    <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+      <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-semibold text-gray-900 mb-1">Are you sure?</p>
+      <p class="text-sm text-gray-500">
+        This will permanently delete
+        <strong class="text-gray-700">{{ deletingCampaign?.campaignName }}</strong>.
+        This action cannot be undone.
+      </p>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <app-button variant="secondary" size="sm" (clicked)="cancelDelete()">Cancel</app-button>
+    <app-button variant="danger" size="sm" (clicked)="deleteCampaign()">Delete</app-button>
+  </div>
+</app-modal>

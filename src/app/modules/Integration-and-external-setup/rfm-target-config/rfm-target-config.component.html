@@ -1,0 +1,619 @@
+<div class="p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h3 class="text-xl font-bold text-gray-900 mb-0.5">Target Groups</h3>
+      <p class="text-sm text-gray-500">Configure and manage your RFM target segments</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Limit Counter -->
+      <div class="text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1.5 rounded-lg">
+        {{ allTargetGroups.length }} / {{ targetLimit?.targets_limit }}
+      </div>
+
+      <!-- Search -->
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search target groups..."
+          class="pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-64 bg-white"
+        />
+      </div>
+
+      <!-- Create Button -->
+      <app-button variant="primary" size="sm" (clicked)="createTargetGroup()">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Create Target Group
+        </span>
+      </app-button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+    <svg class="w-8 h-8 animate-spin text-blue-500 mb-3" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+    </svg>
+    <p class="text-sm text-gray-500">Loading target groups...</p>
+  </div>
+
+  <!-- Grid -->
+  <div *ngIf="!isLoading">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+      <div
+        *ngFor="let group of paginatedGroups"
+        (click)="onCardClick(group)"
+        class="relative bg-white rounded-xl border cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 group"
+        [ngClass]="group.isDefault
+          ? 'border-blue-200 shadow-sm bg-gradient-to-br from-blue-50 to-white'
+          : 'border-gray-200 shadow-sm hover:border-blue-300'"
+      >
+        <!-- Default badge -->
+        <div *ngIf="group.isDefault" class="absolute top-3 right-10 z-10">
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Default</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="absolute top-2.5 right-2.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          <button
+            (click)="editTargetGroup(group, $event)"
+            class="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-300 transition-all shadow-sm"
+            title="Edit"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+          <button
+            *ngIf="!group.isDefault"
+            (click)="confirmDelete(group, $event)"
+            class="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-300 transition-all shadow-sm"
+            title="Delete"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-4">
+          <!-- Title -->
+          <h6 class="font-semibold text-gray-900 text-sm mb-3 pr-16 leading-snug capitalize">
+            {{ group.title }}
+          </h6>
+
+          <!-- Category chips -->
+          <div *ngIf="group.data?.targetquery" class="flex flex-wrap gap-1.5 mb-2">
+            <span
+              *ngFor="let chip of getCategoryChips(group.data.targetquery)"
+              class="text-xs font-medium px-2 py-0.5 rounded-full"
+              [ngClass]="getChipClasses(chip.class)"
+            >
+              {{ chip.label }}
+            </span>
+          </div>
+
+          <!-- Description -->
+          <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">
+            {{ getHumanReadableDescription(group) }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <app-pagination
+      *ngIf="allTargetGroups.length > pageSize"
+      [config]="paginationConfig"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </div>
+</div>
+
+<!-- ===================== CREATE/EDIT MODAL ===================== -->
+<app-modal
+  [isOpen]="showTargetDialog"
+  [title]="isEditMode ? 'Edit Target Group' : 'Create Target Group'"
+  size="lg"
+  (closed)="cancelDialog()"
+>
+  <div class="p-5 space-y-5 overflow-y-auto max-h-[70vh]">
+
+    <!-- Target Name -->
+    <app-input
+      label="Target Name"
+      placeholder="Enter target group name"
+      [(ngModel)]="targetGroupForm.targetName"
+    ></app-input>
+
+    <!-- Category Selection Mode (hidden for default edit) -->
+    <div *ngIf="!(isEditMode && isDefaultTarget)">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Category Selection Mode</label>
+      <div class="flex gap-6">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="catMode" value="single"
+            [(ngModel)]="targetGroupForm.categorySelection"
+            (ngModelChange)="onCategorySelectionChange($event)"
+            class="accent-blue-600 w-4 h-4" />
+          <span class="text-sm text-gray-700">Single Category</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="catMode" value="multiple"
+            [(ngModel)]="targetGroupForm.categorySelection"
+            (ngModelChange)="onCategorySelectionChange($event)"
+            class="accent-blue-600 w-4 h-4" />
+          <span class="text-sm text-gray-700">Multiple Categories</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-sm font-semibold text-gray-700">Categories</label>
+        <button
+          *ngIf="targetGroupForm.categorySelection === 'multiple' && !(isEditMode && isDefaultTarget)"
+          (click)="addCategory()"
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1.5 rounded-lg hover:bg-blue-100 transition-all"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Category
+        </button>
+      </div>
+
+      <!-- Category Items (reversed — newest first) -->
+      <div *ngFor="let categoryItem of getReversedCategories(); let i = index"
+        class="border border-gray-200 rounded-xl p-4 mb-3 bg-gray-50">
+
+        <!-- Category header row -->
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-semibold text-gray-700">
+            Category {{ getReversedCategories().length - i }}
+          </span>
+          <button
+            *ngIf="targetGroupForm.categorySelection === 'multiple' && targetGroupForm.selectedCategories.length > 1 && !(isEditMode && isDefaultTarget)"
+            (click)="removeCategory(getRealIndex(i))"
+            class="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all"
+            title="Remove"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Category Type Selector -->
+        <div class="mb-3">
+          <app-select
+            label="Category Type"
+            [options]="allCategoryOptions"
+            [(ngModel)]="categoryItem.categoryId"
+            [disabled]="isEditMode && isDefaultTarget"
+            (selectionChange)="onCategoryChange(getRealIndex(i), $event)"
+            placeholder="Select category type"
+          ></app-select>
+        </div>
+
+        <!-- ── ALL USERS ── -->
+        <div *ngIf="categoryItem.categoryId === 'all'"
+          class="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          This target will include all users in the system.
+        </div>
+
+        <!-- ── GENDER ── -->
+        <div *ngIf="categoryItem.categoryId === 'gender'">
+          <app-multiselect
+            label="Select Genders"
+            [options]="genderOptions"
+            [(selected)]="categoryItem.data.selectedGenders"
+            placeholder="Select gender(s)"
+          ></app-multiselect>
+        </div>
+
+        <!-- ── LEVEL ── -->
+        <div *ngIf="categoryItem.categoryId === 'level'" class="space-y-3">
+          <app-multiselect
+            label="Select Levels"
+            [options]="levelOptions"
+            [(selected)]="categoryItem.data.selectedLevels"
+            placeholder="Select level(s)"
+          ></app-multiselect>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.levelFrom"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.levelTo"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── AGE ── -->
+        <div *ngIf="categoryItem.categoryId === 'age'" class="space-y-3">
+          <app-select
+            label="Operator"
+            [options]="ageOperatorOptions"
+            [(ngModel)]="categoryItem.data.operator"
+            placeholder="Select operator"
+          ></app-select>
+          <div *ngIf="categoryItem.data.operator === 'between'" class="grid grid-cols-2 gap-3">
+            <app-input label="From Age" type="number" placeholder="0" [(ngModel)]="categoryItem.data.from"></app-input>
+            <app-input label="To Age" type="number" placeholder="150" [(ngModel)]="categoryItem.data.to"></app-input>
+          </div>
+          <div *ngIf="categoryItem.data.operator && categoryItem.data.operator !== 'between'">
+            <app-input label="Age Value" type="number" placeholder="Enter age" [(ngModel)]="categoryItem.data.value"></app-input>
+          </div>
+        </div>
+
+        <!-- ── BIRTHDAY ── -->
+        <div *ngIf="categoryItem.categoryId === 'birthday'" class="space-y-3">
+          <app-multiselect
+            label="Select Months"
+            [options]="monthOptions"
+            [(selected)]="categoryItem.data.selectedMonths"
+            placeholder="Select month(s)"
+          ></app-multiselect>
+          <app-multiselect
+            label="Select Dates"
+            [options]="dateOptions"
+            [(selected)]="categoryItem.data.selectedDates"
+            placeholder="Select date(s)"
+          ></app-multiselect>
+        </div>
+
+        <!-- ── TRANSACTIONS ── -->
+        <div *ngIf="categoryItem.categoryId === 'transactions'" class="space-y-3">
+          <app-select
+            label="Transaction Type"
+            [options]="transactionTypeOptions"
+            [(ngModel)]="categoryItem.data.transactionType"
+            (selectionChange)="onTransactionTypeChange(getRealIndex(i), $event)"
+            placeholder="Select transaction type"
+          ></app-select>
+
+          <div *ngIf="categoryItem.data.transactionType === 'repurchase' || categoryItem.data.transactionType === 'no_repurchase'">
+            <!-- Period type radio -->
+            <label class="block text-sm font-medium text-gray-700 mb-2">Period Type</label>
+            <div class="flex gap-6 mb-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" [name]="'repurchaseType_' + i" value="days"
+                  [(ngModel)]="categoryItem.data.repurchaseType" class="accent-blue-600 w-4 h-4" />
+                <span class="text-sm text-gray-700">Days</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" [name]="'repurchaseType_' + i" value="range"
+                  [(ngModel)]="categoryItem.data.repurchaseType" class="accent-blue-600 w-4 h-4" />
+                <span class="text-sm text-gray-700">Date Range</span>
+              </label>
+            </div>
+            <div *ngIf="categoryItem.data.repurchaseType === 'days'">
+              <app-select label="Days" [options]="repurchaseDayOptions" [(ngModel)]="categoryItem.data.repurchaseDays" placeholder="Select days"></app-select>
+            </div>
+            <div *ngIf="categoryItem.data.repurchaseType === 'range'" class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                <input type="date" [(ngModel)]="categoryItem.data.repurchaseFrom"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                <input type="date" [(ngModel)]="categoryItem.data.repurchaseTo"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="categoryItem.data.transactionType === 'nopurchase'"
+            class="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Users who have never made a purchase.
+          </div>
+        </div>
+
+        <!-- ── TOPUP TRANSACTIONS ── -->
+        <div *ngIf="categoryItem.categoryId === 'topuptransactions'" class="space-y-3">
+          <app-select
+            label="Topup Type"
+            [options]="topupTypeOptions"
+            [(ngModel)]="categoryItem.data.topupTransactionType"
+            (selectionChange)="onTopupTypeChange(getRealIndex(i), $event)"
+            placeholder="Select topup type"
+          ></app-select>
+
+          <div *ngIf="categoryItem.data.topupTransactionType === 'topup' || categoryItem.data.topupTransactionType === 'notopup'">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Period Type</label>
+            <div class="flex gap-6 mb-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" [name]="'topupType_' + i" value="days"
+                  [(ngModel)]="categoryItem.data.topupType" class="accent-blue-600 w-4 h-4" />
+                <span class="text-sm text-gray-700">Days</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" [name]="'topupType_' + i" value="range"
+                  [(ngModel)]="categoryItem.data.topupType" class="accent-blue-600 w-4 h-4" />
+                <span class="text-sm text-gray-700">Date Range</span>
+              </label>
+            </div>
+            <div *ngIf="categoryItem.data.topupType === 'days'">
+              <app-select label="Days" [options]="repurchaseDayOptions" [(ngModel)]="categoryItem.data.topupDays" placeholder="Select days"></app-select>
+            </div>
+            <div *ngIf="categoryItem.data.topupType === 'range'" class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                <input type="date" [(ngModel)]="categoryItem.data.topupFrom"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                <input type="date" [(ngModel)]="categoryItem.data.topupTo"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="categoryItem.data.topupTransactionType === 'nevertopup'"
+            class="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Users who have never topped up.
+          </div>
+        </div>
+
+        <!-- ── STATUS ── -->
+        <div *ngIf="categoryItem.categoryId === 'status'" class="space-y-3">
+          <app-select
+            label="User Status"
+            [options]="statusOptions"
+            [(ngModel)]="categoryItem.data.status"
+            (selectionChange)="onStatusChange(getRealIndex(i), $event)"
+            placeholder="Select status"
+          ></app-select>
+
+          <div *ngIf="categoryItem.data.status">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              {{ categoryItem.data.status === 'inactive' ? 'Inactive Period Type' : 'Active Period Type' }}
+            </label>
+            <div class="flex gap-6 mb-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" [name]="'inactiveType_' + i" value="days"
+                  [(ngModel)]="categoryItem.data.inactiveType" class="accent-blue-600 w-4 h-4" />
+                <span class="text-sm text-gray-700">Days</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" [name]="'inactiveType_' + i" value="range"
+                  [(ngModel)]="categoryItem.data.inactiveType" class="accent-blue-600 w-4 h-4" />
+                <span class="text-sm text-gray-700">Date Range</span>
+              </label>
+            </div>
+            <div *ngIf="categoryItem.data.inactiveType === 'days'">
+              <app-select
+                [label]="categoryItem.data.status === 'inactive' ? 'Inactive Days' : 'Active Days'"
+                [options]="inactiveDayOptions"
+                [(ngModel)]="categoryItem.data.inactiveDays"
+                placeholder="Select days"
+              ></app-select>
+            </div>
+            <div *ngIf="categoryItem.data.inactiveType === 'range'" class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                <input type="date" [(ngModel)]="categoryItem.data.inactiveFrom"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                <input type="date" [(ngModel)]="categoryItem.data.inactiveTo"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SPENDING ── -->
+        <div *ngIf="categoryItem.categoryId === 'spending'" class="space-y-3">
+          <app-select label="Operator" [options]="pointsOperatorOptions" [(ngModel)]="categoryItem.data.operator" placeholder="Select operator"></app-select>
+          <app-input label="Spending Amount" type="number" placeholder="Enter amount" [(ngModel)]="categoryItem.data.value"></app-input>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.spendingFrom"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.spendingTo"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── POINTS ── -->
+        <div *ngIf="categoryItem.categoryId === 'points'" class="space-y-3">
+          <app-select label="Operator" [options]="pointsOperatorOptions" [(ngModel)]="categoryItem.data.operator" placeholder="Select operator"></app-select>
+          <app-input label="Points Amount" type="number" placeholder="Enter points" [(ngModel)]="categoryItem.data.value"></app-input>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.pointsFrom"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.pointsTo"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── POINTS EXPIRY ── -->
+        <div *ngIf="categoryItem.categoryId === 'pointsexpiry'">
+          <app-select label="Points Expiring In" [options]="pointsExpiryOptions" [(ngModel)]="categoryItem.data.expiryPeriod" placeholder="Select period"></app-select>
+        </div>
+
+        <!-- ── POINTS BALANCE ── -->
+        <div *ngIf="categoryItem.categoryId === 'pointsbalance'" class="grid grid-cols-2 gap-3">
+          <app-select label="Operator" [options]="pointsOperatorOptions" [(ngModel)]="categoryItem.data.operator" placeholder="Select operator"></app-select>
+          <app-input label="Points Value" type="number" placeholder="Enter points" [(ngModel)]="categoryItem.data.value"></app-input>
+        </div>
+
+        <!-- ── RECEIVED POINTS ── -->
+        <div *ngIf="categoryItem.categoryId === 'receivedpoints' || categoryItem.categoryId === 'received'" class="space-y-3">
+          <app-input label="Number of Times" type="number" placeholder="Enter number of times" [(ngModel)]="categoryItem.data.times"></app-input>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.from"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.to"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── JOINED ── -->
+        <div *ngIf="categoryItem.categoryId === 'joined'" class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+            <input type="date" [(ngModel)]="categoryItem.data.from"
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+            <input type="date" [(ngModel)]="categoryItem.data.to"
+              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <!-- ── BRAND VISIT ── -->
+        <div *ngIf="categoryItem.categoryId === 'brandvisit'" class="space-y-3">
+          <app-select label="Select Brand" [options]="brandOptions" [(ngModel)]="categoryItem.data.selectedBrand" placeholder="Select brand" ></app-select>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.from"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.to"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+          </div>
+          <app-input label="Top Members Limit" type="number" placeholder="Enter limit" [(ngModel)]="categoryItem.data.limit"></app-input>
+        </div>
+
+        <!-- ── BRAND LEVEL ── -->
+        <div *ngIf="categoryItem.categoryId === 'brandlevel'" class="space-y-3">
+          <app-select
+            label="Select Brand"
+            [options]="brandOptions"
+            [(ngModel)]="categoryItem.data.brand_id"
+            placeholder="Select brand"
+            (selectionChange)="onBrandLevelBrandChange(getRealIndex(i), $event)"
+          ></app-select>
+          <app-select
+            *ngIf="categoryItem.data.brand_id"
+            label="Brand Level"
+            [options]="getBrandLevelOptions(categoryItem.data.brand_id)"
+            [(ngModel)]="categoryItem.data.level"
+            placeholder="Select brand level"
+          ></app-select>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.from"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.to"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── BRAND RECEIVED POINTS ── -->
+        <div *ngIf="categoryItem.categoryId === 'brandreceived'" class="space-y-3">
+          <app-select label="Select Brand" [options]="brandOptions" [(ngModel)]="categoryItem.data.brand_id" placeholder="Select brand"></app-select>
+          <app-input label="Number of Times" type="number" placeholder="Enter number of times" [(ngModel)]="categoryItem.data.times"></app-input>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.from"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+              <input type="date" [(ngModel)]="categoryItem.data.to"
+                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500" />
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="targetGroupForm.selectedCategories.length === 0"
+        class="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
+        <p class="text-sm text-gray-400">No categories added yet. Click "Add Category" to begin.</p>
+      </div>
+    </div>
+
+    <!-- Modal Actions -->
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+      <app-button variant="secondary" (clicked)="cancelDialog()">Cancel</app-button>
+      <app-button variant="primary" [loading]="isLoading" (clicked)="saveTargetGroup()">
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </app-button>
+    </div>
+  </div>
+</app-modal>
+
+<!-- ===================== DELETE CONFIRM MODAL ===================== -->
+<app-modal
+  [isOpen]="showDeleteConfirm"
+  title="Delete Target Group"
+  size="sm"
+  (closed)="cancelDelete()"
+>
+  <div class="p-5">
+    <p class="text-sm text-gray-700 mb-4">Are you sure you want to delete this target group? This action cannot be undone.</p>
+
+    <div *ngIf="deletingGroup" class="p-3 bg-amber-50 border border-amber-200 rounded-lg mb-5">
+      <p class="font-semibold text-sm text-amber-900">{{ deletingGroup.title }}</p>
+      <p class="text-xs text-amber-700 mt-0.5">{{ deletingGroup.description }}</p>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <app-button variant="secondary" (clicked)="cancelDelete()">Cancel</app-button>
+      <app-button variant="danger" [loading]="isLoading" (clicked)="deleteTargetGroup()">Delete</app-button>
+    </div>
+  </div>
+</app-modal>

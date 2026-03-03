@@ -70,7 +70,7 @@ export interface PaginationConfig {
             </button>
             <span 
               *ngIf="page === '...'"
-              class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md"
+              class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 r  ounded-md"
             >
               ...
             </span>

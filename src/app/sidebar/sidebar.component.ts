@@ -52,7 +52,7 @@ export class SidebarComponent implements OnInit {
       items: any;
     }[]
     | undefined;
-  
+
   ngOnInit(): void {
     this.loadSidebarMenu();
   }
@@ -84,10 +84,38 @@ export class SidebarComponent implements OnInit {
             url: 'crafted/retail/TransactionsHistory',
             ThaiName: 'Transactions History',
           };
+          const manualIntegrationItem6 = {
+            id: 85,
+            name: "RFM Segmentation",
+            url: "/crafted/retail/rfm-segmentation",
+            ThaiName: "การแบ่งกลุ่มลูกค้าแบบ RFM"
+          };
+          const manualIntegrationItem7 = {
+            id: 86,
+            name: "Reset Setup",
+            url: "/crafted/retail/points-reset",
+            ThaiName: "ตั้งค่าการรีเซ็ตคะแนน"
+          };
+          const manualIntegrationItem8 = {
+            id: 87,
+            name: "Analytics",
+            url: "/crafted/retail/analytics",
+            ThaiName: "การวิเคราะห์ข้อมูล"
+          };
+          const manualIntegrationItem9 = {
+            id: 87,
+            name: "Points Reset by Brand",
+            url: "/crafted/retail/points-reset-by-brand",
+            ThaiName: "รีเซ็ตคะแนนตามแบรนด์"
+          };
 
           menu['integration'].push(manualIntegrationItem);
           menu['brand'].push(manualIntegrationItem3);
+          menu['brand'].push(manualIntegrationItem9);
           menu['crm'].push(manualIntegrationItem5);
+          menu['crm'].push(manualIntegrationItem6);
+          menu['crm'].push(manualIntegrationItem7);
+          menu['crm'].push(manualIntegrationItem8);
 
           if (!groups || !menu) return;
 
@@ -99,7 +127,7 @@ export class SidebarComponent implements OnInit {
               icon: this.getIcon(item.name)
             }))
           }));
-          
+
           // console.log('Dynamic Menu:', this.dynamicMenu);
         }
       });

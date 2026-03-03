@@ -61,6 +61,8 @@ import { TopupPromotionByBrandDetailsComponent } from './modules/Brand/topup-pro
 import { CustomerDetailsComponent } from './modules/CRM/customer-details/customer-details.component';
 import { LineChannelsComponent } from './modules/Integration-and-external-setup/line-channels/line-channels.component';
 import { LineIntegrationTemplatesComponent } from './modules/Integration-and-external-setup/line-integration-templates/line-integration-templates.component';
+import { RfmTargetConfigComponent } from './modules/Integration-and-external-setup/rfm-target-config/rfm-target-config.component';
+import { RfmSegmentationComponent } from './modules/Integration-and-external-setup/rfm-segmentation/rfm-segmentation.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -210,6 +212,15 @@ export const routes: Routes = [
     path: 'crafted/retail/LineIntegrationTemplates/:channelId/:id',//this is templateid
     component: LineIntegrationTemplatesComponent,
   },
+  {
+    path: 'crafted/retail/rfm-segmentation',
+    component: RfmTargetConfigComponent,
+  },
+  {
+    path: 'crafted/retail/rfm-segmentation/:targetId',
+    component: RfmSegmentationComponent,
+  },
+
   { path: 'crafted/retail/BrandPointsByMember', component: BrandPointsComponent },
   { path: 'crafted/retail/TransactionsHistory', component: TransactionsHistoryComponent },
 
