@@ -69,10 +69,10 @@ export class CouponPlanByBrandComponent implements OnInit {
     this.isLoading = true;
     this.dataService.getMethod('api/v1/coupon/brandcoupon/all').subscribe({
       next: (data: any) => {
-        console.log(data);
+        // console.log(data);
         this.couponPlanDataSource = data.data;
-        this.totalItems = data.data.length;
-        console.log(this.totalItems)
+        // this.totalItems = data.data.length;
+        // console.log(this.totalItems)
         // this.isLoading = false;
         this.isLoading = false;
       },

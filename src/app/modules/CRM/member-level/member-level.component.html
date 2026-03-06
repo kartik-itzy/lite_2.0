@@ -1,1 +1,203 @@
-<p>member-level works!</p>
+<div class="min-h-screen bg-gray-50 scroll-smooth">
+
+  <!-- Page Header -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+    <div class="flex flex-col">
+      <h1 class="text-lg font-semibold text-gray-900">Member Level</h1>
+      <div class="mt-1 text-sm text-gray-600">
+        You can find and configure Member Level of Upgrade and Non-Upgrade
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="p-6 space-y-4">
+    <app-card variant="flat" size="lg" class="h-full">
+
+      <!-- Tabs + Create Button -->
+      <div class="w-full flex justify-between items-center mb-4">
+        <app-tab
+          [tabs]="viewTabs"
+          [selectedTabId]="currentView"
+          (tabChange)="onViewChange($event)"
+        ></app-tab>
+        <app-button variant="primary" (click)="openCreateModal()">Create New Level</app-button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-500 text-sm">Loading...</span>
+      </div>
+
+      <!-- Table -->
+      <app-table
+        *ngIf="!isLoading"
+        [columns]="tableColumns"
+        [rows]="currentTableData"
+        [config]="tableConfig"
+        (pageChange)="onPageChange($event)"
+      >
+
+        <!-- Actions Column -->
+        <ng-template appTableCell="actions" let-row="row">
+          <div class="flex items-center justify-center gap-2 w-full">
+
+            <!-- Edit -->
+            <button
+              type="button"
+              (click)="onEdit(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+              title="Edit Level"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875
+                  0 1 1 2.652 2.652L6.832 19.82
+                  a4.5 4.5 0 0 1-1.897 1.13l-2.685.8
+                  .8-2.685a4.5 4.5 0 0 1 1.13-1.897
+                  L16.863 4.487Z" />
+              </svg>
+            </button>
+
+            <!-- Delete -->
+            <button
+              type="button"
+              (click)="onDelete(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+              title="Delete Level"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21
+                  c.342.052.682.107 1.022.166m-1.022-.165
+                  L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077
+                  H8.084a2.25 2.25 0 0 1-2.244-2.077
+                  L4.772 5.79m14.456 0
+                  a48.108 48.108 0 0 0-3.478-.397m-12 .562
+                  c.34-.059.68-.114 1.022-.165m0 0
+                  a48.11 48.11 0 0 1 3.478-.397m7.5 0
+                  v-.916c0-1.18-.91-2.164-2.09-2.201
+                  a51.964 51.964 0 0 0-3.32 0
+                  c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0
+                  a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+            </button>
+
+          </div>
+        </ng-template>
+
+      </app-table>
+    </app-card>
+  </div>
+
+</div>
+
+
+<!-- Create / Edit Modal -->
+<app-modal [isOpen]="isModalOpen" [config]="modalConfig" (closeModal)="closeModal()">
+
+  <form [formGroup]="form">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- Description -->
+      <app-input
+        size="sm"
+        label="Description"
+        formControlName="Description"
+        placeholder="Enter description"
+        [fullWidth]="true"
+      ></app-input>
+
+      <!-- Card Type -->
+      <app-select
+        size="sm"
+        label="Card Type"
+        formControlName="CardType"
+        placeholder="Select card type"
+        [options]="cardTypeSelectOptions"
+      ></app-select>
+
+      <!-- Min Points -->
+      <app-input
+        size="sm"
+        label="Min Points"
+        formControlName="MinPoints"
+        type="number"
+        placeholder="Enter min points"
+        [readonly]="isEditMode"
+        [helperText]="isEditMode ? 'Cannot be changed after creation' : ''"
+        [fullWidth]="true"
+      ></app-input>
+
+      <!-- Max Points -->
+      <app-input
+        size="sm"
+        label="Max Points"
+        formControlName="MaxPoints"
+        type="number"
+        placeholder="Enter max points"
+        [fullWidth]="true"
+      ></app-input>
+
+      <!-- Next Level Label -->
+      <app-input
+        size="sm"
+        label="Next Level Label"
+        formControlName="NextLevelLabel"
+        placeholder="Enter next level label"
+        [readonly]="isEditMode"
+        [helperText]="isEditMode ? 'Cannot be changed after creation' : ''"
+        [fullWidth]="true"
+      ></app-input>
+
+      <!-- Loyalty Code -->
+      <app-select
+        size="sm"
+        label="Loyalty Code"
+        formControlName="LoyaltyCode"
+        placeholder="Select loyalty code"
+        [options]="loyaltySelectOptions"
+      ></app-select>
+
+      <!-- Redeem Code -->
+      <app-select
+        size="sm"
+        label="Redeem Code"
+        formControlName="RedeemCode"
+        placeholder="Select redeem code"
+        [options]="redeemSelectOptions"
+      ></app-select>
+
+      <!-- Top-up Code -->
+      <app-select
+        size="sm"
+        label="Top-up Code"
+        formControlName="TopupCode"
+        placeholder="Select top-up code"
+        [options]="topupSelectOptions"
+      ></app-select>
+
+    </div>
+  </form>
+
+  <!-- Modal Footer -->
+  <div modal-footer class="flex gap-3">
+    <app-button variant="secondary" (click)="closeModal()" [disabled]="isSaving">
+      Cancel
+    </app-button>
+    <app-button variant="primary" (click)="saveMemberLevel()" [disabled]="isSaving">
+      <span *ngIf="!isSaving">{{ isEditMode ? 'Update' : 'Save' }}</span>
+      <span *ngIf="isSaving" class="flex items-center gap-2">
+        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        {{ isEditMode ? 'Updating...' : 'Saving...' }}
+      </span>
+    </app-button>
+  </div>
+
+</app-modal>

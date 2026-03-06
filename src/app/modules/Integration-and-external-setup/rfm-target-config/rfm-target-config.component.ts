@@ -12,6 +12,7 @@ import { PaginationComponent, PaginationConfig } from '../../../components/ui/pa
 // import { MultiselectComponent } from '../../../components/ui/multiselect/multiselect.component';
 import { SelectOption } from '../../../components/ui/select/select.component';
 import { MultiselectComponent,MultiSelectOption } from '../../../components/ui/multi-select/multi-select.component';
+import { BadgeComponent } from '../../../components/ui/badge/badge.component';
 // import { MultiSelectOption } from '../../../components/ui/multiselect/multiselect.component';
 // MultiselectComponent
 
@@ -26,14 +27,15 @@ import { MultiselectComponent,MultiSelectOption } from '../../../components/ui/m
     SelectComponent,
     ModalComponent,
     PaginationComponent,
-    MultiselectComponent
+    MultiselectComponent,
+    BadgeComponent
   ],
   templateUrl: './rfm-target-config.component.html',
   styleUrl: './rfm-target-config.component.css'
 })
 export class RfmTargetConfigComponent implements OnInit {
 
-  // ─── State ───────────────────────────────────────────────────────────────
+  // State 
   showTargetDialog = false;
   showDeleteConfirm = false;
   deletingGroup: any = null;
@@ -61,7 +63,7 @@ export class RfmTargetConfigComponent implements OnInit {
     selectedCategories: []
   };
 
-  // ─── Pagination config ────────────────────────────────────────────────────
+  // ─── Pagination config 
   get totalPages(): number {
     return Math.ceil(this.getFilteredGroups().length / this.pageSize);
   }
@@ -76,7 +78,7 @@ export class RfmTargetConfigComponent implements OnInit {
     };
   }
 
-  // ─── Static options ───────────────────────────────────────────────────────
+  // ─── Static options 
   allCategoriesBase = [
     { id: 'all', name: 'All Users' },
     { id: 'age', name: 'Age' },
@@ -160,7 +162,7 @@ export class RfmTargetConfigComponent implements OnInit {
     label: String(i + 1)
   }));
 
-  // ─── Chip color map ───────────────────────────────────────────────────────
+  // ─── Chip color map 
   private readonly chipColorMap: Record<string, string> = {
     'level': 'chip-blue',
     'gender': 'chip-pink',
@@ -203,7 +205,7 @@ export class RfmTargetConfigComponent implements OnInit {
     return this.chipTailwindMap[chipClass] || 'bg-gray-100 text-gray-600';
   }
 
-  // ─── Lifecycle ────────────────────────────────────────────────────────────
+  // ─── Lifecycle ─────
   constructor(
     private router: Router,
     private dataService: DataService,
@@ -217,7 +219,7 @@ export class RfmTargetConfigComponent implements OnInit {
     this.getTargetLimit();
   }
 
-  // ─── API calls ────────────────────────────────────────────────────────────
+  // ─── API calls ─────
   getTargetLimit(): void {
     this.dataService.getMethod('api/v1/member/rfm/getTargetLimit').subscribe({
       next: (res: any) => { this.targetLimit = res; }
@@ -397,7 +399,7 @@ export class RfmTargetConfigComponent implements OnInit {
     });
   }
 
-  // ─── Default targets ──────────────────────────────────────────────────────
+  // ─── Default targets 
   private canCreateDefaultTarget(targetid: string): boolean {
     return !this.allTargetGroups.some((t: any) =>
       t.data?.targetid?.toLowerCase() === targetid.toLowerCase() &&
@@ -463,7 +465,7 @@ export class RfmTargetConfigComponent implements OnInit {
     });
   }
 
-  // ─── Pagination ───────────────────────────────────────────────────────────
+  // ─── Pagination ────
   private getFilteredGroups(): any[] {
     if (!this.searchTerm?.trim()) return this.allTargetGroups || [];
     const term = this.searchTerm.trim().toLowerCase();
@@ -491,7 +493,7 @@ export class RfmTargetConfigComponent implements OnInit {
     this.updatePaginatedGroups();
   }
 
-  // ─── UI helpers ───────────────────────────────────────────────────────────
+  // ─── UI helpers ────
   getCategoryChips(targetquery: any): any[] {
     let query: any;
     try { query = typeof targetquery === 'string' ? JSON.parse(targetquery) : targetquery; }
@@ -601,7 +603,7 @@ export class RfmTargetConfigComponent implements OnInit {
     return parts.length > 0 ? parts.join(', ') : 'Custom target segment';
   }
 
-  // ─── Form helpers ─────────────────────────────────────────────────────────
+  // ─── Form helpers ──
   getAvailableCategories(currentIndex?: number): any[] {
     if (!this.targetGroupForm.selectedCategories?.length) return this.allCategories;
     const selectedIds = this.targetGroupForm.selectedCategories
@@ -918,7 +920,7 @@ export class RfmTargetConfigComponent implements OnInit {
     });
   }
 
-  // ─── UI actions ───────────────────────────────────────────────────────────
+  // ─── UI actions ────
   createTargetGroup(): void {
     if (this.targetLimit?.targets_count >= this.targetLimit?.targets_limit) {
       this.notification.showError('Limit Reached', 'You have reached the target group limit');

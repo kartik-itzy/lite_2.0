@@ -1,6 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit, HostListener, ElementRef } from '@angular/core';
+import {
+  Component, Input, Output, EventEmitter, OnInit,
+  HostListener, ElementRef, forwardRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
 export interface MultiSelectOption {
   value: string;
@@ -11,6 +14,13 @@ export interface MultiSelectOption {
   selector: 'app-multiselect',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => MultiselectComponent),
+      multi: true,
+    }
+  ],
   template: `
     <div class="flex flex-col relative" #container>
       <label *ngIf="label" class="text-sm font-medium text-gray-700 mb-1.5">
@@ -88,9 +98,8 @@ export interface MultiSelectOption {
     </div>
   `
 })
-export class MultiselectComponent implements OnInit {
+export class MultiselectComponent implements OnInit, ControlValueAccessor {
   @Input() options: MultiSelectOption[] = [];
-  @Input() selected: string[] = [];
   @Input() label?: string;
   @Input() placeholder = 'Select options';
   @Input() helperText?: string;
@@ -98,24 +107,60 @@ export class MultiselectComponent implements OnInit {
   @Input() disabled = false;
   @Input() searchable = false;
   @Input() showSelectAll = false;
-  @Input() displayExpr?: string; // for object arrays
+  @Input() displayExpr?: string;
   @Input() valueExpr?: string;
+
+  // Keep @Input() selected for direct [selected] binding (backwards compat)
+  @Input() set selected(val: string[]) {
+    if (val !== this._selected) {
+      this._selected = val ?? [];
+    }
+  }
+  get selected(): string[] { return this._selected; }
 
   @Output() selectedChange = new EventEmitter<string[]>();
   @Output() selectionChanged = new EventEmitter<string[]>();
 
   isOpen = false;
   searchQuery = '';
+  private _selected: string[] = [];
+
+  // ControlValueAccessor callbacks
+  private onChange: (val: string[]) => void = () => {};
+  private onTouched: () => void = () => {};
 
   constructor(private elRef: ElementRef) {}
 
   ngOnInit(): void {}
 
+  // --- ControlValueAccessor ---
+
+  writeValue(val: string[]): void {
+    this._selected = val ?? [];
+  }
+
+  registerOnChange(fn: (val: string[]) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+
+  // --- Interaction ---
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.elRef.nativeElement.contains(event.target)) {
-      this.isOpen = false;
-      this.searchQuery = '';
+      if (this.isOpen) {
+        this.isOpen = false;
+        this.searchQuery = '';
+        this.onTouched();
+      }
     }
   }
 
@@ -126,16 +171,21 @@ export class MultiselectComponent implements OnInit {
   }
 
   toggleDropdown(): void {
+    if (this.disabled) return;
     this.isOpen = !this.isOpen;
-    if (!this.isOpen) this.searchQuery = '';
+    if (!this.isOpen) {
+      this.searchQuery = '';
+      this.onTouched();
+    }
   }
 
   toggleOption(value: string): void {
-    const idx = this.selected.indexOf(value);
+    const idx = this._selected.indexOf(value);
     const updated = idx === -1
-      ? [...this.selected, value]
-      : this.selected.filter(v => v !== value);
-    this.selected = updated;
+      ? [...this._selected, value]
+      : this._selected.filter(v => v !== value);
+    this._selected = updated;
+    this.onChange(updated);         // notify ngModel / reactive forms
     this.selectedChange.emit(updated);
     this.selectionChanged.emit(updated);
   }
@@ -144,30 +194,31 @@ export class MultiselectComponent implements OnInit {
     const updated = this.isAllSelected()
       ? []
       : this.filteredOptions.map(o => o.value);
-    this.selected = updated;
+    this._selected = updated;
+    this.onChange(updated);
     this.selectedChange.emit(updated);
     this.selectionChanged.emit(updated);
   }
 
   isSelected(value: string): boolean {
-    return this.selected.includes(value);
+    return this._selected.includes(value);
   }
 
   isAllSelected(): boolean {
     return this.filteredOptions.length > 0 &&
-      this.filteredOptions.every(o => this.selected.includes(o.value));
+      this.filteredOptions.every(o => this._selected.includes(o.value));
   }
 
   isPartiallySelected(): boolean {
-    return this.selected.length > 0 && !this.isAllSelected();
+    return this._selected.length > 0 && !this.isAllSelected();
   }
 
   getDisplayText(): string {
-    if (this.selected.length === 0) return this.placeholder;
-    if (this.selected.length === 1) {
-      const opt = this.options.find(o => o.value === this.selected[0]);
-      return opt ? opt.label : this.selected[0];
+    if (this._selected.length === 0) return this.placeholder;
+    if (this._selected.length === 1) {
+      const opt = this.options.find(o => o.value === this._selected[0]);
+      return opt ? opt.label : this._selected[0];
     }
-    return `${this.selected.length} selected`;
+    return `${this._selected.length} selected`;
   }
 }

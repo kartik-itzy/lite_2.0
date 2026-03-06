@@ -12,10 +12,12 @@ import { ModalComponent } from '../../../components/ui/modal/modal.component';
 import { InputComponent } from '../../../components/ui/input/input.component';
 import { SelectComponent, SelectOption } from '../../../components/ui/select/select.component';
 // import { MultiSelectComponent, MultiSelectOption } from '../../../components/ui/multi-select/multi-select.component';
-import { MultiSelectOption,MultiselectComponent } from '../../../components/ui/multi-select/multi-select.component';
-import { TableComponent, TableColumn, TableConfig } from '../../../components/ui/table/table.component';
+import { MultiSelectOption, MultiselectComponent } from '../../../components/ui/multi-select/multi-select.component';
+import { TableComponent, TableColumn, TableConfig, TableCellDirective } from '../../../components/ui/table/table.component';
 import { LoadingComponent } from '../../../components/ui/loading/loading.component';
 import { DataService } from '../../../data.service';
+import { CardComponent } from '../../../components/ui/card/card.component';
+import { BadgeComponent, BadgeVariant } from "../../../components/ui/badge/badge.component";
 
 @Component({
   selector: 'app-rfm-segmentation',
@@ -30,8 +32,10 @@ import { DataService } from '../../../data.service';
     SelectComponent,
     MultiselectComponent,
     TableComponent,
-    LoadingComponent,
-    TabComponent
+    // LoadingComponent,
+    TabComponent, CardComponent,
+    BadgeComponent,
+    TableCellDirective
   ],
   templateUrl: './rfm-segmentation.component.html',
   styleUrls: [],
@@ -43,7 +47,7 @@ export class RfmSegmentationComponent implements OnInit {
     private dataservice: DataService,
     private notification: NotificationService,
     private confirmation: ConfirmationService,
-  ) {}
+  ) { }
 
   isLoading = false;
   targetId: any;
@@ -85,6 +89,13 @@ export class RfmSegmentationComponent implements OnInit {
   allCampaigns: any[] = [];
   campaignLogs: any[] = [];
 
+  logsTableConfig: TableConfig = {
+  searchable: true,
+  pagination: true,
+  pageSize: 10,
+  emptyMessage: 'No logs found'
+};
+
   analyticsData = { sendMessage: 0, scheduleLater: 0, opened: 2, clicked: 4 };
 
   // Derived select options
@@ -100,43 +111,48 @@ export class RfmSegmentationComponent implements OnInit {
 
   // Member Table
   memberTableColumns: TableColumn[] = [
-    { key: 'memberid', label: 'Member ID' },
-    { key: 'firstname', label: 'Name' },
-    { key: 'phone', label: 'Phone' },
+    { key: 'MemberShipID', label: 'MemberShip ID' },
+    { key: 'FirstName', label: 'First Name' },
+    { key: 'LastName', label: 'Last Name' },
+    { key: 'DOB', label: 'DOB', transform: 'date' },
     { key: 'email', label: 'Email' },
-    { key: 'level', label: 'Level' },
+    { key: 'CurrentStatus', label: 'Status' },
   ];
   memberTableConfig: TableConfig = { searchable: true, pagination: true, pageSize: 10, emptyMessage: 'No members found' };
 
   // Logs Table
   logsTableColumns: TableColumn[] = [
+    { key: 'MemberShipID', label: 'MemberShip ID' },
+    // { key: 'id', label: 'ID' },
     { key: 'campaignName', label: 'Campaign' },
-    { key: 'channelName', label: 'Channel' },
-    { key: 'status', label: 'Status' },
-    { key: 'senttime', label: 'Sent At' },
-    { key: 'created_at', label: 'Created' },
+    { key: 'CouponCode', label: 'CouponCode' },
+    { key: 'Coupon', label: 'Coupon' },
+    { key: 'sent', label: 'Sent' },
+    { key: 'scheduled', label: 'Scheduled' },
+    { key: 'senttime', label: 'Sent At', transform: 'date' },
+    { key: 'scheduledTime', label: 'Scheduled Time', transform: 'date' },
+    { key: 'created_at', label: 'Created', transform: 'date' },
+    // { key: 'CouponCode', label: 'Coupon Code' },
   ];
-  logsTableConfig: TableConfig = { searchable: true, pagination: true, pageSize: 10, emptyMessage: 'No logs found' };
 
-  // Chip colors (mapped to Tailwind via ngClass)
-  private chipColorMap: Record<string, string> = {
-    'chip-blue': 'bg-blue-100 text-blue-800 border-blue-300',
-    'chip-pink': 'bg-pink-100 text-pink-700 border-pink-300',
-    'chip-green': 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    'chip-purple': 'bg-violet-100 text-violet-800 border-violet-300',
-    'chip-orange': 'bg-orange-100 text-orange-700 border-orange-300',
-    'chip-yellow': 'bg-yellow-100 text-yellow-700 border-yellow-300',
-    'chip-teal': 'bg-teal-100 text-teal-800 border-teal-300',
-    'chip-red': 'bg-red-100 text-red-700 border-red-300',
-    'chip-gray': 'bg-gray-100 text-gray-600 border-gray-300',
-    'chip-indigo': 'bg-indigo-100 text-indigo-800 border-indigo-300',
-    'chip-cyan': 'bg-cyan-100 text-cyan-700 border-cyan-300',
-  };
-  private chipKeys = Object.keys(this.chipColorMap);
+  logsCurrentPage = 1;
+logsPageSize = 5;
+logsTotalItems = 0;
+  // logsTableConfig: TableConfig = { searchable: true, pagination: true, pageSize: 10, emptyMessage: 'No logs found' };
 
-  getChipColor(index: number): string {
-    const key = this.chipKeys[index % this.chipKeys.length];
-    return this.chipColorMap[key];
+  private badgeVariants: BadgeVariant[] = [
+    'primary',
+    'secondary',
+    'success',
+    'warning',
+    'danger',
+    'info',
+    'light',
+    'dark'
+  ];
+
+  getBadgeVariant(index: number): BadgeVariant {
+    return this.badgeVariants[index % this.badgeVariants.length];
   }
 
   ngOnInit(): void {
@@ -175,23 +191,39 @@ export class RfmSegmentationComponent implements OnInit {
           this.targetHumanDescription = this.getHumanReadableDescription(response.data);
         }
       },
-      error: (err:any) => console.error('Error fetching target details:', err),
+      error: (err: any) => console.error('Error fetching target details:', err),
     });
   }
 
   getTargetMembers(): void {
     this.dataservice.getMethod(`api/v1/member/rfm/getmemberdetails/${this.targetId}`).subscribe({
       next: (response: any) => { this.targetMembersData = response.data || []; },
-      error: (err:any) => console.error('Error fetching members:', err),
+      error: (err: any) => console.error('Error fetching members:', err),
     });
   }
 
+  
+
+
+  onLogsPageChange(page: number): void {
+  this.logsCurrentPage = page;
+  this.getCampaignLogs();
+}
+
   getCampaignLogs(): void {
-    this.dataservice.getMethod(`api/v1/member/getTargetlogs/${this.targetId}?page=1&limit=100`).subscribe({
-      next: (response: any) => { this.campaignLogs = response.data || []; },
-      error: (err:any) => console.error('Error fetching logs:', err),
+  this.dataservice
+    .getMethod(
+      `api/v1/member/getTargetlogs/${this.targetId}?page=${this.logsCurrentPage}&limit=${this.logsPageSize}`
+    )
+    .subscribe({
+      next: (response: any) => {
+        this.campaignLogs = response.data || [];
+        // Use totalCount/total/count — whatever your API returns
+       this.logsTotalItems = response.pagination?.total_records ?? this.campaignLogs.length;
+      },
+      error: (err: any) => console.error('Error fetching logs:', err),
     });
-  }
+}
 
   // ==================== CHANNEL / TEMPLATE / COUPON ====================
 
@@ -203,7 +235,7 @@ export class RfmSegmentationComponent implements OnInit {
           this.getAllCampaigns();
         }
       },
-      error: (err:any) => console.error('Error fetching channels:', err),
+      error: (err: any) => console.error('Error fetching channels:', err),
     });
   }
 
@@ -223,7 +255,7 @@ export class RfmSegmentationComponent implements OnInit {
             }));
         }
       },
-      error: (err:any) => console.error('Error fetching coupons:', err),
+      error: (err: any) => console.error('Error fetching coupons:', err),
     });
   }
 
@@ -244,7 +276,7 @@ export class RfmSegmentationComponent implements OnInit {
           }));
         }
       },
-      error: (err:any) => console.error('Error fetching templates:', err),
+      error: (err: any) => console.error('Error fetching templates:', err),
     });
   }
 
@@ -280,7 +312,7 @@ export class RfmSegmentationComponent implements OnInit {
           this.updateAnalytics();
         }
       },
-      error: (err:any) => {
+      error: (err: any) => {
         console.error('Error fetching campaigns:', err);
         this.notification.showError('Error', 'Failed to load campaigns');
       },
@@ -531,7 +563,7 @@ export class RfmSegmentationComponent implements OnInit {
   isScheduled(): boolean { return this.sendingCampaign?.status?.toLowerCase() === 'scheduled'; }
   isDelivered(): boolean { return this.sendingCampaign?.status?.toLowerCase() === 'delivered'; }
 
-  onCampaignCardClick(campaign: any): void {}
+  onCampaignCardClick(campaign: any): void { }
 
   getCouponDescription(code: string): string {
     return this.allCoupons.find(c => c.code === code)?.description ?? code;

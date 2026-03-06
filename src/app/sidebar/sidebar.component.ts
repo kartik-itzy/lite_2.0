@@ -109,13 +109,13 @@ export class SidebarComponent implements OnInit {
             ThaiName: "รีเซ็ตคะแนนตามแบรนด์"
           };
 
-          menu['integration'].push(manualIntegrationItem);
-          menu['brand'].push(manualIntegrationItem3);
-          menu['brand'].push(manualIntegrationItem9);
-          menu['crm'].push(manualIntegrationItem5);
-          menu['crm'].push(manualIntegrationItem6);
-          menu['crm'].push(manualIntegrationItem7);
-          menu['crm'].push(manualIntegrationItem8);
+          // menu['integration'].push(manualIntegrationItem);
+          // menu['brand'].push(manualIntegrationItem3);
+          // menu['brand'].push(manualIntegrationItem9);
+          // menu['crm'].push(manualIntegrationItem5);
+          // menu['crm'].push(manualIntegrationItem6);
+          // menu['crm'].push(manualIntegrationItem7);
+          // menu['crm'].push(manualIntegrationItem8);
 
           if (!groups || !menu) return;
 
