@@ -1,1 +1,314 @@
-<p>tenders works!</p>
+<div class="min-h-screen bg-gray-50 scroll-smooth">
+
+  <!-- Page Header -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+    <div class="flex flex-col">
+      <h1 class="text-lg font-semibold text-gray-900">Tenders</h1>
+      <div class="mt-1 text-sm text-gray-600">
+        Manage Tender Master and Tender Cards
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6 flex gap-4">
+
+    <!-- ══════════════════════════════════════════════════
+         LEFT — Tender Master
+    ══════════════════════════════════════════════════ -->
+    <app-card variant="flat" size="lg" class="w-1/2 h-fit">
+
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-base font-semibold text-gray-800">Tender Master</h2>
+        <div class="flex items-center gap-2">
+          <app-export-excel
+            [data]="tenderMasterData"
+            [columns]="masterExportColumns"
+            [config]="{ fileName: 'tender-master', buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+          <app-button variant="primary" size="sm" (click)="openCreateMasterModal()">+ New Tender</app-button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="isMasterLoading" class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-500 text-sm">Loading...</span>
+      </div>
+
+      <app-table
+        *ngIf="!isMasterLoading"
+        [columns]="masterColumns"
+        [rows]="tenderMasterData"
+        [config]="masterConfig"
+        (rowClick)="onSelectMaster($event)"
+        (pageChange)="onPageChange($event)"
+      >
+        <ng-template appTableCell="actions" let-row="row">
+          <div class="flex items-center justify-center gap-2">
+
+            <!-- Select / View Cards -->
+            <button
+              type="button"
+              (click)="onSelectMaster(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md transition"
+              [class.text-green-600]="selectedMaster?.Code === row.Code"
+              [class.text-blue-500]="selectedMaster?.Code !== row.Code"
+              title="View Tender Cards"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <!-- Edit -->
+            <button
+              type="button"
+              (click)="openEditMasterModal(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+              title="Edit Tender Master"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z" />
+              </svg>
+            </button>
+
+            <!-- Delete -->
+            <button
+              type="button"
+              (click)="onDeleteMaster(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition"
+              title="Delete Tender Master"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+            </button>
+
+          </div>
+        </ng-template>
+      </app-table>
+    </app-card>
+
+    <!-- ══════════════════════════════════════════════════
+         RIGHT — Tender Cards
+    ══════════════════════════════════════════════════ -->
+    <app-card variant="flat" size="lg" class="w-1/2 h-fit">
+
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex flex-col">
+          <h2 class="text-base font-semibold text-gray-800">Tender Cards</h2>
+          <p *ngIf="selectedMaster" class="text-xs text-gray-500 mt-0.5">
+            Showing cards for
+            <span class="font-semibold text-blue-600">{{ selectedMaster.Name }}</span>
+            ({{ selectedMaster.TenderType }})
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <app-export-excel
+            [data]="tenderCardData"
+            [columns]="cardExportColumns"
+            [config]="{ fileName: 'tender-cards', buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+          <app-button
+            variant="primary"
+            size="sm"
+            [disabled]="!selectedMaster"
+            (click)="openCreateCardModal()"
+          >
+            + New Card
+          </app-button>
+        </div>
+      </div>
+
+      <!-- No master selected hint -->
+      <div *ngIf="!selectedMaster && !isCardLoading"
+        class="flex flex-col items-center justify-center py-16 text-gray-400 text-sm gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+        </svg>
+        <p>Click a row in Tender Master to view its cards</p>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="isCardLoading" class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-500 text-sm">Loading cards...</span>
+      </div>
+
+      <app-table
+        *ngIf="selectedMaster && !isCardLoading"
+        [columns]="cardColumns"
+        [rows]="tenderCardData"
+        [config]="cardConfig"
+        (pageChange)="onPageChange($event)"
+      >
+        <ng-template appTableCell="actions" let-row="row">
+          <div class="flex items-center justify-center gap-2">
+
+            <!-- Edit -->
+            <button
+              type="button"
+              (click)="openEditCardModal(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+              title="Edit Tender Card"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z" />
+              </svg>
+            </button>
+
+            <!-- Delete -->
+            <button
+              type="button"
+              (click)="onDeleteCard(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition"
+              title="Delete Tender Card"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+            </button>
+
+          </div>
+        </ng-template>
+      </app-table>
+    </app-card>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     Tender Master Modal (Create / Edit)
+══════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="isMasterModalOpen"
+  [config]="{
+    title: isMasterEditMode ? 'Edit Tender Master' : 'Create Tender Master',
+    size: 'sm',
+    showCloseButton: true,
+    closeOnBackdropClick: true
+  }"
+  (closeModal)="closeMasterModal()"
+>
+  <form [formGroup]="masterForm">
+    <div class="grid grid-cols-1 gap-4">
+
+      <app-input
+        size="sm"
+        label="Code"
+        formControlName="Code"
+        placeholder="e.g. CASH"
+        [required]="true"
+        [fullWidth]="true"
+        [readonly]="isMasterEditMode"
+        [helperText]="isMasterEditMode ? 'Code cannot be changed after creation' : ''"
+        [errorText]="masterForm.get('Code')?.touched && masterForm.get('Code')?.hasError('required') ? 'Code is required' : ''"
+      ></app-input>
+
+      <app-input
+        size="sm"
+        label="Name"
+        formControlName="Name"
+        placeholder="e.g. Cash"
+        [required]="true"
+        [fullWidth]="true"
+        [errorText]="masterForm.get('Name')?.touched && masterForm.get('Name')?.hasError('required') ? 'Name is required' : ''"
+      ></app-input>
+
+    </div>
+  </form>
+
+  <div modal-footer class="flex gap-3">
+    <app-button variant="secondary" (click)="closeMasterModal()" [disabled]="isSavingMaster">Cancel</app-button>
+    <app-button variant="primary" (click)="saveMaster()" [disabled]="isSavingMaster">
+      <span *ngIf="!isSavingMaster">{{ isMasterEditMode ? 'Save Changes' : 'Create' }}</span>
+      <span *ngIf="isSavingMaster" class="flex items-center gap-2">
+        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        {{ isMasterEditMode ? 'Saving...' : 'Creating...' }}
+      </span>
+    </app-button>
+  </div>
+</app-modal>
+
+
+<!-- ══════════════════════════════════════════════════
+     Tender Card Modal (Create / Edit)
+══════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="isCardModalOpen"
+  [config]="{
+    title: isCardEditMode ? 'Edit Tender Card' : 'Create Tender Card',
+    size: 'sm',
+    showCloseButton: true,
+    closeOnBackdropClick: true
+  }"
+  (closeModal)="closeCardModal()"
+>
+  <form [formGroup]="cardForm">
+    <div class="grid grid-cols-1 gap-4">
+
+      <app-input
+        size="sm"
+        label="Code"
+        formControlName="Code"
+        placeholder="e.g. VISA"
+        [required]="true"
+        [fullWidth]="true"
+        [readonly]="isCardEditMode"
+        [helperText]="isCardEditMode ? 'Code cannot be changed after creation' : ''"
+        [errorText]="cardForm.get('Code')?.touched && cardForm.get('Code')?.hasError('required') ? 'Code is required' : ''"
+      ></app-input>
+
+      <app-input
+        size="sm"
+        label="Name"
+        formControlName="Name"
+        placeholder="e.g. Visa Card"
+        [required]="true"
+        [fullWidth]="true"
+        [errorText]="cardForm.get('Name')?.touched && cardForm.get('Name')?.hasError('required') ? 'Name is required' : ''"
+      ></app-input>
+
+      <app-select
+        size="sm"
+        label="Tender Type"
+        formControlName="TenderType"
+        placeholder="Select tender type"
+        [required]="true"
+        [options]="tenderTypeOptions"
+      ></app-select>
+
+    </div>
+  </form>
+
+  <div modal-footer class="flex gap-3">
+    <app-button variant="secondary" (click)="closeCardModal()" [disabled]="isSavingCard">Cancel</app-button>
+    <app-button variant="primary" (click)="saveCard()" [disabled]="isSavingCard">
+      <span *ngIf="!isSavingCard">{{ isCardEditMode ? 'Save Changes' : 'Create' }}</span>
+      <span *ngIf="isSavingCard" class="flex items-center gap-2">
+        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        {{ isCardEditMode ? 'Saving...' : 'Creating...' }}
+      </span>
+    </app-button>
+  </div>
+</app-modal>

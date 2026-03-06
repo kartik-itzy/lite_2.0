@@ -253,14 +253,9 @@
     </div>
 
     <div *ngIf="currentTabId === 'logs'">
-     <app-table
-  [columns]="logsTableColumns"
-  [rows]="campaignLogs"
-  [config]="logsTableConfig"
-  [totalItems]="logsTotalItems"
-  [currentPage]="logsCurrentPage"
-  [pageSize]="logsPageSize"
-  (pageChange)="onLogsPageChange($event)">
+      <app-table [columns]="logsTableColumns" [rows]="campaignLogs" [config]="logsTableConfig"
+        [totalItems]="logsTotalItems" [currentPage]="logsCurrentPage" [pageSize]="logsPageSize"
+        (pageChange)="onLogsPageChange($event)">
         <ng-template appTableCell="sent" let-value>
           <app-badge size="sm" [rounded]="true" [variant]="value === 'Yes' ? 'success' : 'warning'">
             {{ value }}

@@ -11,17 +11,31 @@
   </div>
 
   <!-- Content -->
-  <div class="p-6 space-y-4">
-    <app-card variant="flat" size="lg" class="h-full">
+    <div class="p-6 space-y-4">
+      <app-card variant="flat" size="lg" class="h-full">
 
-      <!-- Tabs + Create Button -->
+      <!-- Tabs + Actions -->
       <div class="w-full flex justify-between items-center mb-4">
         <app-tab
           [tabs]="viewTabs"
           [selectedTabId]="currentView"
           (tabChange)="onViewChange($event)"
         ></app-tab>
-        <app-button variant="primary" (click)="openCreateModal()">Create New Level</app-button>
+
+        <div class="flex items-center gap-2">
+          <app-export-excel
+            [data]="currentTableData"
+            [columns]="exportColumns"
+            [config]="{
+              fileName: currentView === 'upgrade' ? 'member-levels-upgrade' : 'member-levels-non-upgrade',
+              sheetName: currentView === 'upgrade' ? 'Upgrade' : 'Non-Upgrade',
+              buttonLabel: 'Export to Excel',
+              variant: 'outline',
+              size: 'sm'
+            }"
+          ></app-export-excel>
+          <app-button variant="primary" (click)="openCreateModal()">Create New Level</app-button>
+        </div>
       </div>
 
       <!-- Loading State -->

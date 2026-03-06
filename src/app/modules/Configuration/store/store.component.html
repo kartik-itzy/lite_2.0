@@ -1,1 +1,370 @@
-<p>store works!</p>
+<div class="min-h-screen bg-gray-50 scroll-smooth">
+
+    <!-- Page Header -->
+    <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex flex-col">
+            <h1 class="text-lg font-semibold text-gray-900">Store</h1>
+            <div class="mt-1 text-sm text-gray-600">
+                You can find and create the store, their details, Tender and User
+            </div>
+        </div>
+    </div>
+
+    <div class="p-6 flex gap-4">
+
+        <!-- ══════════════════════════════════════════════════
+         LEFT PANEL — Store list
+    ══════════════════════════════════════════════════ -->
+        <app-card variant="flat" size="lg" class="w-2/5 h-fit">
+
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-base font-semibold text-gray-800">Stores</h2>
+                <app-button variant="primary" size="sm" (click)="openCreateStoreModal()">+ New Store</app-button>
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="isStoreLoading" class="flex items-center justify-center py-10">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span class="ml-2 text-gray-500 text-sm">Loading...</span>
+            </div>
+
+            <app-table *ngIf="!isStoreLoading" [columns]="storeListColumns" [rows]="storeList"
+                [config]="storeListConfig" (rowClick)="onSelectStore($event)" (pageChange)="onPageChange($event)">
+                <!-- Highlight selected row via actions slot -->
+                <ng-template appTableCell="actions" let-row="row">
+                    <div class="flex items-center justify-center gap-2">
+                        <!-- Select -->
+                        <button type="button" (click)="onSelectStore(row); $event.stopPropagation()"
+                            class="inline-flex items-center justify-center h-8 w-8 rounded-md transition"
+                            [class.text-blue-600]="selectedStore?.StoreID !== row.StoreID"
+                            [class.text-green-600]="selectedStore?.StoreID === row.StoreID"
+                            [class.hover:bg-blue-50]="selectedStore?.StoreID !== row.StoreID" title="Select Store">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        <!-- Delete -->
+                        <button type="button" (click)="onDeleteStore(row); $event.stopPropagation()"
+                            class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition"
+                            title="Delete Store">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                    </div>
+                </ng-template>
+            </app-table>
+        </app-card>
+
+        <!-- ══════════════════════════════════════════════════
+         RIGHT PANEL — Tabs (Details / Tender / User)
+    ══════════════════════════════════════════════════ -->
+        <app-card variant="flat" size="lg" class="w-3/5 h-fit flex flex-col gap-4">
+
+            <!-- No store selected hint -->
+            <div *ngIf="!hasStoreSelected"
+                class="flex flex-col items-center justify-center py-20 text-gray-400 text-sm gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+                <p>Select a store from the left to view details</p>
+            </div>
+
+            <ng-container *ngIf="hasStoreSelected">
+
+                <!-- Selected store badge -->
+                <div class="flex items-center gap-2 pb-2 border-b border-gray-100">
+                    <span class="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded">
+                        {{ selectedStore?.StoreID }}
+                    </span>
+                    <span class="text-sm font-medium text-gray-700">{{ selectedStore?.Name }}</span>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex justify-between items-center py-4">
+
+                    <app-tab [tabs]="viewTabs" [selectedTabId]="currentView"
+                        (tabChange)="onViewChange($event)"></app-tab>
+                    <app-button *ngIf="currentView === 'tender'" variant="primary" size="sm"
+                        (click)="openCreateTenderModal()">+ Add Tender</app-button>
+                    <app-button *ngIf="currentView === 'user'" variant="primary" size="sm"
+                        (click)="openAddUserModal()">+ Add User</app-button>
+
+                </div>
+
+                <!-- ── Store Details ── -->
+                <div *ngIf="currentView === 'details'">
+                    <form [formGroup]="storeForm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            <app-input size="sm" label="Store ID" formControlName="StoreID" [readonly]="true"
+                                [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Name" formControlName="Name" placeholder="Store name"
+                                [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Store Manager" formControlName="StoreManagerName"
+                                placeholder="Manager name" [fullWidth]="true"></app-input>
+
+                            <app-select size="sm" label="Brand" formControlName="Brand" placeholder="Select brand"
+                                [options]="brandOptions"></app-select>
+
+                            <app-input size="sm" label="Address" formControlName="Address" placeholder="Address line 1"
+                                [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Address 2" formControlName="Address2"
+                                placeholder="Address line 2" [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="City" formControlName="City" placeholder="City"
+                                [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Post Code" formControlName="PostCode" placeholder="Post code"
+                                [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Country Code" formControlName="CountryCode"
+                                placeholder="e.g. TH" [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Store Group" formControlName="StoreGroup"
+                                placeholder="Store group" [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Longitude" formControlName="longitude"
+                                placeholder="e.g. 100.539" [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Latitude" formControlName="latitude" placeholder="e.g. 13.746"
+                                [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Google Map URL" formControlName="googlemapurl"
+                                placeholder="https://maps.app.goo.gl/..." [fullWidth]="true"
+                                class="md:col-span-2"></app-input>
+
+                            <app-input size="sm" label="Terminal ID" formControlName="terminalID"
+                                placeholder="Terminal ID" [fullWidth]="true"></app-input>
+
+                            <app-input size="sm" label="Related Price Group" formControlName="DefaultPriceGroup"
+                                placeholder="Price group" [fullWidth]="true"></app-input>
+
+                        </div>
+
+                        <div class="flex justify-end mt-5">
+                            <app-button variant="primary" (click)="saveStoreDetails()">Save Changes</app-button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ── Store Tender ── -->
+                <div *ngIf="currentView === 'tender'">
+
+                    <div *ngIf="isTenderLoading" class="flex items-center justify-center py-10">
+                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        <span class="ml-2 text-gray-500 text-sm">Loading...</span>
+                    </div>
+
+                    <app-table *ngIf="!isTenderLoading" [columns]="tenderColumns" [rows]="tenderList"
+                        [config]="tenderConfig" (pageChange)="onPageChange($event)">
+                        <ng-template appTableCell="actions" let-row="row">
+                            <div class="flex items-center justify-center">
+                                <button type="button" (click)="onDeleteTender(row); $event.stopPropagation()"
+                                    class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition"
+                                    title="Delete Tender">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </ng-template>
+                    </app-table>
+                </div>
+
+                <!-- ── Store Users ── -->
+                <div *ngIf="currentView === 'user'" class="flex gap-4">
+
+                    <!-- User list table -->
+                    <div class="w-1/2">
+                        <div class="flex justify-end mb-3">
+
+                        </div>
+
+                        <div *ngIf="isUserLoading" class="flex items-center justify-center py-10">
+                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                            <span class="ml-2 text-gray-500 text-sm">Loading...</span>
+                        </div>
+
+                        <app-table *ngIf="!isUserLoading" [columns]="userColumns" [rows]="userList"
+                            [config]="userConfig" (rowClick)="onSelectUser($event)" (pageChange)="onPageChange($event)">
+                            <ng-template appTableCell="actions" let-row="row">
+                                <div class="flex items-center justify-center gap-2">
+                                    <!-- Select for permissions -->
+                                    <button type="button" (click)="onSelectUser(row); $event.stopPropagation()"
+                                        class="inline-flex items-center justify-center h-8 w-8 rounded-md transition"
+                                        [class.text-green-600]="selectedUser?.Email === row.Email"
+                                        [class.text-blue-500]="selectedUser?.Email !== row.Email"
+                                        title="View Permissions">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                    <!-- Delete -->
+                                    <button type="button" (click)="onDeleteUser(row); $event.stopPropagation()"
+                                        class="inline-flex items-center justify-center h-8 w-8 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition"
+                                        title="Remove User">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </ng-template>
+                        </app-table>
+                    </div>
+
+                    <!-- User permissions panel -->
+                    <div class="w-1/2">
+                        <div *ngIf="!selectedUser"
+                            class="flex flex-col items-center justify-center h-full py-16 text-gray-400 text-sm gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-300" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                            <p>Select a user to manage permissions</p>
+                        </div>
+
+                        <div *ngIf="selectedUser" class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="text-sm font-semibold text-gray-700 mb-1">{{ selectedUser.Email }}</h3>
+                            <p class="text-xs text-gray-400 mb-4">Toggle to update permissions instantly</p>
+
+                            <form [formGroup]="userPermForm" class="space-y-3">
+
+                                <ng-container *ngFor="let perm of [
+                  { field: 'allow_topup',       label: 'Allow Top-up' },
+                  { field: 'allow_applycoupon', label: 'Allow Apply Coupon' },
+                  { field: 'allow_payment',     label: 'Allow Payment' },
+                  { field: 'allow_returncoupon',label: 'Allow Return Coupon' },
+                  { field: 'cancel_topup',      label: 'Cancel Top-up' },
+                  { field: 'cancel_payment',    label: 'Cancel Payment' },
+                  { field: 'manager',           label: 'Manager' }
+                ]">
+                                    <div class="flex items-center justify-between py-1">
+                                        <span class="text-sm text-gray-600">{{ perm.label }}</span>
+                                        <app-switch [formControlName]="perm.field" [label]="perm.label"
+                                            [config]="{ variant: 'primary', size: 'sm', showLabel: false }"
+                                            (checkedChange)="saveUserPermission(perm.field)"></app-switch>
+                                    </div>
+                                </ng-container>
+
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- end user tab -->
+
+            </ng-container>
+        </app-card>
+    </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════ -->
+
+<!-- Create Store Modal -->
+<app-modal [isOpen]="isStoreModalOpen"
+    [config]="{ title: 'Create New Store', size: 'md', showCloseButton: true, closeOnBackdropClick: true }"
+    (closeModal)="closeStoreModal()">
+    <form [formGroup]="storeCreateForm">
+        <div class="grid grid-cols-1 gap-4">
+            <app-input size="sm" label="Store ID" formControlName="StoreID" placeholder="e.g. CW" [required]="true"
+                [fullWidth]="true"></app-input>
+            <app-input size="sm" label="Store Name" formControlName="Name" placeholder="e.g. Central World"
+                [required]="true" [fullWidth]="true"></app-input>
+            <app-select size="sm" label="Brand" formControlName="Brand" placeholder="Select brand"
+                [options]="brandOptions"></app-select>
+        </div>
+    </form>
+
+    <div modal-footer class="flex gap-3">
+        <app-button variant="secondary" (click)="closeStoreModal()" [disabled]="isSavingStore">Cancel</app-button>
+        <app-button variant="primary" (click)="saveNewStore()" [disabled]="isSavingStore">
+            <span *ngIf="!isSavingStore">Create Store</span>
+            <span *ngIf="isSavingStore" class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                Creating...
+            </span>
+        </app-button>
+    </div>
+</app-modal>
+
+
+<!-- Add Tender Modal -->
+<app-modal [isOpen]="isTenderModalOpen"
+    [config]="{ title: 'Add Store Tender', size: 'sm', showCloseButton: true, closeOnBackdropClick: true }"
+    (closeModal)="closeTenderModal()">
+    <form [formGroup]="tenderForm">
+        <div class="grid grid-cols-1 gap-4">
+            <app-select size="sm" label="Tender Code" formControlName="TenderCode" placeholder="Select tender code"
+                [required]="true" [options]="tenderCodeOptions"></app-select>
+            <app-select size="sm" label="Tender Type" formControlName="TenderType" placeholder="Select tender type"
+                [required]="true" [options]="tenderTypeOptions"></app-select>
+        </div>
+    </form>
+
+    <div modal-footer class="flex gap-3">
+        <app-button variant="secondary" (click)="closeTenderModal()" [disabled]="isSavingTender">Cancel</app-button>
+        <app-button variant="primary" (click)="saveTender()" [disabled]="isSavingTender">
+            <span *ngIf="!isSavingTender">Add Tender</span>
+            <span *ngIf="isSavingTender" class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                Saving...
+            </span>
+        </app-button>
+    </div>
+</app-modal>
+
+
+<!-- Add User Modal -->
+<app-modal [isOpen]="isUserModalOpen"
+    [config]="{ title: 'Add User to Store', size: 'sm', showCloseButton: true, closeOnBackdropClick: true }"
+    (closeModal)="closeUserModal()">
+    <form [formGroup]="userForm">
+        <app-select size="sm" label="User" formControlName="Email" placeholder="Select user" [required]="true"
+            [options]="allUsersOptions"></app-select>
+    </form>
+
+    <div modal-footer class="flex gap-3">
+        <app-button variant="secondary" (click)="closeUserModal()" [disabled]="isSavingUser">Cancel</app-button>
+        <app-button variant="primary" (click)="saveUser()" [disabled]="isSavingUser">
+            <span *ngIf="!isSavingUser">Add User</span>
+            <span *ngIf="isSavingUser" class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                Adding...
+            </span>
+        </app-button>
+    </div>
+</app-modal>

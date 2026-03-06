@@ -16,6 +16,7 @@ import {
 import { ModalComponent, ModalConfig } from '../../../components/ui/modal/modal.component';
 import { InputComponent } from '../../../components/ui/input/input.component';
 import { SelectComponent, SelectOption } from '../../../components/ui/select/select.component';
+import { ExportExcelComponent, ExportColumn } from '../../../components/ui/export-excel/export-excel.component';
 import { DataService } from '../../../data.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ConfirmationService } from '../../../shared/services/confirmation.service';
@@ -50,6 +51,7 @@ export interface MemberLevel {
     ModalComponent,
     InputComponent,
     SelectComponent,
+    ExportExcelComponent,
   ],
   templateUrl: './member-level.component.html',
   styleUrl: './member-level.component.css',
@@ -116,6 +118,19 @@ export class MemberLevelComponent implements OnInit {
     loading: false,
     emptyMessage: 'No member levels found',
   };
+
+  exportColumns: ExportColumn[] = [
+    { key: 'memberlevelCode', label: 'Member Level Code' },
+    { key: 'Description', label: 'Description' },
+    { key: 'MinPoints', label: 'Min Points' },
+    { key: 'MaxPoints', label: 'Max Points' },
+    { key: 'CardType', label: 'Card Type' },
+    { key: 'NextLevelLabel', label: 'Next Level Label' },
+    { key: 'LoyaltyCode', label: 'Loyalty Code' },
+    { key: 'RedeemCode', label: 'Redeem Code' },
+    { key: 'TopupCode', label: 'Top-up Code' },
+    { key: 'LastModifiedOn', label: 'Last Modified On' },
+  ];
 
   modalConfig: ModalConfig = {
     title: 'Create New Level',

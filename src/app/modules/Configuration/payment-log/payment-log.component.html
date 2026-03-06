@@ -1,1 +1,71 @@
-<p>payment-log works!</p>
+<div class="min-h-screen bg-gray-50 scroll-smooth">
+
+  <!-- Page Header -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+    <div class="flex flex-col">
+      <h1 class="text-lg font-semibold text-gray-900">Payment Log</h1>
+      <div class="mt-1 text-sm text-gray-600">
+        View and export all payment transaction records
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <app-card variant="flat" size="lg">
+
+      <!-- Toolbar -->
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-base font-semibold text-gray-800">Transaction Records</h2>
+        <app-export-excel
+          [data]="paymentLogData"
+          [columns]="exportColumns"
+          [config]="{ fileName: 'payment-log', buttonLabel: 'Export to Excel', variant: 'outline', size: 'sm' }"
+        ></app-export-excel>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-500 text-sm">Loading...</span>
+      </div>
+
+      <!-- Table -->
+      <app-table
+        *ngIf="!isLoading"
+        [columns]="tableColumns"
+        [rows]="paymentLogData"
+        [config]="tableConfig"
+        (pageChange)="onPageChange($event)"
+      >
+
+        <!-- Entry Status — badge with colour matching legacy onCellPrepared logic -->
+        <ng-template appTableCell="EntryStatus" let-value>
+          <app-badge
+            size="sm"
+            [rounded]="true"
+            [variant]="getStatusVariant(value)"
+          >
+            {{ value ? (value | uppercase) : '—' }}
+          </app-badge>
+        </ng-template>
+
+        <!-- Brand — dash when null -->
+        <ng-template appTableCell="brand_id" let-value>
+          <span [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+
+        <!-- Trans Date — dash when null -->
+        <ng-template appTableCell="TransDate" let-value>
+          <span [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+
+        <!-- Trans Time — dash when null -->
+        <ng-template appTableCell="TransTime" let-value>
+          <span [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+
+      </app-table>
+    </app-card>
+  </div>
+
+</div>
