@@ -1,0 +1,241 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE HEADER + DATE FILTER
+  ══════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <div class="flex flex-wrap items-end gap-4">
+
+      <div>
+        <h1 class="text-lg font-semibold text-gray-900">Transaction History</h1>
+        <p class="text-sm text-gray-500 mt-0.5">View and export all member transaction records</p>
+      </div>
+
+      <div class="ml-auto flex flex-wrap items-end justify-center gap-3">
+
+        <!-- From Date -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">From Date</label>
+          <input
+            type="date"
+            [(ngModel)]="fromDate"
+            class="rounded-lg border border-gray-300 bg-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+
+        <span class="text-gray-400 text-sm pb-2">→</span>
+
+        <!-- To Date -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-gray-500">To Date</label>
+          <input
+            type="date"
+            [(ngModel)]="toDate"
+            class="rounded-lg border border-gray-300 bg-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+        </div>
+
+        <!-- Load button -->
+        <app-button variant="primary" size="sm" [disabled]="isLoading" (click)="loadTransactions()">
+          <span *ngIf="!isLoading" class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Load
+          </span>
+          <span *ngIf="isLoading" class="flex items-center gap-2">
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Loading...
+          </span>
+        </app-button>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6 space-y-6">
+
+    <!-- ══════════════════════════════════════════════════
+         KPI CARDS — Row 1 (4 cards)
+    ══════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+
+      <!-- Total Transactions — blue -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-blue-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Total Transactions</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.totalTransactions | number }}</p>
+        </div>
+      </div>
+
+      <!-- Total Topup Amount — green -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-emerald-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-emerald-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Total Topup Amount</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.totalTopupAmount | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <!-- Total Sale Amount — orange -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-orange-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-orange-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Total Sale Amount</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.totalSaleAmount | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <!-- Total Sale Points — purple -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-purple-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-purple-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Total Sale Points</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.totalSalePoints | number:'1.0-0' }}</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         KPI CARDS — Row 2 (4 cards)
+    ══════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+
+      <!-- Cancelled Topup — red -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-red-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Cancelled Topup</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.cancelledTopup | number }}</p>
+        </div>
+      </div>
+
+      <!-- Cancelled Sales — pink -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-pink-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-pink-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Cancelled Sales</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.cancelledSales | number }}</p>
+        </div>
+      </div>
+
+      <!-- Add Points — teal -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-teal-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-teal-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Add Points</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.addPoints | number }}</p>
+        </div>
+      </div>
+
+      <!-- Cancel Add Points — indigo -->
+      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-indigo-500 shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all duration-150">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-indigo-500">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 truncate">Cancel Add Points</p>
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ analytics.cancelAddPoints | number }}</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         DATA TABLE
+    ══════════════════════════════════════════════════ -->
+    <app-card variant="flat" size="lg">
+
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-gray-800">All Transactions</h2>
+        <app-export-excel
+          [data]="transactions"
+          [columns]="exportColumns"
+          [config]="{ fileName: 'transaction-history-' + fromDate + '-to-' + toDate, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+        ></app-export-excel>
+      </div>
+
+      <app-table
+        [columns]="tableColumns"
+        [rows]="transactions"
+        [config]="tableConfig"
+        (pageChange)="onPageChange($event)"
+      >
+
+        <!-- TransactionType — badge -->
+        <ng-template appTableCell="TransactionType" let-value>
+          <app-badge size="sm" [rounded]="true" [variant]="getBadgeVariant(value)">
+            {{ value }}
+          </app-badge>
+        </ng-template>
+
+        <!-- StoreNo — dash when null -->
+        <ng-template appTableCell="StoreNo" let-value>
+          <span [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+
+        <!-- TopupAmount — right-aligned numeric -->
+        <ng-template appTableCell="TopupAmount" let-value>
+          <span class="font-mono text-sm text-right block">{{ value | number:'1.2-2' }}</span>
+        </ng-template>
+
+        <!-- Points — right-aligned numeric -->
+        <ng-template appTableCell="Points" let-value>
+          <span class="font-mono text-sm text-right block">{{ value | number:'1.2-2' }}</span>
+        </ng-template>
+
+        <!-- PointValue — right-aligned numeric -->
+        <ng-template appTableCell="PointValue" let-value>
+          <span class="font-mono text-sm text-right block">{{ value | number:'1.2-2' }}</span>
+        </ng-template>
+
+      </app-table>
+
+    </app-card>
+
+  </div>
+</div>

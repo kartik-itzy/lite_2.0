@@ -1,1 +1,245 @@
-<p>coupon-dashboard works!</p>
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <h1 class="text-lg font-semibold text-gray-900">Coupon Dashboard</h1>
+    <p class="text-sm text-gray-500 mt-0.5">Select a category to explore coupon breakdown and status</p>
+  </div>
+
+  <div class="p-6 space-y-6">
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 1: Summary (left) + Selector & Status (right)
+    ══════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+      <!-- ── LEFT: Summary categories ── -->
+      <app-card variant="flat" size="lg">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-gray-800">Coupon Categories</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Click a row to explore coupon codes</p>
+          </div>
+          <app-export-excel
+            [data]="dashboardRows"
+            [columns]="[{key:'Label',label:'Category'},{key:'total',label:'Total'}]"
+            [config]="{ fileName: 'coupon-summary', buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+        </div>
+
+        <app-table
+          [columns]="summaryColumns"
+          [rows]="dashboardRows"
+          [config]="summaryConfig"
+          (rowClick)="onRowClick($event)"
+          (pageChange)="onPageChange($event)"
+        >
+          <!-- Label cell — indent SubTypes, highlight selected -->
+          <ng-template appTableCell="Label" let-value let-row="row">
+            <div class="flex items-center gap-2" [class.pl-5]="isSubType(row)">
+              <span *ngIf="isSubType(row)"
+                class="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0"></span>
+              <span
+                class="text-sm"
+                [class.text-blue-600]="selectedRow?.CouponType === row.CouponType"
+                [class.font-semibold]="selectedRow?.CouponType === row.CouponType"
+                [class.text-gray-700]="selectedRow?.CouponType !== row.CouponType && !isSubType(row)"
+                [class.font-medium]="selectedRow?.CouponType !== row.CouponType && !isSubType(row)"
+                [class.text-gray-400]="selectedRow?.CouponType !== row.CouponType && isSubType(row)"
+                [class.opacity-40]="row.total === 0"
+              >
+                {{ trimLabel(row) }}
+              </span>
+            </div>
+          </ng-template>
+
+          <!-- Total cell -->
+          <ng-template appTableCell="total" let-value let-row="row">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-sm font-semibold"
+              [class.bg-blue-100]="selectedRow?.CouponType === row.CouponType"
+              [class.text-blue-700]="selectedRow?.CouponType === row.CouponType"
+              [class.bg-gray-100]="selectedRow?.CouponType !== row.CouponType && row.total > 0"
+              [class.text-gray-600]="selectedRow?.CouponType !== row.CouponType && row.total > 0"
+              [class.bg-yellow-50]="row.total === 0"
+              [class.text-yellow-400]="row.total === 0"
+            >
+              {{ value | number }}
+              <svg *ngIf="selectedRow?.CouponType === row.CouponType"
+                class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+              </svg>
+            </span>
+          </ng-template>
+        </app-table>
+      </app-card>
+
+      <!-- ── RIGHT: Coupon selector + status breakdown ── -->
+      <div class="space-y-4">
+
+        <!-- Coupon Code selector -->
+        <app-card variant="flat" size="lg">
+          <h2 class="text-base font-semibold text-gray-800 mb-4">
+            <ng-container *ngIf="!selectedRow">
+              <span class="text-gray-400 font-normal">Select a category first</span>
+            </ng-container>
+            <ng-container *ngIf="selectedRow">
+              {{ trimLabel(selectedRow) }}
+              <span class="text-gray-400 font-normal text-sm ml-1">— pick a coupon code</span>
+            </ng-container>
+          </h2>
+
+          <!-- Placeholder (no row selected) -->
+          <div *ngIf="!selectedRow"
+            class="rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center py-12 gap-3 text-center">
+            <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0H12a2.25 2.25 0 01-2.15 1.586H9"/>
+            </svg>
+            <p class="text-sm text-gray-400 font-medium">Click a row on the left to load coupons</p>
+          </div>
+
+          <!-- Loading spinner -->
+          <div *ngIf="selectedRow && isDropdownLoading"
+            class="flex items-center justify-center py-10 gap-3 text-gray-400">
+            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span class="text-sm">Loading coupons…</span>
+          </div>
+
+          <!-- Dropdown -->
+          <div *ngIf="selectedRow && !isDropdownLoading">
+            <app-select
+              [options]="couponOptions"
+              [ngModel]="selectedCode"
+              (ngModelChange)="onCodeChanged($event)"
+              placeholder="Search or select a coupon code…"
+            ></app-select>
+            <p class="text-xs text-gray-400 mt-2">{{ couponOptions.length | number }} coupon(s) available</p>
+          </div>
+        </app-card>
+
+        <!-- Status breakdown (appears after selecting a coupon code) -->
+        <app-card *ngIf="showStatusGrid" variant="flat" size="lg">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-semibold text-gray-800">Status Breakdown</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Click a row to view coupon lines</p>
+            </div>
+            <app-export-excel
+              [data]="statusRows"
+              [columns]="statusColumns"
+              [config]="{ fileName: 'coupon-status-' + selectedCode, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+            ></app-export-excel>
+          </div>
+
+          <app-table
+            [columns]="statusColumns"
+            [rows]="statusRows"
+            [config]="statusConfig"
+            (rowClick)="onStatusRowClick($event)"
+            (pageChange)="onPageChange($event)"
+          >
+            <ng-template appTableCell="Code" let-value>
+              <span class="text-sm font-medium text-gray-700 font-mono">{{ value || '—' }}</span>
+            </ng-template>
+
+            <ng-template appTableCell="ALL" let-value>
+              <span class="font-mono text-sm font-semibold text-blue-600"
+                [class.text-gray-300]="value === 0">{{ value | number }}</span>
+            </ng-template>
+
+            <ng-template appTableCell="USED" let-value>
+              <span class="font-mono text-sm font-semibold text-gray-600"
+                [class.text-gray-300]="value === 0">{{ value | number }}</span>
+            </ng-template>
+
+            <ng-template appTableCell="RESERVED" let-value>
+              <span class="font-mono text-sm font-semibold text-blue-500"
+                [class.text-gray-300]="value === 0">{{ value | number }}</span>
+            </ng-template>
+
+            <ng-template appTableCell="OPEN" let-value>
+              <span class="font-mono text-sm font-semibold text-emerald-600"
+                [class.text-gray-300]="value === 0">{{ value | number }}</span>
+            </ng-template>
+
+            <ng-template appTableCell="VOIDED" let-value>
+              <span class="font-mono text-sm font-semibold text-red-500"
+                [class.text-gray-300]="value === 0">{{ value | number }}</span>
+            </ng-template>
+
+          </app-table>
+        </app-card>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 2: Coupon Detail Grid (full-width, on demand)
+    ══════════════════════════════════════════════════ -->
+    <app-card *ngIf="showDetailGrid" variant="flat" size="lg">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-base font-semibold text-gray-800">
+            Coupon Lines
+            <span class="ml-2 text-sm font-normal text-gray-400">
+              {{ totalCount | number }} total
+            </span>
+          </h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Code: <strong>{{ selectedCode }}</strong>
+            &nbsp;·&nbsp; Status filter: <strong>{{ selectedStatusType }}</strong>
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- In-memory export (visible data) -->
+          <app-export-excel
+            [data]="detailRows"
+            [columns]="detailExportColumns"
+            [config]="{ fileName: 'coupon-details-' + selectedCode, buttonLabel: 'Export Page', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+          <!-- Full CSV export via API -->
+          <app-button variant="secondary" size="sm" (click)="exportAllToCsv()">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+            </svg>
+            Export All
+          </app-button>
+        </div>
+      </div>
+
+      <app-table
+        [columns]="detailColumns"
+        [rows]="detailRows"
+        [config]="detailConfig"
+        (pageChange)="onPageChange($event)"
+      >
+        <!-- Status badge -->
+        <ng-template appTableCell="CurrentStatus" let-value>
+          <app-badge size="sm" [rounded]="true" [variant]="getStatusBadgeVariant(value)">
+            {{ value }}
+          </app-badge>
+        </ng-template>
+
+        <!-- Dates -->
+        <ng-template appTableCell="StartingDate" let-value>
+          <span class="text-sm" [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+        <ng-template appTableCell="EndingDate" let-value>
+          <span class="text-sm" [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+        <ng-template appTableCell="UseDate" let-value>
+          <span class="text-sm" [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+
+      </app-table>
+    </app-card>
+
+  </div>
+</div>

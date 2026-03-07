@@ -63,6 +63,14 @@ import { LineChannelsComponent } from './modules/Integration-and-external-setup/
 import { LineIntegrationTemplatesComponent } from './modules/Integration-and-external-setup/line-integration-templates/line-integration-templates.component';
 import { RfmTargetConfigComponent } from './modules/Integration-and-external-setup/rfm-target-config/rfm-target-config.component';
 import { RfmSegmentationComponent } from './modules/Integration-and-external-setup/rfm-segmentation/rfm-segmentation.component';
+import { AnalyticsComponent } from './modules/Configuration/analytics/analytics.component';
+import { PointsResetComponent } from './modules/Configuration/points-reset/points-reset.component';
+import { PointsExpirySetupComponent } from './modules/Configuration/points-expiry-setup/points-expiry-setup.component';
+import { TransactionHistoryComponent } from './modules/Configuration/transaction-history/transaction-history.component';
+import { TransactionHistoryByBrandComponent } from './modules/Brand/transaction-history-by-brand/transaction-history-by-brand.component';
+import { PointsExpirySetupByBrandComponent } from './modules/Brand/points-expiry-setup-by-brand/points-expiry-setup-by-brand.component';
+import { PointsResetSetupByBrandComponent } from './modules/Brand/points-reset-setup-by-brand/points-reset-setup-by-brand.component';
+import { ManualMemberLevelByBrandComponent } from './modules/Brand/manual-member-level-by-brand/manual-member-level-by-brand.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -133,6 +141,10 @@ export const routes: Routes = [
   { path: 'crafted/retail/customers/:id', component: CustomerDetailsComponent },
   { path: 'crafted/retail/memberlevel', component: MemberLevelComponent },
   { path: 'crafted/retail/member_default', component: MemberDefaultComponent },
+  { path: 'crafted/retail/analytics', component: AnalyticsComponent },
+  { path: 'crafted/retail/points-reset', component: PointsResetComponent },
+  { path: 'crafted/retail/TransactionHistory', component: TransactionHistoryComponent },
+  { path: 'crafted/retail/pointsexpirysetup', component: PointsExpirySetupComponent },
   {
     path: 'crafted/retail/membersegmentationsetup',
     component: MemberSegmentationSetupComponent,
@@ -172,6 +184,22 @@ export const routes: Routes = [
   {
     path: 'crafted/retail/loyaltyplanByBrand',
     component: LoyaltyPlanByBrandComponent,
+  },
+  {
+    path: 'crafted/retail/transaction-history-by-brand',
+    component: TransactionHistoryByBrandComponent,
+  },
+  {
+    path: 'crafted/retail/points-reset-by-brand',
+    component: PointsResetSetupByBrandComponent,
+  },
+  {
+    path: 'crafted/retail/pointsexpirysetupbybrand',
+    component: PointsExpirySetupByBrandComponent,
+  },
+  {
+    path: 'crafted/retail/memberslistmanualbybrand',
+    component: ManualMemberLevelByBrandComponent,
   },
   {
     path: 'crafted/retail/redeemplanByBrand',
@@ -222,6 +250,6 @@ export const routes: Routes = [
   },
 
   { path: 'crafted/retail/BrandPointsByMember', component: BrandPointsComponent },
-  { path: 'crafted/retail/TransactionsHistory', component: TransactionsHistoryComponent },
+  // { path: 'crafted/retail/TransactionHistory', component: TransactionHistoryComponent },
 
 ];
