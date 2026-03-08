@@ -1,1 +1,179 @@
-<p>apply-coupon works!</p>
+<div class="min-h-screen bg-gray-50">
+
+    <!-- ── STICKY HEADER ── -->
+    <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900">Apply Coupon</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Verify and apply coupon codes, or review coupon history</p>
+        </div>
+    </div>
+
+    <div class="p-6  mx-auto flex flex-col gap-4 space-y-5">
+
+        <!-- ── TABS ── -->
+        <app-card variant="flat">
+
+            <app-tab [tabs]="tabs" [selectedTabId]="activeTab" (tabChange)="setTab($event)"></app-tab>
+        </app-card>
+
+        <!-- ══ TAB 1: APPLY COUPON ══ -->
+        <div *ngIf="activeTab === 'apply'">
+            <app-card variant="flat" >
+                <div class="border-b border-gray-100 pb-3 mb-5">
+                    <h2 class="text-base font-semibold text-gray-800">Verify Coupon Code</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Enter a coupon code and click Verify to check its status
+                        before applying</p>
+                </div>
+
+                <div class="flex items-end gap-3 max-w-md">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                            Coupon Code <span class="text-red-500">*</span>
+                        </label>
+                        <app-input [(ngModel)]="couponCodeInput" placeholder="Enter coupon code…"
+                            (keyup.enter)="verifyCoupon()"></app-input>
+                    </div>
+                    <app-button variant="primary" size="md" [disabled]="isVerifying || !couponCodeInput.trim()"
+                        (clicked)="verifyCoupon()">
+                        <svg *ngIf="isVerifying" class="animate-spin h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        {{ isVerifying ? 'Verifying…' : 'Verify' }}
+                    </app-button>
+                </div>
+
+                <!-- Tip -->
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm text-blue-700 max-w-md">
+                    <svg class="inline w-4 h-4 mr-1.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    After verification a popup will show coupon details. You can then choose to apply it.
+                </div>
+            </app-card>
+        </div>
+
+        <!-- ══ TAB 2: COUPON HISTORY ══ -->
+        <div *ngIf="activeTab === 'history'">
+            <app-card variant="flat" size="lg">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-5">
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-800">Coupon History</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            {{ historyRows.length | number }} used coupons
+                            <span *ngIf="selectedHistoryRow" class="text-blue-600">
+                                &nbsp;·&nbsp; Selected: <strong>{{ selectedHistoryRow.CouponCode }}</strong>
+                            </span>
+                        </p>
+                    </div>
+                    <!-- Cancel selected coupon -->
+                    <app-button variant="danger" size="sm" [disabled]="!selectedHistoryRow || isCancelling"
+                        (clicked)="cancelCoupon()">
+                        <svg *ngIf="isCancelling" class="animate-spin h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        {{ isCancelling ? 'Cancelling…' : 'Cancel Coupon' }}
+                    </app-button>
+                </div>
+
+                <app-table [columns]="historyColumns" [rows]="historyRows" [config]="historyConfig"
+                    (rowClick)="onHistoryRowClick($event)">
+                    <!-- Highlight selected row via CouponCode cell -->
+                    <ng-template appTableCell="CouponCode" let-value let-row="row">
+                        <span [class]="selectedHistoryRow?.CouponCode === value
+                ? 'font-semibold text-blue-600'
+                : 'text-gray-700'">{{ value }}</span>
+                    </ng-template>
+
+                    <ng-template appTableCell="UseDate" let-value>
+                        <span class="text-sm text-gray-600">{{ value | date:'dd-MM-yyyy HH:mm' }}</span>
+                    </ng-template>
+                </app-table>
+
+                <p *ngIf="!selectedHistoryRow" class="mt-3 text-xs text-gray-400 text-center">
+                    Click a row to select a coupon, then use "Cancel Coupon" to reverse it
+                </p>
+            </app-card>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══ APPLY MODAL ══ -->
+<app-modal [isOpen]="showApplyModal" [config]="{ title: 'Coupon Details', size: 'sm', showCloseButton: true }"
+    (closeModal)="closeApplyModal()">
+    <div *ngIf="applyPopupDetails" class="space-y-3">
+
+        <!-- Detail rows -->
+        <div class="divide-y divide-gray-100 rounded-lg border border-gray-200 overflow-hidden text-sm">
+
+            <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50">
+                <span class="text-gray-500 font-medium">Code</span>
+                <span class="text-gray-900 font-mono">{{ applyPopupDetails.Code }}</span>
+            </div>
+
+            <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-gray-500 font-medium">Coupon Code</span>
+                <span class="text-gray-900 font-mono font-semibold">{{ applyPopupDetails.CouponCode }}</span>
+            </div>
+
+            <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50">
+                <span class="text-gray-500 font-medium">Starting Date</span>
+                <span class="text-gray-900">{{ applyPopupDetails.StartingDate }}</span>
+            </div>
+
+            <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-gray-500 font-medium">Ending Date</span>
+                <span class="text-gray-900">{{ applyPopupDetails.EndingDate }}</span>
+            </div>
+
+            <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50">
+                <span class="text-gray-500 font-medium">Coupon Used</span>
+                <app-badge size="sm" [rounded]="true" [variant]="getUsedVariant(applyPopupDetails.CouponUsed)">
+                    {{ applyPopupDetails.CouponUsed }}
+                </app-badge>
+            </div>
+
+            <div class="flex items-center justify-between px-4 py-2.5">
+                <span class="text-gray-500 font-medium">Status</span>
+                <app-badge size="sm" [rounded]="true" [variant]="getStatusVariant(applyPopupDetails.CurrentStatus)">
+                    {{ applyPopupDetails.CurrentStatus }}
+                </app-badge>
+            </div>
+
+            <div *ngIf="applyPopupDetails.ValueFormula"
+                class="flex items-center justify-between px-4 py-2.5 bg-gray-50">
+                <span class="text-gray-500 font-medium">Value Formula</span>
+                <span class="text-gray-900 font-semibold text-blue-700">{{ applyPopupDetails.ValueFormula }}</span>
+            </div>
+
+        </div>
+
+        <div class="p-3 rounded-lg bg-green-50 border border-green-100 text-sm text-green-700">
+            <svg class="inline w-4 h-4 mr-1.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Coupon is valid and ready to apply.
+        </div>
+    </div>
+
+    <div modal-footer class="flex justify-end gap-2">
+        <app-button variant="secondary" size="sm" (clicked)="closeApplyModal()">Cancel</app-button>
+        <app-button variant="success" size="sm" [disabled]="!canApply || isApplying" (clicked)="applyCoupon()">
+            <svg *ngIf="isApplying" class="animate-spin h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            {{ isApplying ? 'Applying…' : 'Apply Coupon' }}
+        </app-button>
+    </div>
+</app-modal>

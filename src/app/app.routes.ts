@@ -55,7 +55,7 @@ import { BasicDealsComponent } from './modules/Loyalty-and-reward/basic-deals/ba
 import { CouponPlanComponent } from './modules/Loyalty-and-reward/coupon-plan/coupon-plan.component';
 import { RedeemPlanComponent } from './modules/Loyalty-and-reward/redeem-plan/redeem-plan.component';
 import { ApplyCouponComponent } from './modules/Loyalty-and-reward/apply-coupon/apply-coupon.component';
-import { CardComponent } from './modules/Others/card/card.component';
+// import { CardComponent, CardListComponent } from './modules/Others/card/card-list.component';
 import { BrandDetailsComponent } from './modules/Brand/brand-details/brand-details.component';
 import { TopupPromotionByBrandDetailsComponent } from './modules/Brand/topup-promotion-by-brand-details/topup-promotion-by-brand-details.component';
 import { CustomerDetailsComponent } from './modules/CRM/customer-details/customer-details.component';
@@ -76,6 +76,9 @@ import { LoyaltyPlanDetailsComponent } from './modules/Loyalty-and-reward/loyalt
 import { TopupPromotionDetailsComponent } from './modules/Loyalty-and-reward/topup-promotion-details/topup-promotion-details.component';
 import { CouponPlanDetailsComponent } from './modules/Loyalty-and-reward/coupon-plan-details/coupon-plan-details.component';
 import { RedeemPlanDetailsComponent } from './modules/Loyalty-and-reward/redeem-plan-details/redeem-plan-details.component';
+import { BasicDealsDetailsComponent } from './modules/Loyalty-and-reward/basic-deals-details/basic-deals-details.component';
+import { CardDetailsComponent } from './modules/Others/card-details/card-details.component';
+import { CardListComponent } from './modules/Others/card-list/card-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -146,7 +149,7 @@ export const routes: Routes = [
     component: MembersComponent,
   },
   { path: 'crafted/retail/memberslist', component: MembersComponent },
-  { path: 'crafted/retail/memberslist/:membershipId', component: MembersDetailsComponent  },
+  { path: 'crafted/retail/memberslist/:membershipId', component: MembersDetailsComponent },
   { path: 'crafted/retail/customers', component: CustomersComponent },
   { path: 'crafted/retail/customers/:id', component: CustomerDetailsComponent },
   { path: 'crafted/retail/memberlevel', component: MemberLevelComponent },
@@ -154,6 +157,7 @@ export const routes: Routes = [
   { path: 'crafted/retail/analytics', component: AnalyticsComponent },
   { path: 'crafted/retail/points-reset', component: PointsResetComponent },
   { path: 'crafted/retail/TransactionHistory', component: TransactionHistoryComponent },
+
   { path: 'crafted/retail/pointsexpirysetup', component: PointsExpirySetupComponent },
   {
     path: 'crafted/retail/membersegmentationsetup',
@@ -176,7 +180,7 @@ export const routes: Routes = [
     component: TopupPromotionDetailsComponent,
   },
   { path: 'crafted/retail/basicdeals', component: BasicDealsComponent },
-  { path: 'crafted/retail/basicdeals/:dealCode', component: BasicDealsComponent },
+  { path: 'crafted/retail/basicdeals/:dealCode', component: BasicDealsDetailsComponent },
   { path: 'crafted/retail/couponlist', component: CouponPlanComponent },
   { path: 'crafted/retail/couponlist/:couponCode', component: CouponPlanDetailsComponent },
   { path: 'crafted/retail/redeemlist', component: RedeemPlanComponent },
@@ -197,8 +201,6 @@ export const routes: Routes = [
   },
   { path: 'crafted/retail/client_stats', component: StatsComponent },
 
-  { path: 'crafted/retail/Brand', component: BrandComponent },
-  { path: 'crafted/retail/Brand-details/:id', component: BrandDetailsComponent },
   {
     path: 'crafted/retail/loyaltyplanByBrand',
     component: LoyaltyPlanByBrandComponent,
@@ -207,12 +209,23 @@ export const routes: Routes = [
     path: 'crafted/retail/transaction-history-by-brand',
     component: TransactionHistoryByBrandComponent,
   },
+  
+  { path: 'crafted/retail/Brand', component: BrandComponent },
+  { path: 'crafted/retail/Brand-details/:id', component: BrandDetailsComponent },
   {
     path: 'crafted/retail/points-reset-by-brand',
+    component: BrandComponent,
+  },
+  {
+    path: 'crafted/retail/points-reset-by-brand/:brandId',
     component: PointsResetSetupByBrandComponent,
   },
   {
     path: 'crafted/retail/pointsexpirysetupbybrand',
+    component: BrandComponent,
+  },
+  {
+    path: 'crafted/retail/pointsexpirysetupbybrand/:brandId',
     component: PointsExpirySetupByBrandComponent,
   },
   {
@@ -244,10 +257,8 @@ export const routes: Routes = [
     component: CouponPlanByBrandComponent,
   },
 
-  {
-    path: 'crafted/retail/Card',
-    component: CardComponent
-  },
+  { path: 'crafted/retail/Card', component: CardListComponent },
+  { path: 'crafted/retail/Card/:cardType', component: CardDetailsComponent },
 
   { path: 'crafted/retail/LineChannels', component: LineChannelsComponent },
   {

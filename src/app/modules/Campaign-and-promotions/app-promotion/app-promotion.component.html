@@ -1,54 +1,245 @@
-<div class="min-h-screen bg-gray-50 scroll-smooth">
-    <!-- Header Section -->
-    <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <div class="flex space-x-4 justify-between w-full">
-            <div class="flex flex-col">
-                <h1 class="text-lg font-semibold text-gray-900">App Promotion by brand</h1>
-                <div class="mt-3 text-sm text-gray-600">
-                    Can create app promotion by brand details and schedule
-                </div>
-            </div>
-            <div class="flex justify-center items-center">
-                <app-button (clicked)="addAppPromotion()">Create app Promo</app-button>
-            </div>
-        </div>
+<div class="min-h-screen bg-gray-50">
 
+  <!-- ── STICKY HEADER ── -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-lg font-semibold text-gray-900">App Promotions</h1>
+        <p class="text-sm text-gray-500 mt-0.5">
+          <span class="font-semibold text-gray-700">{{ promotions.length }}</span> promotions
+          &nbsp;·&nbsp; Click a row to edit
+        </p>
+      </div>
+      <app-button variant="primary" size="sm" icon="M12 4.5v15m7.5-7.5h-15" (clicked)="openAddModal()">
+        Create Promotion
+      </app-button>
     </div>
+  </div>
 
-    <div class="px-6 pt-4 max-w-full">
-        <div *ngIf="!isLoading">
+  <!-- ── TABLE ── -->
+  <div class="p-6">
+    <app-loading *ngIf="isLoading"></app-loading>
 
+    <app-card *ngIf="!isLoading" variant="flat" size="lg">
+      <app-table
+        [columns]="tableColumns"
+        [rows]="promotions"
+        [config]="tableConfig"
+        (rowClick)="onRowClick($event)"
+      >
 
-            <app-table [columns]="tableColumns" [rows]="appPromotionDataSource" [config]="tableConfig"
-                (rowClick)="onRowClick($event)">
-                <ng-template appTableCell="PlanStatus" let-value>
-                    <app-badge size="sm" [rounded]="true" [variant]="value === 'Enabled' ? 'success' : 'danger'">
-                        {{ value }}
-                    </app-badge>
-                </ng-template>
-                <ng-template appTableCell="ActiveDate" let-value>
-                    {{ value | date: "d MMM yy" }}
-                </ng-template>
-                <ng-template appTableCell="ExpirayDate" let-value>
-                    {{ value | date: "d MMM yy" }}
-                </ng-template>
-                <ng-template appTableCell="action" let-row="row">
-                    <button type="button" (click)="onDeleteAppPromotion(row, $event)" class="inline-flex items-center justify-center p-2 rounded-md
-               text-red-600 hover:bg-red-50 hover:text-red-700 transition" title="Delete Brand">
-                        <!-- Heroicon: Trash -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+        <!-- Image thumbnail -->
+        <ng-template appTableCell="imagepath" let-value let-row="row">
+          <div class="flex items-center gap-2">
+            <div *ngIf="value" class="relative group">
+              <img [src]="value" alt="Promo image"
+                class="h-10 w-16 object-cover rounded border border-gray-200">
+              <!-- Delete image overlay -->
+              <button type="button"
+                (click)="deleteImage(row, $event)"
+                class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition"
+                title="Delete image">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                </svg>
+              </button>
+            </div>
+            <button *ngIf="!value" type="button"
+              (click)="openImageModal(row, $event)"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-blue-600 border border-blue-200 rounded-md hover:bg-blue-50 transition"
+              title="Upload image">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+              </svg>
+              Upload
+            </button>
+          </div>
+        </ng-template>
 
-                        </svg>
-                    </button>
-                </ng-template>
-            </app-table>
-        </div>
+        <!-- Dates -->
+        <ng-template appTableCell="startdate" let-value>
+          <span class="text-sm text-gray-600">{{ value | date:'dd-MM-yyyy' }}</span>
+        </ng-template>
+        <ng-template appTableCell="enddate" let-value>
+          <span class="text-sm text-gray-600">{{ value | date:'dd-MM-yyyy' }}</span>
+        </ng-template>
 
-        <app-loading *ngIf="isLoading"></app-loading>
+        <!-- Ad URL -->
+        <ng-template appTableCell="adurl" let-value>
+          <a *ngIf="value" [href]="value" target="_blank" (click)="$event.stopPropagation()"
+            class="text-blue-600 hover:underline text-sm truncate max-w-[140px] block">
+            {{ value }}
+          </a>
+          <span *ngIf="!value" class="text-gray-400 text-sm">—</span>
+        </ng-template>
 
+        <!-- Actions -->
+        <ng-template appTableCell="actions" let-row="row">
+          <button type="button"
+            (click)="onDelete(row, $event)"
+            class="inline-flex items-center justify-center p-2 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+            title="Delete promotion">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+            </svg>
+          </button>
+        </ng-template>
 
-    </div>
+      </app-table>
+    </app-card>
+  </div>
 </div>
+
+<!-- ══ ADD / EDIT MODAL ══ -->
+<app-modal
+  [isOpen]="showFormModal"
+  [config]="{ title: isEditMode ? 'Edit Promotion' : 'Create Promotion', size: 'md', showCloseButton: true }"
+  (closeModal)="closeFormModal()"
+>
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <div class="space-y-4">
+
+      <!-- Display Text -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+          Display Text <span class="text-red-500">*</span>
+        </label>
+        <app-input
+          formControlName="displaytext"
+          placeholder="e.g. Summer Sale"
+        ></app-input>
+        <p *ngIf="fieldInvalid('displaytext')" class="mt-1 text-xs text-red-500">
+          Display text is required
+        </p>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+        <textarea
+          formControlName="description"
+          rows="3"
+          placeholder="Optional description…"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Sequence No -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Sequence No</label>
+        <app-input
+          formControlName="displaysequence"
+          type="number"
+          placeholder="Display order"
+        ></app-input>
+      </div>
+
+      <!-- Dates row -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">
+            Start Date <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            formControlName="startdate"
+            class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [class.border-red-400]="fieldInvalid('startdate')"
+            [class.border-gray-300]="!fieldInvalid('startdate')"
+          >
+          <p *ngIf="fieldInvalid('startdate')" class="mt-1 text-xs text-red-500">
+            Start date is required
+          </p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">
+            End Date <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            formControlName="enddate"
+            class="w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            [class.border-red-400]="fieldInvalid('enddate') || dateRangeError"
+            [class.border-gray-300]="!fieldInvalid('enddate') && !dateRangeError"
+          >
+          <p *ngIf="fieldInvalid('enddate')" class="mt-1 text-xs text-red-500">
+            End date is required
+          </p>
+        </div>
+      </div>
+
+      <!-- Cross-field date range error -->
+      <div *ngIf="dateRangeError && form.get('startdate')?.touched && form.get('enddate')?.touched"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+        </svg>
+        {{ dateRangeError }}
+      </div>
+
+      <!-- Ad URL -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">Ad URL</label>
+        <app-input
+          formControlName="adurl"
+          placeholder="https://…"
+        ></app-input>
+      </div>
+
+    </div>
+  </form>
+
+  <div modal-footer class="flex justify-end gap-2">
+    <app-button variant="secondary" size="sm" (clicked)="closeFormModal()">Cancel</app-button>
+    <app-button
+      variant="primary"
+      size="sm"
+      [disabled]="isSaving"
+      (clicked)="save()"
+    >
+      <svg *ngIf="isSaving" class="animate-spin h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      {{ isSaving ? 'Saving…' : (isEditMode ? 'Save Changes' : 'Create') }}
+    </app-button>
+  </div>
+</app-modal>
+
+<!-- ══ IMAGE UPLOAD MODAL ══ -->
+<app-modal
+  [isOpen]="showImageModal"
+  [config]="{ title: 'Upload Promotion Image', size: 'sm', showCloseButton: true }"
+  (closeModal)="closeImageModal()"
+>
+  <div class="space-y-3">
+    <input
+      type="file"
+      accept="image/*"
+      (change)="onImageSelected($event)"
+      class="block w-full text-sm text-gray-500
+        file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0
+        file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700
+        hover:file:bg-blue-100"
+    >
+    <div class="text-xs text-gray-400 space-y-0.5">
+      <p>** Image sizes: 650×400 px, 1300×800 px</p>
+      <p>** Resolution: 72 dpi or 92 dpi</p>
+      <p>** Any image format accepted</p>
+    </div>
+    <div *ngIf="isUploadingImage" class="flex items-center gap-2 text-sm text-blue-600">
+      <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      Uploading…
+    </div>
+  </div>
+  <div modal-footer class="flex justify-end">
+    <app-button variant="secondary" size="sm" (clicked)="closeImageModal()">Close</app-button>
+  </div>
+</app-modal>
