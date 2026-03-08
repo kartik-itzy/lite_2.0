@@ -71,6 +71,11 @@ import { TransactionHistoryByBrandComponent } from './modules/Brand/transaction-
 import { PointsExpirySetupByBrandComponent } from './modules/Brand/points-expiry-setup-by-brand/points-expiry-setup-by-brand.component';
 import { PointsResetSetupByBrandComponent } from './modules/Brand/points-reset-setup-by-brand/points-reset-setup-by-brand.component';
 import { ManualMemberLevelByBrandComponent } from './modules/Brand/manual-member-level-by-brand/manual-member-level-by-brand.component';
+import { MembersDetailsComponent } from './modules/CRM/members-details/members-details.component';
+import { LoyaltyPlanDetailsComponent } from './modules/Loyalty-and-reward/loyalty-plan-details/loyalty-plan-details.component';
+import { TopupPromotionDetailsComponent } from './modules/Loyalty-and-reward/topup-promotion-details/topup-promotion-details.component';
+import { CouponPlanDetailsComponent } from './modules/Loyalty-and-reward/coupon-plan-details/coupon-plan-details.component';
+import { RedeemPlanDetailsComponent } from './modules/Loyalty-and-reward/redeem-plan-details/redeem-plan-details.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -133,10 +138,15 @@ export const routes: Routes = [
   { path: 'crafted/retail/paymentlog', component: PaymentLogComponent },
 
   {
-    path: 'crafted/retail/memberslistmanual',
+    path: 'crafted/retail/memberslistmanual/:membershipId',
     component: ManualMemberLevelComponent,
   },
+  {
+    path: 'crafted/retail/memberslistmanual',
+    component: MembersComponent,
+  },
   { path: 'crafted/retail/memberslist', component: MembersComponent },
+  { path: 'crafted/retail/memberslist/:membershipId', component: MembersDetailsComponent  },
   { path: 'crafted/retail/customers', component: CustomersComponent },
   { path: 'crafted/retail/customers/:id', component: CustomerDetailsComponent },
   { path: 'crafted/retail/memberlevel', component: MemberLevelComponent },
@@ -156,13 +166,21 @@ export const routes: Routes = [
   { path: 'crafted/retail/submember', component: SubMemberComponent },
 
   { path: 'crafted/retail/loyalty', component: LoyaltyPlanComponent },
+  { path: 'crafted/retail/loyalty/:loyaltyCode', component: LoyaltyPlanDetailsComponent },
   {
     path: 'crafted/retail/topup_promotion',
     component: TopupPromotionComponent,
   },
+  {
+    path: 'crafted/retail/topup_promotion/:topupCode',
+    component: TopupPromotionDetailsComponent,
+  },
   { path: 'crafted/retail/basicdeals', component: BasicDealsComponent },
+  { path: 'crafted/retail/basicdeals/:dealCode', component: BasicDealsComponent },
   { path: 'crafted/retail/couponlist', component: CouponPlanComponent },
+  { path: 'crafted/retail/couponlist/:couponCode', component: CouponPlanDetailsComponent },
   { path: 'crafted/retail/redeemlist', component: RedeemPlanComponent },
+  { path: 'crafted/retail/redeemlist/:redeemcode', component: RedeemPlanDetailsComponent },
   { path: 'crafted/retail/applycoupon', component: ApplyCouponComponent },
 
   { path: 'crafted/retail/AppPromotions', component: AppPromotionComponent },

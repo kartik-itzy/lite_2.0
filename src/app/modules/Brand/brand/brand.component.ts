@@ -89,7 +89,7 @@ export class BrandComponent implements OnInit {
 
   onDeleteBrand(row: any, event: MouseEvent): void {
     event.stopPropagation(); //
-    console.log('Delete clicked for brand:', row);
+    // console.log('Delete clicked for brand:', row);
     this.confirmationService
       .confirmDelete(row.name, row.name)
       .then((confirmed) => {

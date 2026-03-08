@@ -1,0 +1,461 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════════════
+       STICKY HEADER
+  ══════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <div class="flex items-center gap-4">
+      <app-button variant="secondary" size="sm" (click)="goBack()">
+        <!-- <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+        </svg> -->
+        Back
+      </app-button>
+
+      <div>
+        <h1 class="text-lg font-semibold text-gray-900">Member Details</h1>
+        <p class="text-sm text-gray-500 mt-0.5" *ngIf="memberDetails.FirstName">
+          {{ memberDetails.FirstName }} {{ memberDetails.LastName }}
+          <span class="text-gray-400 ml-1">· {{ membershipId }}</span>
+          <span *ngIf="hasUnsavedChanges"
+            class="ml-2 inline-flex items-center rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+            Unsaved changes
+          </span>
+        </p>
+      </div>
+
+      <div *ngIf="isDetailsLoading" class="ml-2 flex items-center gap-2 text-gray-400 text-sm">
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Loading…
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="flex gap-1 mt-3 -mb-px">
+      <button *ngFor="let tab of [
+          { id: 'details',      label: 'Member Details' },
+          { id: 'cardByCard',   label: 'History by Card' },
+          { id: 'cardByMember', label: 'History by Member' },
+          { id: 'coupons',      label: 'Coupons' },
+          { id: 'family',       label: 'Family' }
+        ]"
+        (click)="setTab(tab.id)"
+        class="px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors"
+        [class.border-blue-600]="activeTab === tab.id"
+        [class.text-blue-600]="activeTab === tab.id"
+        [class.border-transparent]="activeTab !== tab.id"
+        [class.text-gray-500]="activeTab !== tab.id"
+        [class.hover:text-gray-700]="activeTab !== tab.id"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+  </div>
+
+  <div class="p-6 mx-auto">
+
+    <!-- ══════════════════════════════════════════════════
+         TAB 1: MEMBER DETAILS
+    ══════════════════════════════════════════════════ -->
+    <ng-container *ngIf="activeTab === 'details'">
+      <app-card variant="flat" size="lg">
+        <div class="border-b border-gray-100 pb-3 mb-6">
+          <h2 class="text-base font-semibold text-gray-800">Member Information</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Edit member profile and settings</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+
+          <!-- Membership ID (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Membership ID</label>
+            <input type="text" [value]="memberDetails.MemberShipID || ''" readonly
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+          </div>
+
+          <!-- First Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              First Name <span class="text-red-500">*</span>
+            </label>
+            <app-input
+              [(ngModel)]="memberDetails.FirstName"
+              (ngModelChange)="onFieldChange()"
+              placeholder="First name"
+            ></app-input>
+          </div>
+
+          <!-- Last Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Last Name</label>
+            <app-input
+              [(ngModel)]="memberDetails.LastName"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Last name"
+            ></app-input>
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              Phone <span class="text-red-500">*</span>
+            </label>
+            <app-input
+              [(ngModel)]="memberDetails.RefPhoneNo"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Phone number"
+            ></app-input>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              Email <span class="text-red-500">*</span>
+            </label>
+            <app-input
+              [(ngModel)]="memberDetails.email"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Email address"
+              type="email"
+            ></app-input>
+          </div>
+
+          <!-- DOB -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth</label>
+            <input type="date"
+              [(ngModel)]="memberDetails.DOB"
+              (ngModelChange)="onFieldChange()"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+          </div>
+
+          <!-- Gender -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              Gender <span class="text-red-500">*</span>
+            </label>
+            <app-select
+              [options]="genderOptions"
+              [(ngModel)]="memberDetails.Gender"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Select gender…"
+            ></app-select>
+          </div>
+
+          <!-- Status (read-only display) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+            <div class="flex items-center h-10">
+              <app-badge [variant]="getStatusVariant(memberDetails.CurrentStatus || '')" size="sm" [rounded]="true">
+                {{ memberDetails.CurrentStatus || '—' }}
+              </app-badge>
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+            <app-input
+              [(ngModel)]="memberDetails.Address"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Address"
+            ></app-input>
+          </div>
+
+          <!-- City -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">City</label>
+            <app-input
+              [(ngModel)]="memberDetails.City"
+              (ngModelChange)="onFieldChange()"
+              placeholder="City"
+            ></app-input>
+          </div>
+
+          <!-- Zip Code -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Zip Code</label>
+            <app-input
+              [(ngModel)]="memberDetails.ZipCode"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Zip code"
+            ></app-input>
+          </div>
+
+          <!-- Member Type (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Member Type</label>
+            <input type="text" [value]="memberDetails.MemberType || '—'" readonly
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+          </div>
+
+          <!-- Membership Date (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Membership Date</label>
+            <input type="text" [value]="memberDetails.MembershipDate || '—'" readonly
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+          </div>
+
+          <!-- Source Store (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Source Store</label>
+            <input type="text" [value]="memberDetails.SourceStore || '—'" readonly
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+          </div>
+
+          <!-- Max Cards -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Max Number of Cards</label>
+            <input type="number"
+              [(ngModel)]="memberDetails.maxnumberofcards"
+              (ngModelChange)="onFieldChange()"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+          </div>
+
+          <!-- Points Collected (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Points Collected</label>
+            <input type="text" [value]="memberDetails.PointsCollected ?? '—'" readonly
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+          </div>
+
+          <!-- Points Spent (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Points Spent</label>
+            <input type="text" [value]="memberDetails.PointsSpent ?? '—'" readonly
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+          </div>
+
+          <!-- Total Topup Amount (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Total Topup Amount</label>
+            <input type="text" [value]="memberDetails.TotalTopupAmount ?? '—'" readonly
+              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+          </div>
+
+          <!-- Loyalty Plan -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Loyalty Plan</label>
+            <app-select
+              [options]="loyaltyPlanOptions"
+              [(ngModel)]="memberDetails.LoyaltyPlan"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Select loyalty plan…"
+            ></app-select>
+          </div>
+
+          <!-- Redeem Plan -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Redeem Plan</label>
+            <app-select
+              [options]="redeemPlanOptions"
+              [(ngModel)]="memberDetails.RedeemPlan"
+              (ngModelChange)="onFieldChange()"
+              placeholder="Select redeem plan…"
+            ></app-select>
+          </div>
+
+        </div>
+
+        <!-- Save button -->
+        <div class="flex justify-end mt-6 pt-5 border-t border-gray-100">
+          <app-button
+            variant="primary"
+            size="md"
+            [disabled]="isSaving || !hasUnsavedChanges"
+            (click)="onSave()"
+          >
+            <svg *ngIf="isSaving" class="animate-spin h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            {{ isSaving ? 'Saving…' : 'Save Changes' }}
+          </app-button>
+        </div>
+      </app-card>
+    </ng-container>
+
+    <!-- ══════════════════════════════════════════════════
+         TAB 2: CARD HISTORY BY CARD
+    ══════════════════════════════════════════════════ -->
+    <ng-container *ngIf="activeTab === 'cardByCard'">
+      <app-card variant="flat" size="lg">
+        <div class="border-b border-gray-100 pb-3 mb-5">
+          <h2 class="text-base font-semibold text-gray-800">Card Transaction History</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Select a card to view its transaction history</p>
+        </div>
+
+        <div class="flex items-end gap-4 mb-5">
+          <div class="w-72">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Card</label>
+            <app-select
+              [options]="cardOptions"
+              [(ngModel)]="selectedCardNumber"
+              (ngModelChange)="onCardSelected($event)"
+              placeholder="Select a card…"
+            ></app-select>
+          </div>
+          <app-export-excel
+            [data]="cardHistoryRows"
+            [columns]="cardHistoryExportColumns"
+            [config]="{ fileName: 'card-history-' + selectedCardNumber, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+        </div>
+
+        <app-table
+          [columns]="cardHistoryColumns"
+          [rows]="cardHistoryRows"
+          [config]="cardHistoryConfig"
+          (pageChange)="onPageChange($event)"
+        ></app-table>
+      </app-card>
+    </ng-container>
+
+    <!-- ══════════════════════════════════════════════════
+         TAB 3: CARD HISTORY BY MEMBER
+    ══════════════════════════════════════════════════ -->
+    <ng-container *ngIf="activeTab === 'cardByMember'">
+      <app-card variant="flat" size="lg">
+        <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-5">
+          <div>
+            <h2 class="text-base font-semibold text-gray-800">Member Transaction History</h2>
+            <p class="text-xs text-gray-500 mt-0.5">All card transactions linked to this member</p>
+          </div>
+          <app-export-excel
+            [data]="memberHistoryRows"
+            [columns]="memberHistoryExportColumns"
+            [config]="{ fileName: 'member-history-' + membershipId, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+        </div>
+
+        <app-table
+          [columns]="memberHistoryColumns"
+          [rows]="memberHistoryRows"
+          [config]="memberHistoryConfig"
+          (pageChange)="onPageChange($event)"
+        ></app-table>
+      </app-card>
+    </ng-container>
+
+    <!-- ══════════════════════════════════════════════════
+         TAB 4: COUPONS
+    ══════════════════════════════════════════════════ -->
+    <ng-container *ngIf="activeTab === 'coupons'">
+      <app-card variant="flat" size="lg">
+        <div class="border-b border-gray-100 pb-3 mb-5">
+          <h2 class="text-base font-semibold text-gray-800">Member Coupons</h2>
+          <p class="text-xs text-gray-500 mt-0.5">View and assign coupons for this member</p>
+        </div>
+
+        <!-- Add coupon row -->
+        <div class="flex items-end gap-4 mb-5">
+          <div class="w-80">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Add Coupon</label>
+            <app-select
+              [options]="availableCouponOptions"
+              [(ngModel)]="selectedCouponCode"
+              placeholder="Select coupon plan…"
+            ></app-select>
+          </div>
+          <app-button
+            variant="success"
+            size="md"
+            [disabled]="isAddingCoupon || !selectedCouponCode"
+            (click)="onAddCoupon()"
+          >
+            <!-- <svg *ngIf="!isAddingCoupon" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            <svg *ngIf="isAddingCoupon" class="animate-spin h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg> -->
+            {{ isAddingCoupon ? 'Adding…' : 'Add' }}
+          </app-button>
+          <app-export-excel
+            [data]="couponRows"
+            [columns]="couponExportColumns"
+            [config]="{ fileName: 'coupons-' + membershipId, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+        </div>
+
+        <app-table
+          [columns]="couponColumns"
+          [rows]="couponRows"
+          [config]="couponConfig"
+          (pageChange)="onPageChange($event)"
+        >
+          <!-- Coupon Type badge -->
+          <ng-template appTableCell="CouponType" let-value>
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+              [class.bg-blue-50]="value === 'Normal'"
+              [class.text-blue-700]="value === 'Normal'"
+              [class.bg-purple-50]="value === 'Brand'"
+              [class.text-purple-700]="value === 'Brand'">
+              {{ value }}
+            </span>
+          </ng-template>
+
+          <!-- Brand — N/A for Normal -->
+          <ng-template appTableCell="brand_id" let-value let-row="row">
+            <span *ngIf="row.CouponType === 'Brand'" class="text-sm text-gray-700">{{ value || '—' }}</span>
+            <span *ngIf="row.CouponType !== 'Brand'" class="text-xs text-gray-400">N/A</span>
+          </ng-template>
+
+          <!-- CouponUsed badge -->
+          <ng-template appTableCell="CouponUsed" let-value>
+            <app-badge size="sm" [rounded]="true" [variant]="getCouponUsedVariant(value)">
+              {{ value === 'Yes' ? 'Used' : 'Open' }}
+            </app-badge>
+          </ng-template>
+        </app-table>
+      </app-card>
+    </ng-container>
+
+    <!-- ══════════════════════════════════════════════════
+         TAB 5: FAMILY
+    ══════════════════════════════════════════════════ -->
+    <ng-container *ngIf="activeTab === 'family'">
+      <app-card variant="flat" size="lg">
+        <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-5">
+          <div>
+            <h2 class="text-base font-semibold text-gray-800">Family Members</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Members linked to this account</p>
+          </div>
+          <app-export-excel
+            [data]="familyRows"
+            [columns]="familyColumns"
+            [config]="{ fileName: 'family-' + membershipId, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+        </div>
+
+        <app-table
+          [columns]="familyColumns"
+          [rows]="familyRows"
+          [config]="familyConfig"
+          (pageChange)="onPageChange($event)"
+        ></app-table>
+      </app-card>
+    </ng-container>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     UNSAVED CHANGES MODAL
+══════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="showUnsavedModal"
+  [config]="{ title: 'Unsaved Changes', size: 'sm', showCloseButton: true }"
+  (closeModal)="showUnsavedModal = false"
+>
+  <p class="text-sm text-gray-600">You have unsaved changes. What would you like to do?</p>
+
+  <div modal-footer class="flex justify-end gap-2">
+    <app-button variant="ghost" size="sm" (click)="discardAndGoBack()">Discard & Leave</app-button>
+    <app-button variant="primary" size="sm" (click)="saveAndGoBack()">Save & Leave</app-button>
+  </div>
+</app-modal>

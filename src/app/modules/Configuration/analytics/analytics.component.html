@@ -1,145 +1,235 @@
 <div class="min-h-screen bg-gray-50">
-
   <!-- Page Header -->
-  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3">
-    <h1 class="text-lg font-semibold text-gray-900">Coupon Analytics</h1>
-    <p class="text-sm text-gray-500 mt-0.5">Track campaign send, open, and redemption performance</p>
+  <div
+    class="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex justify-between"
+  >
+    <div class="flex flex-col">
+      <h1 class="text-lg font-semibold text-gray-900">Coupon Analytics</h1>
+      <p class="text-sm text-gray-500 mt-0.5">
+        Track campaign send, open, and redemption performance
+      </p>
+    </div>
+    <form [formGroup]="filterForm" class="flex flex-wrap items-end gap-4">
+      <div class="flex flex-col min-w-[160px]">
+        <label class="text-xs font-medium text-gray-600 mb-1">From Date</label>
+        <app-input
+          type="date"
+          size="sm"
+          formControlName="fromDate"
+          [fullWidth]="true"
+          [errorText]="
+            filterForm.get('fromDate')?.touched &&
+            filterForm.get('fromDate')?.invalid
+              ? 'Required'
+              : ''
+          "
+        ></app-input>
+      </div>
+
+      <div class="flex flex-col min-w-[160px]">
+        <label class="text-xs font-medium text-gray-600 mb-1">To Date</label>
+        <app-input
+          type="date"
+          size="sm"
+          formControlName="toDate"
+          [fullWidth]="true"
+          [errorText]="
+            filterForm.get('toDate')?.touched &&
+            filterForm.get('toDate')?.invalid
+              ? 'Required'
+              : ''
+          "
+        ></app-input>
+      </div>
+
+      <app-button
+        variant="primary"
+        size="sm"
+        [disabled]="isLoading"
+        (click)="loadAnalytics()"
+      >
+        <span *ngIf="!isLoading">Load Analytics</span>
+        <span *ngIf="isLoading" class="flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            ></path>
+          </svg>
+          Loading...
+        </span>
+      </app-button>
+    </form>
   </div>
 
   <div class="p-6 space-y-6">
-
-    <!-- ══════════════════════════════════════════════════
-         FILTER BAR
-    ══════════════════════════════════════════════════ -->
-    <app-card variant="flat" size="lg">
-      <form [formGroup]="filterForm" class="flex flex-wrap items-end gap-4">
-
-        <div class="flex flex-col min-w-[160px]">
-          <label class="text-xs font-medium text-gray-600 mb-1">From Date</label>
-          <app-input
-            type="date"
-            size="sm"
-            formControlName="fromDate"
-            [fullWidth]="true"
-            [errorText]="filterForm.get('fromDate')?.touched && filterForm.get('fromDate')?.invalid ? 'Required' : ''"
-          ></app-input>
-        </div>
-
-        <div class="flex flex-col min-w-[160px]">
-          <label class="text-xs font-medium text-gray-600 mb-1">To Date</label>
-          <app-input
-            type="date"
-            size="sm"
-            formControlName="toDate"
-            [fullWidth]="true"
-            [errorText]="filterForm.get('toDate')?.touched && filterForm.get('toDate')?.invalid ? 'Required' : ''"
-          ></app-input>
-        </div>
-
-        <app-button
-          variant="primary"
-          size="sm"
-          [disabled]="isLoading"
-          (click)="loadAnalytics()"
-        >
-          <span *ngIf="!isLoading">Load Analytics</span>
-          <span *ngIf="isLoading" class="flex items-center gap-2">
-            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-            </svg>
-            Loading...
-          </span>
-        </app-button>
-
-      </form>
-    </app-card>
-
     <!-- ══════════════════════════════════════════════════
          KPI SUMMARY CARDS
     ══════════════════════════════════════════════════ -->
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-
       <!-- Sent -->
-      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-blue-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-          style="background: linear-gradient(135deg,#3b82f6,#2563eb)">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+      <div
+        class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-blue-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200"
+      >
+        <div
+          class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+          style="background: linear-gradient(135deg, #3b82f6, #2563eb)"
+        >
+          <svg
+            class="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+            />
           </svg>
         </div>
         <div>
-          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Total Sent</p>
+          <p
+            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
+          >
+            Total Sent
+          </p>
           <p class="text-2xl font-bold text-gray-900">{{ totalSent }}</p>
         </div>
       </div>
 
       <!-- Opened -->
-      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-green-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-          style="background: linear-gradient(135deg,#10b981,#059669)">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      <div
+        class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-green-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200"
+      >
+        <div
+          class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+          style="background: linear-gradient(135deg, #10b981, #059669)"
+        >
+          <svg
+            class="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
           </svg>
         </div>
         <div>
-          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Total Opened</p>
+          <p
+            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
+          >
+            Total Opened
+          </p>
           <p class="text-2xl font-bold text-gray-900">{{ totalOpened }}</p>
         </div>
       </div>
 
       <!-- Used -->
-      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-purple-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-          style="background: linear-gradient(135deg,#8b5cf6,#7c3aed)">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+      <div
+        class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-purple-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200"
+      >
+        <div
+          class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+          style="background: linear-gradient(135deg, #8b5cf6, #7c3aed)"
+        >
+          <svg
+            class="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+            />
           </svg>
         </div>
         <div>
-          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Total Used</p>
+          <p
+            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
+          >
+            Total Used
+          </p>
           <p class="text-2xl font-bold text-gray-900">{{ totalUsed }}</p>
         </div>
       </div>
 
       <!-- Open Rate -->
-      <div class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-amber-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-          style="background: linear-gradient(135deg,#f59e0b,#d97706)">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      <div
+        class="bg-white rounded-xl p-5 flex items-center gap-4 border-l-4 border-amber-500 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-200"
+      >
+        <div
+          class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+          style="background: linear-gradient(135deg, #f59e0b, #d97706)"
+        >
+          <svg
+            class="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
           </svg>
         </div>
         <div>
-          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Open Rate</p>
+          <p
+            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
+          >
+            Open Rate
+          </p>
           <p class="text-2xl font-bold text-gray-900">{{ openRate }}</p>
         </div>
       </div>
-
     </div>
 
     <!-- ══════════════════════════════════════════════════
          MAIN ANALYTICS TABLE
     ══════════════════════════════════════════════════ -->
     <app-card variant="flat" size="lg">
-
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-base font-semibold text-gray-800">Campaign Breakdown</h2>
+        <h2 class="text-base font-semibold text-gray-800">
+          Campaign Breakdown
+        </h2>
         <app-export-excel
           [data]="analyticsData"
           [columns]="exportColumns"
-          [config]="{ fileName: 'coupon-analytics', buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          [config]="{
+            fileName: 'coupon-analytics',
+            buttonLabel: 'Export',
+            variant: 'outline',
+            size: 'sm',
+          }"
         ></app-export-excel>
       </div>
 
       <!-- Loading -->
       <div *ngIf="isLoading" class="flex items-center justify-center py-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+        ></div>
         <span class="ml-3 text-gray-500 text-sm">Loading analytics...</span>
       </div>
 
@@ -150,7 +240,6 @@
         [config]="tableConfig"
         (pageChange)="onPageChange($event)"
       >
-
         <!-- Last Sent — show most recent senttime -->
         <ng-template appTableCell="senttime" let-row="row">
           <span class="text-sm text-gray-600">{{ latestSentTime(row) }}</span>
@@ -158,12 +247,12 @@
 
         <!-- Campaign Name — dash when empty -->
         <ng-template appTableCell="campaignName" let-value>
-          <span [class.text-gray-400]="!value">{{ value || '—' }}</span>
+          <span [class.text-gray-400]="!value">{{ value || "—" }}</span>
         </ng-template>
 
         <!-- Target Name — dash when empty -->
         <ng-template appTableCell="targetName" let-value>
-          <span [class.text-gray-400]="!value">{{ value || '—' }}</span>
+          <span [class.text-gray-400]="!value">{{ value || "—" }}</span>
         </ng-template>
 
         <!-- Actions — info/detail button -->
@@ -175,20 +264,26 @@
               title="View member details"
               class="inline-flex items-center justify-center h-8 w-8 rounded-full text-indigo-500 hover:bg-indigo-50 hover:text-indigo-700 transition"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </button>
           </div>
         </ng-template>
-
       </app-table>
     </app-card>
-
   </div>
 </div>
-
 
 <!-- ══════════════════════════════════════════════════
      DETAIL MODAL — Per-campaign member breakdown
@@ -199,39 +294,71 @@
     title: 'Campaign Member Details',
     size: 'xl',
     showCloseButton: true,
-    closeOnBackdropClick: true
+    closeOnBackdropClick: true,
   }"
   (closeModal)="closeDetailModal()"
 >
-
   <!-- Header meta -->
-  <div *ngIf="selectedRow" class="flex flex-wrap gap-6 text-sm text-gray-600 pb-4 border-b border-gray-200 mb-4">
-    <span><span class="font-semibold text-gray-800">Campaign:</span> {{ selectedRow.campaignName || selectedRow.campaignID }}</span>
-    <span><span class="font-semibold text-gray-800">Target:</span> {{ selectedRow.targetName || selectedRow.targetID }}</span>
-    <span><span class="font-semibold text-gray-800">Sent:</span> {{ selectedRow.sent }}</span>
-    <span><span class="font-semibold text-gray-800">Opened:</span> {{ selectedRow.opened }}</span>
-    <span><span class="font-semibold text-gray-800">Used:</span> {{ selectedRow.used }}</span>
+  <div
+    *ngIf="selectedRow"
+    class="flex flex-wrap gap-6 text-sm text-gray-600 pb-4 border-b border-gray-200 mb-4"
+  >
+    <span
+      ><span class="font-semibold text-gray-800">Campaign:</span>
+      {{ selectedRow.campaignName || selectedRow.campaignID }}</span
+    >
+    <span
+      ><span class="font-semibold text-gray-800">Target:</span>
+      {{ selectedRow.targetName || selectedRow.targetID }}</span
+    >
+    <span
+      ><span class="font-semibold text-gray-800">Sent:</span>
+      {{ selectedRow.sent }}</span
+    >
+    <span
+      ><span class="font-semibold text-gray-800">Opened:</span>
+      {{ selectedRow.opened }}</span
+    >
+    <span
+      ><span class="font-semibold text-gray-800">Used:</span>
+      {{ selectedRow.used }}</span
+    >
   </div>
 
   <!-- Loading -->
-  <div *ngIf="isDetailLoading" class="flex flex-col items-center justify-center py-16 gap-3 text-gray-500 text-sm">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+  <div
+    *ngIf="isDetailLoading"
+    class="flex flex-col items-center justify-center py-16 gap-3 text-gray-500 text-sm"
+  >
+    <div
+      class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"
+    ></div>
     <span>Loading member data...</span>
   </div>
 
   <!-- Empty -->
-  <div *ngIf="!isDetailLoading && detailSendGroups.length === 0"
-    class="flex flex-col items-center justify-center py-16 gap-2 text-gray-400 text-sm">
-    <svg class="h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+  <div
+    *ngIf="!isDetailLoading && detailSendGroups.length === 0"
+    class="flex flex-col items-center justify-center py-16 gap-2 text-gray-400 text-sm"
+  >
+    <svg
+      class="h-10 w-10 text-gray-300"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.5"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
     </svg>
     <span>No send data found for this campaign</span>
   </div>
 
   <!-- Send group tabs + table -->
   <div *ngIf="!isDetailLoading && detailSendGroups.length > 0">
-
     <!-- Tab strip — one tab per send batch -->
     <div class="flex flex-wrap gap-1 border-b border-gray-200 mb-4">
       <button
@@ -247,14 +374,25 @@
         [class.hover:text-gray-700]="activeTabIndex !== i"
       >
         Send {{ i + 1 }}
-        <span class="ml-1 text-gray-400 font-normal">{{ group.senttime | slice:0:10 }}</span>
+        <span class="ml-1 text-gray-400 font-normal">{{
+          group.senttime | slice: 0 : 10
+        }}</span>
       </button>
     </div>
 
     <!-- Active group meta -->
-    <div *ngIf="activeGroup" class="flex gap-6 text-xs text-gray-600 mb-3 pb-2 border-b border-gray-100">
-      <span><span class="font-semibold text-gray-700">Sent time:</span> {{ activeGroup.senttime }}</span>
-      <span><span class="font-semibold text-gray-700">Members:</span> {{ activeGroup.members.length }}</span>
+    <div
+      *ngIf="activeGroup"
+      class="flex gap-6 text-xs text-gray-600 mb-3 pb-2 border-b border-gray-100"
+    >
+      <span
+        ><span class="font-semibold text-gray-700">Sent time:</span>
+        {{ activeGroup.senttime }}</span
+      >
+      <span
+        ><span class="font-semibold text-gray-700">Members:</span>
+        {{ activeGroup.members.length }}</span
+      >
     </div>
 
     <!-- Member table -->
@@ -265,11 +403,14 @@
       [config]="memberTableConfig"
       (pageChange)="onPageChange($event)"
     >
-
       <!-- Received badge -->
       <ng-template appTableCell="received" let-value>
         <div class="flex justify-center">
-          <app-badge size="sm" [rounded]="true" [variant]="getBadgeVariant(value)">
+          <app-badge
+            size="sm"
+            [rounded]="true"
+            [variant]="getBadgeVariant(value)"
+          >
             {{ value | uppercase }}
           </app-badge>
         </div>
@@ -278,7 +419,11 @@
       <!-- Opened badge -->
       <ng-template appTableCell="opened" let-value>
         <div class="flex justify-center">
-          <app-badge size="sm" [rounded]="true" [variant]="getBadgeVariant(value)">
+          <app-badge
+            size="sm"
+            [rounded]="true"
+            [variant]="getBadgeVariant(value)"
+          >
             {{ value | uppercase }}
           </app-badge>
         </div>
@@ -287,7 +432,11 @@
       <!-- Used badge -->
       <ng-template appTableCell="used" let-value>
         <div class="flex justify-center">
-          <app-badge size="sm" [rounded]="true" [variant]="getBadgeVariant(value)">
+          <app-badge
+            size="sm"
+            [rounded]="true"
+            [variant]="getBadgeVariant(value)"
+          >
             {{ value | uppercase }}
           </app-badge>
         </div>
@@ -295,14 +444,17 @@
 
       <!-- Membership ID — dash when empty -->
       <ng-template appTableCell="membershipid" let-value>
-        <span class="font-mono text-xs" [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        <span class="font-mono text-xs" [class.text-gray-400]="!value">{{
+          value || "—"
+        }}</span>
       </ng-template>
-
     </app-table>
   </div>
 
   <!-- Modal footer close button -->
   <div modal-footer class="flex justify-end">
-    <app-button variant="secondary" (click)="closeDetailModal()">Close</app-button>
+    <app-button variant="secondary" (click)="closeDetailModal()"
+      >Close</app-button
+    >
   </div>
 </app-modal>

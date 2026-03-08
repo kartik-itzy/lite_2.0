@@ -1,0 +1,349 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════════════
+       STICKY HEADER
+  ══════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <div class="flex items-center gap-4">
+      <app-button variant="secondary" size="sm" (click)="goBack()">
+        <!-- <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+        </svg> -->
+        Back
+      </app-button>
+
+      <div>
+        <h1 class="text-lg font-semibold text-gray-900">Loyalty Plan — {{ loyaltyCode }}</h1>
+        <p class="text-sm text-gray-500 mt-0.5" *ngIf="header">
+          {{ header.Description }}
+          &nbsp;·&nbsp;
+          <app-badge size="sm" [rounded]="true" [variant]="getPlanStatusVariant(header.PlanStatus)">
+            {{ header.PlanStatus }}
+          </app-badge>
+        </p>
+      </div>
+
+      <div *ngIf="isHeaderLoading" class="ml-2 flex items-center gap-2 text-gray-400 text-sm">
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Loading…
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6 space-y-5 mx-auto">
+
+    <!-- ══════════════════════════════════════════════════
+         HEADER CARD — Plan Settings
+    ══════════════════════════════════════════════════ -->
+    <app-card variant="flat" size="lg" *ngIf="header">
+      <div class="border-b border-gray-100 pb-3 mb-5">
+        <h2 class="text-base font-semibold text-gray-800">Plan Settings</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Each field saves immediately on change</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        <!-- Code (read-only) -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Plan Code</label>
+          <input type="text" [value]="header.Code" readonly
+            class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed font-mono">
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+          <app-input
+            [(ngModel)]="editHeader.Description"
+            (blur)="saveHeaderField('Description', editHeader.Description)"
+            placeholder="Plan description"
+          ></app-input>
+        </div>
+
+        <!-- Base Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Base Type</label>
+          <app-select
+            [options]="baseTypeOptions"
+            [(ngModel)]="editHeader.BaseType"
+            (ngModelChange)="saveHeaderField('BaseType', $event)"
+          ></app-select>
+        </div>
+
+        <!-- Active Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Active Date</label>
+          <input type="date"
+            [(ngModel)]="editHeader.ActiveDate"
+            (change)="saveHeaderField('ActiveDate', editHeader.ActiveDate)"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+
+        <!-- Expiry Date -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Expiry Date</label>
+          <input type="date"
+            [(ngModel)]="editHeader.ExpiryDate"
+            (change)="saveHeaderField('ExpiryDate', editHeader.ExpiryDate)"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+
+        <!-- Plan Status -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Plan Status</label>
+          <app-select
+            [options]="planStatusOptions"
+            [(ngModel)]="editHeader.PlanStatus"
+            (ngModelChange)="onPlanStatusChange($event)"
+          ></app-select>
+        </div>
+
+        <!-- Point Expiry Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Point Expiry Type</label>
+          <app-select
+            [options]="pointExpiryTypeOptions"
+            [(ngModel)]="editHeader.PointExpiryType"
+            (ngModelChange)="onPointExpiryTypeChange($event)"
+          ></app-select>
+        </div>
+
+        <!-- Expiry Value — conditional on PointExpiryType -->
+        <div *ngIf="showExpiryDays">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Expiry Days</label>
+          <input type="number" min="0"
+            [(ngModel)]="editHeader.ExpiryValue"
+            (blur)="saveHeaderField('ExpiryValue', editHeader.ExpiryValue)"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Number of days">
+        </div>
+        <div *ngIf="showExpiryDate">
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Expiry Value Date</label>
+          <input type="date"
+            [(ngModel)]="editHeader.ExpiryValue"
+            (change)="saveHeaderField('ExpiryValue', editHeader.ExpiryValue)"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+
+        <!-- Default Points -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Default Points</label>
+          <input type="number" min="0" step="0.01"
+            [(ngModel)]="editHeader.DefaultPoints"
+            (blur)="saveHeaderField('DefaultPoints', editHeader.DefaultPoints)"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+
+        <!-- Points Issued (read-only) -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Points Issued</label>
+          <input type="text" [value]="header.PointsIssued" readonly
+            class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+        </div>
+
+        <!-- Points Used (read-only) -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1.5">Points Used</label>
+          <input type="text" [value]="header.PointsUsed" readonly
+            class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500 cursor-not-allowed">
+        </div>
+
+      </div>
+    </app-card>
+
+    <!-- ══════════════════════════════════════════════════
+         PLAN LINES TABLE
+    ══════════════════════════════════════════════════ -->
+    <app-card variant="flat" size="lg">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-5">
+        <div>
+          <h2 class="text-base font-semibold text-gray-800">Plan Lines</h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            {{ lines.length }} line(s) — Tender, Item, or Category rules
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <app-export-excel
+            [data]="lines"
+            [columns]="exportColumns"
+            [config]="{ fileName: 'loyalty-lines-' + loyaltyCode, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+          <app-button variant="primary" size="sm" (click)="openAddLine()">
+            <!-- <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg> -->
+            Add Line
+          </app-button>
+        </div>
+      </div>
+
+      <app-table
+        [columns]="lineColumns"
+        [rows]="lines"
+        [config]="linesConfig"
+        (pageChange)="onPageChange($event)"
+      >
+        <!-- Line Type badge -->
+        <ng-template appTableCell="LineType" let-value>
+          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+            [class.bg-blue-50]="value === 'Tender'"
+            [class.text-blue-700]="value === 'Tender'"
+            [class.bg-emerald-50]="value === 'Item'"
+            [class.text-emerald-700]="value === 'Item'"
+            [class.bg-purple-50]="value === 'Category'"
+            [class.text-purple-700]="value === 'Category'">
+            {{ value }}
+          </span>
+        </ng-template>
+
+        <!-- Actions -->
+        <ng-template appTableCell="actions" let-row="row">
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              (click)="openEditLine(row)"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:bg-blue-50 hover:text-blue-600 transition"
+              title="Edit line"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              (click)="deleteLine(row)"
+              class="inline-flex items-center justify-center p-2 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+              title="Delete line"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+              </svg>
+            </button>
+          </div>
+        </ng-template>
+      </app-table>
+    </app-card>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ADD / EDIT LINE MODAL
+══════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="showLineModal"
+  [config]="{ title: isEditMode ? 'Edit Line' : 'Add Line', size: 'lg', showCloseButton: true }"
+  (closeModal)="closeLineModal()"
+>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <!-- Line Type -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">
+        Line Type <span class="text-red-500">*</span>
+      </label>
+      <app-select
+        [options]="lineTypeOptions"
+        [(ngModel)]="lineForm.LineType"
+        (ngModelChange)="onLineTypeChange($event)"
+        placeholder="Select line type…"
+      ></app-select>
+    </div>
+
+    <!-- Type Code -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">
+        Type Code <span class="text-red-500">*</span>
+      </label>
+      <app-select
+        [options]="typeCodeOptions"
+        [(ngModel)]="lineForm.Typecode"
+        (ngModelChange)="onTypeCodeChange($event)"
+        placeholder="Select type code…"
+        [disabled]="!lineForm.LineType || isTypeCodeLoading"
+      ></app-select>
+      <p *ngIf="isTypeCodeLoading" class="text-xs text-gray-400 mt-1">Loading options…</p>
+    </div>
+
+    <!-- Description -->
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+      <app-input
+        [(ngModel)]="lineForm.Description"
+        placeholder="Description (auto-filled from type code)"
+      ></app-input>
+    </div>
+
+    <!-- Base Type -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">Base Type</label>
+      <app-select
+        [options]="lineBaseTypeOptions"
+        [(ngModel)]="lineForm.BaseType"
+        placeholder="Select base type…"
+      ></app-select>
+    </div>
+
+    <!-- Qty / Amount -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">
+        Qty / Amount <span class="text-red-500">*</span>
+      </label>
+      <input type="number" min="0" step="0.00001"
+        [(ngModel)]="lineForm.QtyorAmt"
+        class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="e.g. 1">
+    </div>
+
+    <!-- Points -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">
+        Points <span class="text-red-500">*</span>
+      </label>
+      <input type="number" min="0" step="0.00001"
+        [(ngModel)]="lineForm.Points"
+        class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="e.g. 1">
+    </div>
+
+    <!-- Active Date -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">Active Date</label>
+      <input type="date"
+        [(ngModel)]="lineForm.ActiveDate"
+        class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+
+    <!-- Expiry Date -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">Expiry Date</label>
+      <input type="date"
+        [(ngModel)]="lineForm.ExpiryDate"
+        class="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+    </div>
+
+  </div>
+
+  <div modal-footer class="flex justify-end gap-2">
+    <app-button variant="secondary" size="sm" (click)="closeLineModal()">Cancel</app-button>
+    <app-button
+      variant="primary"
+      size="sm"
+      [disabled]="isSavingLine"
+      (click)="saveLine()"
+    >
+      <svg *ngIf="isSavingLine" class="animate-spin h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      {{ isSavingLine ? 'Saving…' : (isEditMode ? 'Update Line' : 'Add Line') }}
+    </app-button>
+  </div>
+</app-modal>

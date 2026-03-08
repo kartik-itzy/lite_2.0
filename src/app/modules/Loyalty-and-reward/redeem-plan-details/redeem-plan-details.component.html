@@ -1,0 +1,721 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <div class="flex items-center justify-between">
+
+      <!-- Back + title -->
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-md p-1.5 text-gray-500
+                 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+          title="Back to redeem plans"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-lg font-semibold text-gray-900">
+            Redeem Plan
+            <span class="ml-2 font-mono text-blue-600">{{ redeemCode }}</span>
+          </h1>
+          <p class="text-sm text-gray-500 mt-0.5">View and manage redeem header and lines</p>
+        </div>
+      </div>
+
+      <!-- Saving indicator -->
+      <div *ngIf="isSaving" class="flex items-center gap-2 text-sm text-gray-400">
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Saving…
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6 space-y-6">
+
+    <!-- ══════════════════════════════════════════════════
+         HEADER LOADING SKELETON
+    ══════════════════════════════════════════════════ -->
+    <div *ngIf="isHeaderLoading" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <app-card variant="flat" size="lg">
+        <div class="space-y-3 animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+        </div>
+      </app-card>
+      <app-card variant="flat" size="lg">
+        <div class="space-y-3 animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+        </div>
+      </app-card>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 1 — Header form (two-column card layout)
+    ══════════════════════════════════════════════════ -->
+    <div *ngIf="!isHeaderLoading && header" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+      <!-- LEFT card: identity fields -->
+      <app-card variant="flat" size="lg">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">Header Details</h2>
+
+        <div class="space-y-4">
+
+          <!-- Code (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Code</label>
+            <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5">
+              <span class="font-mono text-sm font-semibold text-gray-800">{{ header.Code }}</span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <input
+              type="text"
+              [(ngModel)]="editDescription"
+              (blur)="updateHeaderField('Description', editDescription)"
+              placeholder="Enter description"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Active Date -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Active Date</label>
+            <input
+              type="date"
+              [(ngModel)]="editActiveDate"
+              (blur)="updateHeaderField('ActiveDate', editActiveDate)"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Expiry Date -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+            <input
+              type="date"
+              [(ngModel)]="editExpiryDate"
+              (blur)="updateHeaderField('ExpirayDate', editExpiryDate)"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+        </div>
+      </app-card>
+
+      <!-- RIGHT card: config fields -->
+      <app-card variant="flat" size="lg">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">Configuration</h2>
+
+        <div class="space-y-4">
+
+          <!-- Display Text -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Display Text</label>
+            <input
+              type="text"
+              [(ngModel)]="editDisplayText"
+              (blur)="updateHeaderField('DisplayText', editDisplayText)"
+              placeholder="Enter display text"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Terms & Conditions (header level) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Terms &amp; Conditions</label>
+            <textarea
+              rows="3"
+              [(ngModel)]="editTerms"
+              (blur)="updateHeaderField('Termsandconditions', editTerms)"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Plan Status -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Plan Status</label>
+            <app-select
+              [options]="statusOptions"
+              [(ngModel)]="editPlanStatus"
+              (ngModelChange)="confirmAndUpdateHeader('PlanStatus', $event, header.PlanStatus)"
+            ></app-select>
+          </div>
+
+          <!-- Update to VD -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Update to VD</label>
+            <app-select
+              [options]="updateToVDOptions"
+              [(ngModel)]="editUpdateToVD"
+              (ngModelChange)="confirmAndUpdateHeader('UpdateToVD', $event, header.UpdateToVD)"
+            ></app-select>
+          </div>
+
+          <!-- Status chip row -->
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100 mt-4">
+            <app-badge size="sm" [rounded]="true" [variant]="getStatusVariant(header.PlanStatus)">
+              {{ header.PlanStatus || '—' }}
+            </app-badge>
+            <span class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+              {{ header.RedeemType || '—' }}
+            </span>
+            <span *ngIf="header.LastModifiedOn"
+              class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500">
+              Last modified: {{ header.LastModifiedOn }}
+            </span>
+          </div>
+
+        </div>
+      </app-card>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 2 — Redeem Lines (no tab wrapper)
+    ══════════════════════════════════════════════════ -->
+    <app-card variant="flat" size="lg">
+
+      <!-- Card header row -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-base font-semibold text-gray-800">Redeem Lines</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Code: <strong>{{ redeemCode }}</strong></p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+
+          <!-- Export -->
+          <app-export-excel
+            [data]="lines"
+            [columns]="exportColumns"
+            [config]="{ fileName: 'redeem-lines-' + redeemCode, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+
+          <!-- Add Line -->
+          <app-button
+            variant="primary"
+            size="sm"
+            icon="M12 4.5v15m7.5-7.5h-15"
+            (clicked)="openAddLineModal()"
+          >
+            Add Line
+          </app-button>
+
+        </div>
+      </div>
+
+      <!-- Lines table -->
+      <app-table
+        [columns]="linesColumns"
+        [rows]="lines"
+        [config]="linesConfig"
+        (pageChange)="onPageChange($event)"
+      >
+
+        <!-- Line Type pill -->
+        <ng-template appTableCell="LineType" let-value>
+          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+            [ngClass]="getLineTypeClass(value)">
+            {{ value || '—' }}
+          </span>
+        </ng-template>
+
+        <!-- Line Code -->
+        <ng-template appTableCell="LineCode" let-value>
+          <span class="font-mono text-sm" [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+
+        <!-- Deal Code -->
+        <ng-template appTableCell="DealCode" let-value>
+          <span class="text-sm" [class.text-gray-400]="!value">{{ value || '—' }}</span>
+        </ng-template>
+
+        <!-- Image thumbnail -->
+        <ng-template appTableCell="imagepath" let-value let-row="row">
+          <button
+            type="button"
+            (click)="openImageModal(row)"
+            class="group relative flex items-center justify-center"
+            title="Manage image"
+          >
+            <img
+              *ngIf="value; else noImg"
+              [src]="value"
+              class="h-10 w-10 rounded object-cover ring-1 ring-gray-200
+                     group-hover:ring-blue-400 transition-all"
+              alt="Line image"
+            />
+            <ng-template #noImg>
+              <div class="flex h-10 w-10 items-center justify-center rounded border-2 border-dashed
+                          border-gray-300 bg-gray-50 text-gray-400 group-hover:border-blue-400
+                          group-hover:text-blue-500 transition-all">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"/>
+                </svg>
+              </div>
+            </ng-template>
+          </button>
+        </ng-template>
+
+        <!-- T&C button -->
+        <ng-template appTableCell="Termsandconditions" let-value let-row="row">
+          <button
+            type="button"
+            (click)="openTCModal(row)"
+            class="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white
+                   px-2.5 py-1 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50
+                   hover:text-gray-800 transition-colors"
+            title="View / edit terms"
+          >
+            <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0
+                01 13.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5
+                3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504
+                1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0
+                00-9-9z"/>
+            </svg>
+            T&amp;C
+          </button>
+        </ng-template>
+
+        <!-- Actions -->
+        <ng-template appTableCell="actions" let-row="row">
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              (click)="openEditLine(row)"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-500
+                     hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              title="Edit line"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582
+                  16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0
+                  011.13-1.897l8.932-8.931z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              (click)="deleteLine(row)"
+              class="inline-flex items-center justify-center p-2 rounded-md text-red-500
+                     hover:bg-red-50 hover:text-red-700 transition-colors"
+              title="Delete line"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107
+                  1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084
+                  a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0
+                  00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11
+                  0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
+                  51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667
+                  48.667 0 00-7.5 0"/>
+              </svg>
+            </button>
+          </div>
+        </ng-template>
+
+      </app-table>
+    </app-card>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ADD LINE MODAL
+══════════════════════════════════════════════════ -->
+<app-modal [isOpen]="showAddLineModal" [config]="addLineModalConfig" (closeModal)="closeAddLineModal()">
+
+  <div class="space-y-4">
+
+    <!-- Line Type -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Line Type <span class="text-red-500">*</span></label>
+      <app-select [options]="lineTypeOptions" [(ngModel)]="newLine.LineType"></app-select>
+    </div>
+
+    <!-- Line Code (COUPON) -->
+    <div *ngIf="newLine.LineType === 'COUPON'">
+      <label class="block text-sm font-medium text-gray-700 mb-1">
+        Line Code (Coupon) <span class="text-red-500">*</span>
+      </label>
+      <div class="flex gap-2">
+        <input
+          type="text"
+          [(ngModel)]="newLine.LineCode"
+          placeholder="e.g. CPN"
+          class="block flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+        <app-button variant="secondary" size="sm" (clicked)="openCouponLookup()">Lookup</app-button>
+      </div>
+    </div>
+
+    <!-- Deal Code (DEAL) -->
+    <div *ngIf="newLine.LineType === 'DEAL'">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Deal Code <span class="text-red-500">*</span></label>
+      <div class="flex gap-2">
+        <input
+          type="text"
+          [(ngModel)]="newLine.DealCode"
+          placeholder="Deal code"
+          class="block flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+        <app-button variant="secondary" size="sm" (clicked)="openDealLookup()">Lookup</app-button>
+      </div>
+      <p *ngIf="newLine.LineCode" class="mt-1.5 text-xs text-gray-500">
+        Linked coupon: <span class="font-mono font-medium text-gray-700">{{ newLine.LineCode }}</span>
+      </p>
+    </div>
+
+    <!-- Line Value -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Line Value</label>
+      <input
+        type="number"
+        [(ngModel)]="newLine.LineValue"
+        placeholder="e.g. 5"
+        class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+               text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+               focus:ring-1 focus:ring-blue-500 transition-all"
+      />
+    </div>
+
+    <!-- Date row -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Active Date <span class="text-red-500">*</span></label>
+        <input
+          type="date"
+          [(ngModel)]="newLine.ActiveDate"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date <span class="text-red-500">*</span></label>
+        <input
+          type="date"
+          [(ngModel)]="newLine.ExpiryDate"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+      </div>
+    </div>
+
+    <!-- Display Text -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Display Text</label>
+      <input
+        type="text"
+        [(ngModel)]="newLine.DisplayText"
+        placeholder="Short display text"
+        class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+               text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+               focus:ring-1 focus:ring-blue-500 transition-all"
+      />
+    </div>
+
+  </div>
+
+  <div modal-footer class="flex gap-3">
+    <app-button variant="ghost" size="sm" (clicked)="closeAddLineModal()">Cancel</app-button>
+    <app-button variant="primary" size="sm" [loading]="isAddingLine" (clicked)="submitAddLine()">
+      Add Line
+    </app-button>
+  </div>
+</app-modal>
+
+<!-- ══════════════════════════════════════════════════
+     EDIT LINE MODAL
+══════════════════════════════════════════════════ -->
+<app-modal [isOpen]="showEditLineModal" [config]="editLineModalConfig" (closeModal)="closeEditLineModal()">
+
+  <div class="space-y-4">
+
+    <!-- Line Type (read-only in edit) -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Line Type</label>
+      <div class="flex items-center rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5">
+        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+          [ngClass]="getLineTypeClass(editLine.LineType || '')">
+          {{ editLine.LineType || '—' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Line Code (COUPON) -->
+    <div *ngIf="editLine.LineType === 'COUPON'">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Line Code</label>
+      <div class="flex gap-2">
+        <input
+          type="text"
+          [(ngModel)]="editLine.LineCode"
+          class="block flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+        <app-button variant="secondary" size="sm" (clicked)="openCouponLookup()">Lookup</app-button>
+      </div>
+    </div>
+
+    <!-- Deal Code (DEAL) -->
+    <div *ngIf="editLine.LineType === 'DEAL'">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Deal Code</label>
+      <div class="flex gap-2">
+        <input
+          type="text"
+          [(ngModel)]="editLine.DealCode"
+          class="block flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+        <app-button variant="secondary" size="sm" (clicked)="openDealLookup()">Lookup</app-button>
+      </div>
+      <p *ngIf="editLine.LineCode" class="mt-1.5 text-xs text-gray-500">
+        Linked coupon: <span class="font-mono font-medium text-gray-700">{{ editLine.LineCode }}</span>
+      </p>
+    </div>
+
+    <!-- Line Value -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Line Value</label>
+      <input
+        type="number"
+        [(ngModel)]="editLine.LineValue"
+        class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+               text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+               focus:ring-1 focus:ring-blue-500 transition-all"
+      />
+    </div>
+
+    <!-- Date row -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Active Date</label>
+        <input
+          type="date"
+          [(ngModel)]="editLine.ActiveDate"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+        <input
+          type="date"
+          [(ngModel)]="editLine.ExpiryDate"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+      </div>
+    </div>
+
+    <!-- Display Text -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Display Text</label>
+      <input
+        type="text"
+        [(ngModel)]="editLine.DisplayText"
+        class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+               text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+               focus:ring-1 focus:ring-blue-500 transition-all"
+      />
+    </div>
+
+  </div>
+
+  <div modal-footer class="flex gap-3">
+    <app-button variant="ghost" size="sm" (clicked)="closeEditLineModal()">Cancel</app-button>
+    <app-button variant="primary" size="sm" [loading]="isUpdatingLine" (clicked)="submitEditLine()">
+      Save Changes
+    </app-button>
+  </div>
+</app-modal>
+
+<!-- ══════════════════════════════════════════════════
+     TERMS & CONDITIONS MODAL
+══════════════════════════════════════════════════ -->
+<app-modal [isOpen]="showTCModal" [config]="tcModalConfig" (closeModal)="closeTCModal()">
+
+  <div class="space-y-3">
+    <p *ngIf="tcLine" class="text-sm text-gray-500">
+      Line <span class="font-mono font-medium text-gray-700">#{{ tcLine.LineNo }}</span>
+      — type <span class="font-medium">{{ tcLine.LineType }}</span>
+    </p>
+    <textarea
+      rows="10"
+      [(ngModel)]="tcEditValue"
+      placeholder="Enter terms and conditions…"
+      class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-3 text-sm
+             text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+             focus:ring-1 focus:ring-blue-500 transition-all resize-y font-mono"
+    ></textarea>
+  </div>
+
+  <div modal-footer class="flex gap-3">
+    <app-button variant="ghost" size="sm" (clicked)="closeTCModal()">Cancel</app-button>
+    <app-button variant="primary" size="sm" [loading]="isSavingTC" (clicked)="saveTAndC()">
+      Save T&amp;C
+    </app-button>
+  </div>
+</app-modal>
+
+<!-- ══════════════════════════════════════════════════
+     COUPON LOOKUP MODAL
+══════════════════════════════════════════════════ -->
+<app-modal [isOpen]="showCouponLookup" [config]="couponLookupModalConfig"
+  (closeModal)="showCouponLookup = false">
+
+  <app-table
+    [columns]="couponLookupColumns"
+    [rows]="couponDropdownItems"
+    [config]="couponLookupConfig"
+  >
+    <ng-template appTableCell="select" let-row="row">
+      <app-button variant="primary" size="sm"
+        (clicked)="showEditLineModal ? selectCouponForEdit(row) : selectCoupon(row)">
+        Select
+      </app-button>
+    </ng-template>
+  </app-table>
+
+  <div modal-footer>
+    <app-button variant="ghost" size="sm" (clicked)="showCouponLookup = false">Close</app-button>
+  </div>
+</app-modal>
+
+<!-- ══════════════════════════════════════════════════
+     DEAL LOOKUP MODAL
+══════════════════════════════════════════════════ -->
+<app-modal [isOpen]="showDealLookup" [config]="dealLookupModalConfig"
+  (closeModal)="showDealLookup = false">
+
+  <app-table
+    [columns]="dealLookupColumns"
+    [rows]="dealDropdownItems"
+    [config]="dealLookupConfig"
+  >
+    <ng-template appTableCell="select" let-row="row">
+      <app-button variant="primary" size="sm"
+        (clicked)="showEditLineModal ? selectDealForEdit(row) : selectDeal(row)">
+        Select
+      </app-button>
+    </ng-template>
+  </app-table>
+
+  <div modal-footer>
+    <app-button variant="ghost" size="sm" (clicked)="showDealLookup = false">Close</app-button>
+  </div>
+</app-modal>
+
+<!-- ══════════════════════════════════════════════════
+     IMAGE MODAL
+══════════════════════════════════════════════════ -->
+<app-modal [isOpen]="showImageModal" [config]="imageModalConfig" (closeModal)="closeImageModal()">
+
+  <div class="space-y-5">
+
+    <!-- Current image preview -->
+    <div class="flex flex-col items-center gap-4">
+      <div *ngIf="imageLine?.imagepath; else noImagePlaceholder"
+        class="relative rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+        <img [src]="imageLine!.imagepath!" alt="Line image" class="h-48 w-48 object-cover" />
+        <app-button
+          variant="danger"
+          size="sm"
+          [loading]="isDeletingImage"
+          (clicked)="deleteImage()"
+          class="absolute top-2 right-2"
+        >
+          Delete
+        </app-button>
+      </div>
+      <ng-template #noImagePlaceholder>
+        <div class="flex h-32 w-32 items-center justify-center rounded-xl border-2 border-dashed
+                    border-gray-300 bg-gray-50 text-gray-400">
+          <svg class="h-10 w-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="m2.25 15.75 5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5
+              1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0
+              001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0
+              001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0
+              .375.375 0 01.75 0z"/>
+          </svg>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="rounded-lg border-2 border-dashed border-gray-300 p-5 text-center hover:border-blue-400
+                transition-colors">
+      <label class="cursor-pointer">
+        <div class="flex flex-col items-center gap-2 text-gray-500">
+          <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021
+              18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+          </svg>
+          <span class="text-sm font-medium text-blue-600">Click to upload</span>
+          <span class="text-xs text-gray-400">PNG only · 500×500 px to 1000×1000 px · 72–92 dpi</span>
+        </div>
+        <input
+          #imageFileInput
+          type="file"
+          accept=".png"
+          class="hidden"
+          (change)="uploadImage($event)"
+        />
+      </label>
+      <div *ngIf="isUploadingImage" class="mt-3 flex items-center justify-center gap-2 text-sm text-blue-600">
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Uploading…
+      </div>
+    </div>
+
+  </div>
+
+  <div modal-footer>
+    <app-button variant="ghost" size="sm" (clicked)="closeImageModal()">Close</app-button>
+  </div>
+</app-modal>

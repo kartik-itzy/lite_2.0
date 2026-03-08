@@ -1,1 +1,186 @@
-<p>members works!</p>
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <div class="flex flex-wrap items-center gap-4">
+      <div>
+        <h1 class="text-lg font-semibold text-gray-900">Members</h1>
+        <p class="text-sm text-gray-500 mt-0.5">
+          Total: <span class="font-semibold text-gray-700">{{ totalCount | number }}</span>
+          <ng-container *ngIf="!isSearchMode">
+            &nbsp;·&nbsp; Page {{ currentPage }} of {{ pageCount }}
+          </ng-container>
+          <ng-container *ngIf="isSearchMode">
+            &nbsp;·&nbsp; Search results
+          </ng-container>
+          &nbsp;·&nbsp; Click a row to configure manual member level
+        </p>
+      </div>
+
+      <div class="ml-auto flex items-center gap-2">
+        <!-- Search -->
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch($event)"
+            placeholder="Search members…"
+            class="pl-9 pr-4 py-2 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-56"
+          >
+        </div>
+
+        <!-- Export all (CSV via API) -->
+        <app-button variant="secondary" size="sm" [disabled]="isExporting" (click)="onExportAll()" icon="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3">
+          {{ isExporting ? 'Exporting…' : 'Export All' }}
+        </app-button>
+
+        <!-- Export visible page -->
+        <app-export-excel
+          [data]="members"
+          [columns]="exportColumns"
+          [config]="{ fileName: 'members-page-' + currentPage, buttonLabel: 'Export Page', variant: 'outline', size: 'sm' }"
+        ></app-export-excel>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       TABLE
+  ══════════════════════════════════════════════════ -->
+  <div class="p-6">
+    <app-card variant="flat" size="lg">
+      <app-table
+        [columns]="tableColumns"
+        [rows]="members"
+        [config]="tableConfig"
+        (rowClick)="onRowClick($event)"
+        (pageChange)="onPageChange($event)"
+      >
+
+        <!-- Status badge -->
+        <ng-template appTableCell="CurrentStatus" let-value>
+          <app-badge size="sm" [rounded]="true" [variant]="getStatusVariant(value)">
+            {{ value || '—' }}
+          </app-badge>
+        </ng-template>
+
+        <!-- Email — truncate long addresses -->
+        <ng-template appTableCell="email" let-value>
+          <span class="text-sm text-gray-600 truncate block max-w-[200px]" [title]="value">{{ value || '—' }}</span>
+        </ng-template>
+
+        <!-- Card type — pill -->
+        <ng-template appTableCell="CardType" let-value>
+          <span *ngIf="value"
+            class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+            {{ value }}
+          </span>
+          <span *ngIf="!value" class="text-gray-400">—</span>
+        </ng-template>
+
+      </app-table>
+
+      <!-- ── Server-side pagination controls ── -->
+      <div *ngIf="!isSearchMode && pageCount > 1"
+        class="flex items-center justify-between border-t border-gray-100 pt-4 mt-2">
+
+        <p class="text-sm text-gray-500">
+          Page <span class="font-medium text-gray-700">{{ currentPage }}</span>
+          of <span class="font-medium text-gray-700">{{ pageCount }}</span>
+          &nbsp;·&nbsp;
+          <span class="font-medium text-gray-700">{{ totalCount | number }}</span> total members
+        </p>
+
+        <div class="flex items-center gap-1">
+          <!-- First -->
+          <button
+            (click)="goToPage(1)"
+            [disabled]="currentPage === 1 || isLoading"
+            class="px-2.5 py-1.5 rounded-lg text-sm border transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            [class.border-gray-300]="currentPage !== 1"
+            [class.hover:bg-gray-50]="currentPage !== 1"
+            [class.text-gray-600]="currentPage !== 1"
+            [class.border-gray-200]="currentPage === 1"
+            [class.text-gray-300]="currentPage === 1"
+          >
+            «
+          </button>
+
+          <!-- Prev -->
+          <button
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1 || isLoading"
+            class="px-3 py-1.5 rounded-lg text-sm border transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+            [class.border-gray-300]="currentPage !== 1"
+            [class.hover:bg-gray-50]="currentPage !== 1"
+            [class.text-gray-600]="currentPage !== 1"
+            [class.border-gray-200]="currentPage === 1"
+            [class.text-gray-300]="currentPage === 1"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+            </svg>
+            Prev
+          </button>
+
+          <!-- Page number pills (show up to 5 around current) -->
+          <ng-container *ngFor="let p of getPageNumbers()">
+            <button
+              (click)="goToPage(p)"
+              [disabled]="isLoading"
+              class="w-9 h-9 rounded-lg text-sm border transition-colors disabled:cursor-not-allowed"
+              [class.bg-blue-600]="p === currentPage"
+              [class.text-white]="p === currentPage"
+              [class.border-blue-600]="p === currentPage"
+              [class.font-semibold]="p === currentPage"
+              [class.border-gray-300]="p !== currentPage"
+              [class.text-gray-600]="p !== currentPage"
+              [class.hover:bg-gray-50]="p !== currentPage"
+            >
+              {{ p }}
+            </button>
+          </ng-container>
+
+          <!-- Next -->
+          <button
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === pageCount || isLoading"
+            class="px-3 py-1.5 rounded-lg text-sm border transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+            [class.border-gray-300]="currentPage !== pageCount"
+            [class.hover:bg-gray-50]="currentPage !== pageCount"
+            [class.text-gray-600]="currentPage !== pageCount"
+            [class.border-gray-200]="currentPage === pageCount"
+            [class.text-gray-300]="currentPage === pageCount"
+          >
+            Next
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+            </svg>
+          </button>
+
+          <!-- Last -->
+          <button
+            (click)="goToPage(pageCount)"
+            [disabled]="currentPage === pageCount || isLoading"
+            class="px-2.5 py-1.5 rounded-lg text-sm border transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            [class.border-gray-300]="currentPage !== pageCount"
+            [class.hover:bg-gray-50]="currentPage !== pageCount"
+            [class.text-gray-600]="currentPage !== pageCount"
+            [class.border-gray-200]="currentPage === pageCount"
+            [class.text-gray-300]="currentPage === pageCount"
+          >
+            »
+          </button>
+        </div>
+      </div>
+
+    </app-card>
+  </div>
+
+</div>

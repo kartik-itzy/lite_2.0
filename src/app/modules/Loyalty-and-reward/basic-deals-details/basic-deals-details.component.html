@@ -1,0 +1,495 @@
+<div class="min-h-screen bg-gray-50">
+
+  <!-- ══════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-40 bg-white border-b border-gray-200 px-6 py-3">
+    <div class="flex items-center justify-between">
+
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="inline-flex items-center justify-center rounded-md p-1.5 text-gray-500
+                 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+          title="Back to basic deals"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+          </svg>
+        </button>
+        <div>
+          <h1 class="text-lg font-semibold text-gray-900">
+            Basic Deal
+            <span class="ml-2 font-mono text-blue-600">{{ dealCode }}</span>
+          </h1>
+          <p class="text-sm text-gray-500 mt-0.5">View and manage deal header and lines</p>
+        </div>
+      </div>
+
+      <!-- Saving indicator -->
+      <div *ngIf="isSaving" class="flex items-center gap-2 text-sm text-gray-400">
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Saving…
+      </div>
+    </div>
+  </div>
+
+  <div class="p-6 space-y-6">
+
+    <!-- ══════════════════════════════════════════════════
+         HEADER SKELETON
+    ══════════════════════════════════════════════════ -->
+    <div *ngIf="isHeaderLoading" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <app-card variant="flat" size="lg">
+        <div class="space-y-3 animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+        </div>
+      </app-card>
+      <app-card variant="flat" size="lg">
+        <div class="space-y-3 animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+          <div class="h-10 bg-gray-100 rounded"></div>
+        </div>
+      </app-card>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 1 — Header (two cards)
+    ══════════════════════════════════════════════════ -->
+    <div *ngIf="!isHeaderLoading && header" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+      <!-- LEFT — identity fields -->
+      <app-card variant="flat" size="lg">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">Deal Details</h2>
+
+        <div class="space-y-4">
+
+          <!-- Deal Code (read-only) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deal Code</label>
+            <div class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5">
+              <span class="font-mono text-sm font-semibold text-gray-800">{{ header.DealCode }}</span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <input
+              type="text"
+              [(ngModel)]="editDescription"
+              (blur)="updateHeaderField('Description', editDescription)"
+              placeholder="Enter description"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Starting Date -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Starting Date</label>
+            <input
+              type="date"
+              [(ngModel)]="editStartingDate"
+              (blur)="updateHeaderField('StartingDate', editStartingDate)"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Ending Date -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ending Date</label>
+            <input
+              type="date"
+              [(ngModel)]="editEndingDate"
+              (blur)="updateHeaderField('EndingDate', editEndingDate)"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Coupon Code — disabled unless DealUseCoupon is on -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
+            <app-select
+              [options]="couponOptions"
+              [(ngModel)]="editCouponCode"
+              [disabled]="!editDealUseCoupon"
+              (ngModelChange)="onSelectChanged('CouponCode', $event)"
+            ></app-select>
+            <p *ngIf="!editDealUseCoupon" class="mt-1 text-xs text-gray-400">
+              Enable "Deal Use Coupon" to activate this field.
+            </p>
+          </div>
+
+        </div>
+      </app-card>
+
+      <!-- RIGHT — config fields -->
+      <app-card variant="flat" size="lg">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-5">Configuration</h2>
+
+        <div class="space-y-4">
+
+          <!-- Maximum Qty -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Maximum Qty</label>
+            <input
+              type="number"
+              [(ngModel)]="editMaximumQty"
+              (blur)="updateHeaderField('MaximumQty', editMaximumQty)"
+              placeholder="0"
+              min="0"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Deal Price -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deal Price</label>
+            <input
+              type="number"
+              [(ngModel)]="editDealPrice"
+              (blur)="updateHeaderField('DealPrice', editDealPrice)"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                     text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                     focus:ring-1 focus:ring-blue-500 transition-all"
+            />
+          </div>
+
+          <!-- Active — confirm on change -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Active</label>
+            <app-select
+              [options]="activeOptions"
+              [(ngModel)]="editActive"
+              (ngModelChange)="onSelectChanged('Active', $event)"
+            ></app-select>
+          </div>
+
+          <!-- Deal Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Deal Type</label>
+            <app-select
+              [options]="dealTypeOptions"
+              [(ngModel)]="editDealType"
+              (ngModelChange)="onSelectChanged('DealType', $event)"
+            ></app-select>
+          </div>
+
+          <!-- VAT / Tax Group -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tax Group</label>
+            <app-select
+              [options]="vatGroupOptions"
+              [(ngModel)]="editVatGroup"
+              (ngModelChange)="onSelectChanged('VATProdPostGroup', $event)"
+            ></app-select>
+          </div>
+
+          <!-- Deal Use Coupon — app-switch -->
+          <div class="flex items-start justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+            <div>
+              <p class="text-sm font-medium text-gray-800">Deal Use Coupon</p>
+              <p class="text-xs text-gray-500 mt-0.5">
+                {{ editDealUseCoupon ? 'Coupon code selection is enabled' : 'Coupon code selection is disabled' }}
+              </p>
+            </div>
+            <app-switch
+              [checked]="editDealUseCoupon"
+              (checkedChange)="onDealUseCouponChange($event)"
+              [config]="{ variant: 'primary', size: 'md' }"
+            ></app-switch>
+          </div>
+
+          <!-- Status badge row -->
+          <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+            <app-badge size="sm" [rounded]="true" [variant]="getActiveVariant(header.Active)">
+              {{ header.Active || '—' }}
+            </app-badge>
+            <span *ngIf="header.DealType"
+              class="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+              {{ header.DealType }}
+            </span>
+          </div>
+
+        </div>
+      </app-card>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         ROW 2 — Deal Lines (no tab wrapper)
+    ══════════════════════════════════════════════════ -->
+    <app-card variant="flat" size="lg">
+
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-base font-semibold text-gray-800">Deal Lines</h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Items included in deal <span class="font-mono font-medium text-gray-700">{{ dealCode }}</span>
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <app-export-excel
+            [data]="lines"
+            [columns]="exportColumns"
+            [config]="{ fileName: 'deal-lines-' + dealCode, buttonLabel: 'Export', variant: 'outline', size: 'sm' }"
+          ></app-export-excel>
+
+          <app-button
+            variant="primary"
+            size="sm"
+            icon="M12 4.5v15m7.5-7.5h-15"
+            (clicked)="openAddLineModal()"
+          >
+            Add Line
+          </app-button>
+        </div>
+      </div>
+
+      <app-table
+        [columns]="linesColumns"
+        [rows]="lines"
+        [config]="linesConfig"
+        (pageChange)="onPageChange($event)"
+      >
+
+        <!-- Item Code -->
+        <ng-template appTableCell="ItemCode" let-value>
+          <span class="font-mono text-sm font-medium text-gray-800">{{ value || '—' }}</span>
+        </ng-template>
+
+        <!-- Item Mandatory badge -->
+        <ng-template appTableCell="ItemMandatory" let-value>
+          <app-badge size="sm" [rounded]="true"
+            [variant]="value === 'Yes' ? 'success' : 'secondary'">
+            {{ value || 'No' }}
+          </app-badge>
+        </ng-template>
+
+        <!-- Quantity -->
+        <ng-template appTableCell="Quantity" let-value>
+          <span class="text-sm tabular-nums">{{ value ?? '—' }}</span>
+        </ng-template>
+
+        <!-- Price -->
+        <ng-template appTableCell="Price" let-value>
+          <span class="text-sm tabular-nums font-medium">
+            {{ value != null ? (value | number:'1.2-2') : '—' }}
+          </span>
+        </ng-template>
+
+        <!-- Actions -->
+        <ng-template appTableCell="actions" let-row="row">
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              (click)="openEditLineModal(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-500
+                     hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              title="Edit line"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582
+                  16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0
+                  011.13-1.897l8.932-8.931z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              (click)="deleteLine(row); $event.stopPropagation()"
+              class="inline-flex items-center justify-center p-2 rounded-md text-red-500
+                     hover:bg-red-50 hover:text-red-700 transition-colors"
+              title="Delete line"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107
+                  1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084
+                  a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0
+                  00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11
+                  0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964
+                  51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667
+                  48.667 0 00-7.5 0"/>
+              </svg>
+            </button>
+          </div>
+        </ng-template>
+
+      </app-table>
+    </app-card>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ADD / EDIT LINE MODAL
+══════════════════════════════════════════════════ -->
+<app-modal [isOpen]="showLineModal" [config]="lineModalConfig" (closeModal)="closeLineModal()">
+
+  <div class="space-y-4">
+
+    <!-- Item Code + Lookup -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">
+        Item Code <span class="text-red-500">*</span>
+      </label>
+      <div class="flex gap-2">
+        <input
+          type="text"
+          [(ngModel)]="lineForm.ItemCode"
+          placeholder="e.g. ITEM001"
+          class="block flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all font-mono"
+        />
+        <app-button variant="secondary" size="sm" (clicked)="openItemLookup()">
+          <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+          </svg>
+          Lookup
+        </app-button>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+      <input
+        type="text"
+        [(ngModel)]="lineForm.Description"
+        placeholder="Item description"
+        class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+               text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+               focus:ring-1 focus:ring-blue-500 transition-all"
+      />
+    </div>
+
+    <!-- Base UOM -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Base UOM</label>
+      <input
+        type="text"
+        [(ngModel)]="lineForm.BaseUOM"
+        placeholder="e.g. EA, KG"
+        class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+               text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+               focus:ring-1 focus:ring-blue-500 transition-all"
+      />
+    </div>
+
+    <!-- Quantity + Price row -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+        <input
+          type="number"
+          [(ngModel)]="lineForm.Quantity"
+          placeholder="1"
+          min="0"
+          step="0.01"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Price</label>
+        <input
+          type="number"
+          [(ngModel)]="lineForm.Price"
+          placeholder="0.00"
+          min="0"
+          step="0.01"
+          class="block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm
+                 text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none
+                 focus:ring-1 focus:ring-blue-500 transition-all"
+        />
+      </div>
+    </div>
+
+    <!-- Item Mandatory — app-switch -->
+    <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+      <div>
+        <p class="text-sm font-medium text-gray-800">Item Mandatory</p>
+        <p class="text-xs text-gray-500 mt-0.5">
+          {{ lineForm.ItemMandatory === 'Yes' ? 'Item is mandatory in this deal' : 'Item is optional' }}
+        </p>
+      </div>
+      <app-switch
+        [checked]="lineForm.ItemMandatory === 'Yes'"
+        (checkedChange)="lineForm.ItemMandatory = $event ? 'Yes' : 'No'"
+        [config]="{ variant: 'success', size: 'md' }"
+      ></app-switch>
+    </div>
+
+  </div>
+
+  <div modal-footer class="flex gap-3">
+    <app-button variant="ghost" size="sm" (clicked)="closeLineModal()">Cancel</app-button>
+    <app-button
+      variant="primary"
+      size="sm"
+      [loading]="isSavingLine"
+      (clicked)="submitLine()"
+    >
+      {{ isLineEditing ? 'Save Changes' : 'Add Line' }}
+    </app-button>
+  </div>
+</app-modal>
+
+<!-- ══════════════════════════════════════════════════
+     ITEM LOOKUP MODAL
+══════════════════════════════════════════════════ -->
+<app-modal
+  [isOpen]="showItemLookup"
+  [config]="itemLookupModalConfig"
+  (closeModal)="showItemLookup = false"
+>
+
+  <app-table
+    [columns]="itemLookupColumns"
+    [rows]="itemLookupItems"
+    [config]="itemLookupConfig"
+  >
+
+    <!-- Unit Price formatted -->
+    <ng-template appTableCell="UnitPrice" let-value>
+      <span class="text-sm tabular-nums">{{ value | number:'1.2-2' }}</span>
+    </ng-template>
+
+    <!-- Select button -->
+    <ng-template appTableCell="select" let-row="row">
+      <app-button variant="primary" size="sm" (clicked)="selectItem(row)">
+        Select
+      </app-button>
+    </ng-template>
+
+  </app-table>
+
+  <div modal-footer>
+    <app-button variant="ghost" size="sm" (clicked)="showItemLookup = false">Close</app-button>
+  </div>
+</app-modal>
